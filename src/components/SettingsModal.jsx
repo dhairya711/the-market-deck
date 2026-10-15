@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { X, Plus, Trash2, Sliders, Check, Sparkles, RefreshCw } from 'lucide-react';
+import { getIndianStockProfile } from '../data/indianMarketDirectory';
 
 export function SettingsModal({
   settings,
@@ -26,21 +27,22 @@ export function SettingsModal({
     e.preventDefault();
     if (!newStockSymbol.trim()) return;
 
-    const sym = newStockSymbol.trim().toUpperCase().replace('$', '');
+    const sym = newStockSymbol.trim().toUpperCase().replace(/[₹$]/g, '');
     const exists = localWatchlist.some((s) => s.symbol === sym);
     if (exists) {
       alert(`Ticker ${sym} is already in your watchlist.`);
       return;
     }
 
+    const resolved = getIndianStockProfile(sym);
     const newStock = {
       symbol: sym,
-      name: newStockName.trim() || sym,
-      price: '$' + (Math.random() * 200 + 50).toFixed(2),
-      change: '+1.50%',
-      up: true,
-      sector: newStockSector.trim() || 'General Equities',
-      sentiment: 'Bullish',
+      name: newStockName.trim() || resolved.name,
+      price: resolved.price,
+      change: resolved.change || '+1.50%',
+      up: resolved.up !== false,
+      sector: newStockSector.trim() || resolved.sector,
+      sentiment: resolved.sentiment || 'Bullish',
     };
 
     setLocalWatchlist([...localWatchlist, newStock]);

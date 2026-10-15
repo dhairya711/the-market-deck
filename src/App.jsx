@@ -25,6 +25,7 @@ import {
   simulateMarketPulse,
   fetchLiveMarketQuotes,
   fetchLiveRssNews,
+  updateWatchlistQuotes,
 } from './services/newsService';
 
 export function App() {
@@ -42,6 +43,7 @@ export function App() {
   const [stories, setStories] = useState(loadPersistedNews);
   const [activeCategory, setActiveCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [isWatchlistOnly, setIsWatchlistOnly] = useState(false);
   const [bookmarkedIds, setBookmarkedIds] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('tfg_bookmarks') || '[]');
@@ -93,21 +95,60 @@ export function App() {
     localStorage.setItem('tfg_bookmarks', JSON.stringify(bookmarkedIds));
   }, [bookmarkedIds]);
 
-  // Master Refresh Function: Fetches live Yahoo Finance quotes & Economic Times RSS feeds
+  // Watchlist Actions: Add, Remove, and Dispatch Research
+  const handleAddStockToWatchlist = (stock) => {
+    if (!stock || !stock.symbol) return;
+    const sym = stock.symbol.toUpperCase().replace(/[₹$]/g, '');
+    if (watchlist.some((s) => s.symbol === sym)) {
+      addToast(`${sym} is already in your radar`);
+      return;
+    }
+    const updated = [stock, ...watchlist];
+    setWatchlist(updated);
+    saveWatchlist(updated);
+    addToast(`Added ${sym} (${stock.name || sym}) to Portfolio Radar!`, 'info');
+  };
+
+  const handleRemoveStockFromWatchlist = (symbol) => {
+    const updated = watchlist.filter((s) => s.symbol !== symbol);
+    setWatchlist(updated);
+    saveWatchlist(updated);
+    addToast(`Removed ${symbol} from Watchlist`, 'info');
+  };
+
+  const handleOpenResearchForStock = (symbol) => {
+    const el = document.getElementById('stock-research-desk');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+    // Dispatch custom event to notify StockResearchDesk
+    window.dispatchEvent(
+      new CustomEvent('tfg_open_stock_research', { detail: { symbol } })
+    );
+  };
+
+  // Master Refresh Function: Multi-Source Indian feeds & Live Price Ticks
   const triggerRefresh = async (isAuto = false) => {
     setIsRefreshing(true);
 
     try {
-      // 1. Fetch real live quotes from Yahoo Finance
+      // 1. Fetch real quotes from Indian index benchmarks
       const liveIndices = await fetchLiveMarketQuotes(indices);
       setIndices(liveIndices);
 
-      // 2. Fetch live real-time RSS news from Economic Times wires
+      // 2. Pulse user watchlist prices in Rupees (₹)
+      setWatchlist((prev) => {
+        const updated = updateWatchlistQuotes(prev);
+        saveWatchlist(updated);
+        return updated;
+      });
+
+      // 3. Fetch live real-time multi-source news (Moneycontrol, Mint, BS, ET, Google News India)
       const liveRssStories = await fetchLiveRssNews();
 
-      // 3. Generate high-signal analytical take
-      const randomCategory = ['stonks', 'tech', 'energy', 'metal', 'yield'][
-        Math.floor(Math.random() * 5)
+      // 4. Generate high-signal analytical take
+      const randomCategory = ['good-news', 'stonks', 'politics', 'hiring', 'tech', 'energy'][
+        Math.floor(Math.random() * 6)
       ];
       const freshTake = generateFreshTopicTake(randomCategory, stories, settings.newsVibe);
 
@@ -124,19 +165,18 @@ export function App() {
         return [freshTake, ...filtered];
       });
 
-      // 4. Update timestamps & reset 15m timer
+      // 5. Update timestamps & reset 15m timer
       const nowStr = getFormattedTime();
       setLastUpdated(nowStr);
       setCountdownSeconds((settings.refreshIntervalMinutes || 15) * 60);
 
       if (isAuto) {
-        addToast(`[15-Min Auto-Refresh] Feed updated with live market data at ${nowStr}`, 'refresh');
+        addToast(`[15-Min Auto-Refresh] Feed updated from Moneycontrol, Mint & ET at ${nowStr}`, 'refresh');
       } else {
-        addToast(`Dossier refreshed with live market quotes at ${nowStr}`, 'refresh');
+        addToast(`Dossier refreshed with multi-source Indian news wires at ${nowStr}`, 'refresh');
       }
     } catch (err) {
       console.warn('Refresh error:', err);
-      // Fallback pulse
       setIndices((prev) => simulateMarketPulse(prev));
       const nowStr = getFormattedTime();
       setLastUpdated(nowStr);
@@ -147,7 +187,7 @@ export function App() {
     }
   };
 
-  // Run live refresh once on initial load to fetch latest quotes
+  // Run live refresh once on initial load
   useEffect(() => {
     const timer = setTimeout(() => {
       triggerRefresh(false);
@@ -217,16 +257,34 @@ export function App() {
     addToast('Watchlist & invested companies updated');
   };
 
-  // Filter Stories by Category and Search Query
+  // Filter Stories by Category, Search Query, and Watchlist Only
   const filteredStories = useMemo(() => {
     return stories.filter((story) => {
-      // Category match
+      // 1. Watchlist Only Filter
+      if (isWatchlistOnly) {
+        const storyTickers = (story.tickers || []).map((t) =>
+          t.replace('$', '').toUpperCase()
+        );
+        const storyText = (story.title + ' ' + (story.summary || '')).toUpperCase();
+        const matchesWatchlist = watchlist.some((stk) => {
+          const sym = (stk.symbol || '').toUpperCase();
+          const name = (stk.name || '').toUpperCase();
+          return (
+            storyTickers.includes(sym) ||
+            storyText.includes(sym) ||
+            (name.length > 3 && storyText.includes(name))
+          );
+        });
+        if (!matchesWatchlist) return false;
+      }
+
+      // 2. Category match
       let matchCat = true;
-      if (activeCategory !== 'all' && activeCategory !== 'brain-gym') {
+      if (activeCategory !== 'all' && activeCategory !== 'brain-gym' && activeCategory !== 'stock-research') {
         matchCat = story.category === activeCategory;
       }
 
-      // Search match
+      // 3. Search match
       let matchSearch = true;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
@@ -239,11 +297,10 @@ export function App() {
 
       return matchCat && matchSearch;
     });
-  }, [stories, activeCategory, searchQuery]);
+  }, [stories, activeCategory, searchQuery, isWatchlistOnly, watchlist]);
 
   // Separate Lead story from General dossier
   const leadStory = useMemo(() => {
-    // If user filtered by search or category, pick the top result
     if (filteredStories.length === 0) return null;
     const foundLead = filteredStories.find((s) => s.isLead);
     return foundLead || filteredStories[0];
@@ -294,6 +351,38 @@ export function App() {
         <div className="broadsheet-main-grid">
           {/* Main Column: Lead Story + Dossier Grid */}
           <main>
+            {isWatchlistOnly && (
+              <div
+                style={{
+                  background: 'var(--bg-muted)',
+                  border: '1px solid var(--accent-red)',
+                  padding: '8px 14px',
+                  borderRadius: '4px',
+                  marginBottom: '14px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <span>⭐ FILTERED TO YOUR WATCHLIST ({watchlist.length} STOCKS)</span>
+                <button
+                  type="button"
+                  onClick={() => setIsWatchlistOnly(false)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    color: 'var(--accent-red)',
+                    fontWeight: 700,
+                  }}
+                >
+                  Clear Filter (Show All)
+                </button>
+              </div>
+            )}
+
             {leadStory && (
               <LeadStory
                 story={leadStory}
@@ -321,12 +410,21 @@ export function App() {
           <Sidebar
             watchlist={watchlist}
             onFilterByTicker={(ticker) => setSearchQuery(ticker)}
+            onAddStock={handleAddStockToWatchlist}
+            onRemoveStock={handleRemoveStockFromWatchlist}
+            onOpenResearch={handleOpenResearchForStock}
+            isWatchlistOnly={isWatchlistOnly}
+            onToggleWatchlistOnly={setIsWatchlistOnly}
           />
         </div>
       ) : null}
 
       {/* 5. Stock Research Terminal: 1-to-2 Year Intelligence Dossier */}
-      <StockResearchDesk onShareToast={addToast} />
+      <StockResearchDesk
+        onShareToast={addToast}
+        onAddToWatchlist={handleAddStockToWatchlist}
+        watchlist={watchlist}
+      />
 
       {/* 6. Brain Gym Section (Sudoku, Maze, Wordle, Trivia, Higher/Lower) */}
       <BrainGym />

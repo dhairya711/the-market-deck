@@ -7,6 +7,8 @@ import { DossierGrid } from './components/DossierGrid';
 import { Sidebar } from './components/Sidebar';
 import { BrainGym } from './components/BrainGym';
 import { StockResearchDesk } from './components/StockResearchDesk';
+import { FinanceZeroToHero } from './components/FinanceZeroToHero';
+import { AssetComparisonArena } from './components/AssetComparisonArena';
 import { ArticleModal } from './components/ArticleModal';
 import { SettingsModal } from './components/SettingsModal';
 import { CatchMeUpModal } from './components/CatchMeUpModal';
@@ -334,7 +336,13 @@ export function App() {
         activeCategory={activeCategory}
         onSelectCategory={(catId) => {
           setActiveCategory(catId);
-          if (catId === 'stock-research') {
+          if (catId === 'compare-arena') {
+            const el = document.getElementById('compare-arena');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          } else if (catId === 'finance-game') {
+            const el = document.getElementById('finance-game');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          } else if (catId === 'stock-research') {
             const el = document.getElementById('stock-research-desk');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           } else if (catId === 'brain-gym') {
@@ -347,7 +355,10 @@ export function App() {
       />
 
       {/* 4. Main Broadsheet Layout */}
-      {activeCategory !== 'brain-gym' && activeCategory !== 'stock-research' ? (
+      {activeCategory !== 'brain-gym' &&
+      activeCategory !== 'stock-research' &&
+      activeCategory !== 'compare-arena' &&
+      activeCategory !== 'finance-game' ? (
         <div className="broadsheet-main-grid">
           {/* Main Column: Lead Story + Dossier Grid */}
           <main>
@@ -419,14 +430,20 @@ export function App() {
         </div>
       ) : null}
 
-      {/* 5. Stock Research Terminal: 1-to-2 Year Intelligence Dossier */}
+      {/* 5. Head-to-Head Asset & Stock Comparison Engine (Compare 2 or 3 things) */}
+      <AssetComparisonArena />
+
+      {/* 6. Finance Zero-to-Hero Academy & Higher Return Duels */}
+      <FinanceZeroToHero />
+
+      {/* 7. Stock Research Terminal: 1-to-2 Year Intelligence Dossier */}
       <StockResearchDesk
         onShareToast={addToast}
         onAddToWatchlist={handleAddStockToWatchlist}
         watchlist={watchlist}
       />
 
-      {/* 6. Brain Gym Section (Sudoku, Maze, Wordle, Trivia, Higher/Lower) */}
+      {/* 8. Brain Gym Section (Sudoku, Maze, Wordle, Trivia, Higher/Lower) */}
       <BrainGym />
 
       {/* MODALS */}

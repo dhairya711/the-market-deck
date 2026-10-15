@@ -1,7 +1,8 @@
-// Default curated high-signal intelligence stories with multi-source coverage (Bloomberg, Reuters, FT, Moneycontrol, Mint, CNBC, TechCrunch, Business Standard)
 export const categories = [
   { id: 'all', label: 'All News', icon: '📰' },
   { id: 'good-news', label: 'Good News 🌟', icon: '🌟' },
+  { id: 'compare-arena', label: 'Compare 2 Things ⚖️', icon: '⚖️', isSpecial: true },
+  { id: 'finance-game', label: 'Zero-to-Hero Academy 🎓', icon: '🎓', isSpecial: true },
   { id: 'stock-research', label: 'Stock Deep-Dive 🔎', icon: '🔎', isSpecial: true },
   { id: 'stonks', label: 'Stonks Arena 📈', icon: '📈' },
   { id: 'politics', label: 'Politics 🏛️', icon: '🏛️' },

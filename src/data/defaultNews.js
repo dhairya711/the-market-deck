@@ -1,9 +1,11 @@
-// Default curated high-signal intelligence stories with dynamic real-time dates
+// Default curated high-signal intelligence stories with real-time dates and spicy market/political/hiring intelligence
 export const categories = [
   { id: 'all', label: 'All News', icon: '📰' },
+  { id: 'politics', label: 'Politics 🏛️', icon: '🏛️' },
+  { id: 'hiring', label: 'Hiring & Talent 💼', icon: '💼' },
+  { id: 'stonks', label: 'Stonks Arena 📈', icon: '📈' },
   { id: 'tech', label: 'Tech Specs 💻', icon: '💻' },
   { id: 'energy', label: 'Energy & Grid ⚡', icon: '⚡' },
-  { id: 'stonks', label: 'Stonks Arena 📈', icon: '📈' },
   { id: 'metal', label: 'Metal Shine ✨', icon: '✨' },
   { id: 'vc', label: 'VC Inflow 🚀', icon: '🚀' },
   { id: 'regulation', label: 'Regulation Patrol ⚖️', icon: '⚖️' },
@@ -31,7 +33,7 @@ export const initialNews = [
     categoryLabel: 'STONKS ARENA 📈',
     timestamp: getTodayDateStr(0.2),
     timeAgo: '12m ago',
-    summary: 'Supreme Court delivered a landmark ruling declaring the March 2020 decision to write down ₹8,415 crore of Additional Tier-1 (AT-1) bonds illegal. Bank stock dropped sharply as investors weigh potential capitalization requirements and liability provisions.',
+    summary: 'Supreme Court delivered a landmark ruling declaring the March 2020 decision to write down ₹8,415 crore of Additional Tier-1 (AT-1) bonds illegal. Bank stock dropped sharply as investors weigh potential recapitalization requirements and liability provisions.',
     bullets: [
       'Supreme Court upholds Bombay High Court judgment; AT-1 bondholders win 4-year legal battle.',
       'Yes Bank common equity tier-1 (CET-1) ratio could take a 160-200 bps hit if full liability is restored.',
@@ -57,51 +59,224 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
 * Spreads on perpetual debt paper may widen 15-25 bps in the short term.
     `
   },
+
+  /* ========================================================
+     HIRING & TALENT UPDATES (Spicy & High Signal)
+     ======================================================== */
+  {
+    id: 'hiring-1',
+    isLead: false,
+    title: 'AI Researcher Poaching War: Meta Offers $3.5M Guaranteed Comp RSU Grants to Snatch OpenAI Reasoning Talent 💼',
+    titleExecutive: 'Silicon Valley AI Talent War: Meta Offers Multi-Million Guaranteed Equity Packages to Frontier Researchers',
+    source: 'TECHCRUNCH',
+    category: 'hiring',
+    categoryLabel: 'HIRING & TALENT 💼',
+    timestamp: getTodayDateStr(0.4),
+    timeAgo: '24m ago',
+    summary: 'Mark Zuckerberg is personally sending direct emails to top AI researchers at OpenAI, Anthropic, and Google DeepMind, offering signing bonuses exceeding $3M with immediate compute cluster priority.',
+    bullets: [
+      'Top 2% AI research scientists with post-training and reasoning experience commanding $2M-$5M annualized packages.',
+      'Compute access (clusters of 24k+ H100/B200 GPUs) cited as a bigger retention factor than base salaries.',
+      'Non-compete clauses face federal court nullification, opening unprecedented talent mobility across frontier labs.'
+    ],
+    whyItMatters: 'R&D expenses for mega-cap tech will remain elevated through 2027. Companies that fail to retain core reasoning talent risk complete platform obsolescence.',
+    tickers: ['$META', '$MSFT', '$GOOGL', '$NVDA'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Stripped corporate PR denials and speculative gossip blogs.',
+    readTime: '2.5 min read',
+    content: `Silicon Valley is experiencing the sharpest talent compensation divergence in its history. While standard junior frontend engineering salaries have normalized, PhD-level reasoning and post-training engineers are receiving compensation on par with NFL quarterbacks.`
+  },
+  {
+    id: 'hiring-2',
+    isLead: false,
+    title: 'Bangalore GCC Boom: 45 Global Fortune 500 Desks Set Up Tech Hubs, Offering 40% Salary Hikes for Systems Engineers 🚀',
+    titleExecutive: 'Global Capability Centers Expansion: 45 Multinationals Launch Engineering Hubs Across Bengaluru and Hyderabad',
+    source: 'ECONOMIC TIMES',
+    category: 'hiring',
+    categoryLabel: 'HIRING & TALENT 💼',
+    timestamp: getTodayDateStr(1.1),
+    timeAgo: '1h ago',
+    summary: 'Global Capability Centers (GCCs) leased a record 14M sq ft of prime commercial office space across Outer Ring Road and Whitefield. Multinationals are replacing $250K US software seats with ₹45L-₹70L senior Indian engineering teams.',
+    bullets: [
+      'GCC count in India officially crossed 1,600, employing over 1.9M skilled professionals.',
+      'Direct hiring for Kubernetes, distributed databases, and fintech risk modeling is up 42% YoY.',
+      'Traditional IT services firms facing senior talent churn to direct corporate captives offering higher RSUs.'
+    ],
+    whyItMatters: 'Powers commercial real estate REITs ($EMBASSY, $MINDSPACE) and drives strong domestic discretionary consumption in Tier-1 metros.',
+    tickers: ['$EMBASSY.RR', '$MINDSPACE.RR', '$INFOYS', '$TCS'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Cut out generic state government speeches and PR press conference filler.',
+    readTime: '2 min read',
+    content: `Multinationals are no longer treating India as a cheap back-office cost center. Strategic algorithmic architecture, proprietary chip design, and global cybersecurity ops are being directly run out of Bengaluru and Hyderabad.`
+  },
+  {
+    id: 'hiring-3',
+    isLead: false,
+    title: 'Zomato & Blinkit Tech Hiring Spree: Engineering Team Adds 600 Roles for Autonomous Dark Store Robotics 📦',
+    titleExecutive: 'Quick Commerce Expansion: Zomato Engineering Expands Workforce to Build Micro-Fulfillment Automation',
+    source: 'MONEYCONTROL',
+    category: 'hiring',
+    categoryLabel: 'HIRING & TALENT 💼',
+    timestamp: getTodayDateStr(1.8),
+    timeAgo: '1.8h ago',
+    summary: 'Deepinder Goyal confirmed aggressive technical hiring across logistics routing algorithms, computer vision inventory scanning, and dark store robotic picking systems. Candidates face intense 4-round competitive coding screens.',
+    bullets: [
+      'Targeting sub-8-minute delivery times using AI dispatch prediction models.',
+      'Competitive compensation matching Tier-1 product tech firms (₹35L-₹55L base + liquid stock options).',
+      'Expanding dark store automated sorting trials across Delhi NCR and Mumbai.'
+    ],
+    whyItMatters: 'Every 30 seconds shaved off delivery and picking time increases dark store throughput by 8%, compounding platform unit economics.',
+    tickers: ['$ZOMATO', '$BLINKIT'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Stripped social media quote bait and food review trivia.',
+    readTime: '2 min read',
+    content: `Blinkit’s transformation into a logistics technology titan relies on proprietary real-time shelf vision and dispatch telemetry rather than manual human store supervision.`
+  },
+  {
+    id: 'hiring-4',
+    isLead: false,
+    title: 'Layoff Watch: Legacy IT Middle Management Facing 18% Restructuring as Copilots Automate Level-2 Reviews ⚡',
+    titleExecutive: 'IT Services Workforce Realignment: Automation Tools Prompt Reallocation of Middle Management Resources',
+    source: 'BLOOMBERG',
+    category: 'hiring',
+    categoryLabel: 'HIRING & TALENT 💼',
+    timestamp: getTodayDateStr(2.5),
+    timeAgo: '2.5h ago',
+    summary: 'Indian IT services bellwethers are trimming non-coding project managers and quality assurance teams as autonomous code scanners and GenAI assistants double developer throughput.',
+    bullets: [
+      'Fresher hiring shifting 100% toward full-stack and Python AI integration skillsets.',
+      'Employee utilization rates pushed to an 8-year peak of 86.4%.',
+      'Attrition among tier-1 service providers dropped to historical low of 11.8% as job hopping slows.'
+    ],
+    whyItMatters: 'Significantly improves operating EBIT margins for large-cap IT exporters while lowering overhead sales and administrative expenses.',
+    tickers: ['$TCS', '$INFY', '$WIPRO', '$HCLTECH'],
+    sentiment: 'neutral',
+    noiseFiltered: 'Stripped union statement rhetoric and alarmist clickbait headlines.',
+    readTime: '2 min read',
+    content: `The traditional pyramid workforce model of Indian IT—thousands of freshers managed by heavy layers of delivery managers—is being permanently flattened into nimble autonomous software cells.`
+  },
+
+  /* ========================================================
+     POLITICS & POWER BROKERS (The User Explicitly Requested)
+     ======================================================== */
+  {
+    id: 'politics-1',
+    isLead: false,
+    title: 'Cabinet Clears ₹76,000 Cr Semiconductor Fab Subsidies: Tata & Micron Score 50% Fiscal Backstop 🏛️',
+    titleExecutive: 'Cabinet Approves Semiconductor Mission Expansion: Fiscal Support Sanctioned for Semiconductor Foundries',
+    source: 'ECONOMIC TIMES',
+    category: 'politics',
+    categoryLabel: 'POLITICS 🏛️',
+    timestamp: getTodayDateStr(0.8),
+    timeAgo: '48m ago',
+    summary: 'The Union Cabinet approved the next phase of the India Semiconductor Mission (ISM 2.0). Fiscal support covers 50% of project capex for commercial fabrication plants and advanced packaging facilities in Gujarat and Assam.',
+    bullets: [
+      'Tata Electronics Dholera mega-fab project timeline fast-tracked for commercial wafers by Q2 2027.',
+      'State government power and clean water infrastructure guarantees finalized with zero tariff hikes for 10 years.',
+      'Equipment imports granted express customs clearance under national strategic priority status.'
+    ],
+    whyItMatters: 'Locks in long-term domestic component self-reliance while driving massive multi-year orders for EPC contractors and industrial gas suppliers.',
+    tickers: ['$TATAMOTORS', '$L&T', '$LINDEINDIA', '$POLITICS'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Stripped political speeches, party election slogans, and podium optics.',
+    readTime: '2 min read',
+    content: `India’s semiconductor policy represents one of the largest capital expenditure subsidies in Asian industrial history, intended to hedge geopolitical supply disruptions in the Taiwan Strait.`
+  },
+  {
+    id: 'politics-2',
+    isLead: false,
+    title: 'SEBI Cracks Down on Finfluencer Pump & Dump Telegram Cartels: ₹140 Cr Frozen in Mumbai & Dubai Raids ⚖️',
+    titleExecutive: 'Securities Regulator Enforcement: SEBI Freezes ₹140 Crore in Coordinated Unregistered Advisory Sweep',
+    source: 'FINANCIAL TIMES',
+    category: 'politics',
+    categoryLabel: 'POLITICS 🏛️',
+    timestamp: getTodayDateStr(1.5),
+    timeAgo: '1.5h ago',
+    summary: 'SEBI enforcement division carried out simultaneous search and seizure operations across 42 locations. Syndicates were caught using paid social media influencers to run illicit microcap pump-and-dump operations.',
+    bullets: [
+      'Penalties include 5-year capital market bans and 100% disgorgement of ill-gotten advisory fees.',
+      'Stock exchanges mandated to implement automated AI trading halt algorithms for sudden social-volume spikes.',
+      'Licensed registered investment advisors (RIAs) granted streamlined compliance fee relief.'
+    ],
+    whyItMatters: 'Protects retail capital from catastrophic illiquid microcap traps and restores institutional trust in midcap price discovery.',
+    tickers: ['$SEBI', '$BSE', '$NSE', '$REGULATION'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Removed sensationalist police blotter gossip and blurred suspect photos.',
+    readTime: '2 min read',
+    content: `SEBI’s surveillance wing has demonstrated algorithmic tracking of cross-border payment flows between Dubai-based cryptocurrency accounts and Indian domestic trading terminals.`
+  },
+  {
+    id: 'politics-3',
+    isLead: false,
+    title: 'US-China Rare Earth Export War Escalates: Gallium & Antimony Quotas Slashed by 60% 🌐',
+    titleExecutive: 'Geopolitical Trade Tensions: Beijing Imposes Tightened Strategic Minerals Export Restrictions',
+    source: 'REUTERS',
+    category: 'politics',
+    categoryLabel: 'POLITICS 🏛️',
+    timestamp: getTodayDateStr(2.2),
+    timeAgo: '2.2h ago',
+    summary: 'Beijing enacted strict export licensing on critical military and semiconductor metals including gallium, germanium, and antimony. Western defense primes and chip foundries forced to dip into emergency stockpiles.',
+    bullets: [
+      'Spot market antimony prices surged 14% intraday to fresh record highs.',
+      'Pentagon invokes Title III of the Defense Production Act to finance domestic North American smelters.',
+      'Australian and Indian rare earth miners receive express fast-track sovereign extraction permits.'
+    ],
+    whyItMatters: 'Massive catalyst for non-Chinese rare earth exploration and processing equities ($MP, $LYNAS, $IREL).',
+    tickers: ['$MP', '$LYNAS', '$DEFENSE', '$METALS'],
+    sentiment: 'neutral',
+    noiseFiltered: 'Cut out repetitive diplomatic state press releases.',
+    readTime: '2.5 min read',
+    content: `Critical minerals have become the premier geopolitical economic weapon of the 21st century. Refining and smelting bottlenecks outside Asia remain the single greatest supply chain vulnerability for NATO defense systems.`
+  },
+
+  /* ========================================================
+     STONKS ARENA (High Signal, Spicy WSB / TFG Vibe)
+     ======================================================== */
   {
     id: 'story-1',
     isLead: false,
-    title: 'Nifty Vibe Check: Range-Bound Action as 23,000 Support Holds Firm Ahead of Earnings ⚡',
-    titleExecutive: 'Nifty Index Analysis: Key 23,000 Psychological Support Defended Amid FII Rebalancing',
+    title: 'Nifty Vibe Check: Range-Bound Action Continues as 24,500 backing Holds the Line ⚡',
+    titleExecutive: 'Nifty Index Analysis: Key 24,500 Support Level Defended Amid Range-Bound Consolidation',
     source: 'MONEYCONTROL',
     category: 'stonks',
     categoryLabel: 'STONKS ARENA 📈',
-    timestamp: getTodayDateStr(0.5),
-    timeAgo: '30m ago',
-    summary: 'Nifty staged an intraday recovery after testing 22,950 intraday lows. Heavy Put writing at 23,000 strike and domestic DII net buying of ₹2,100 Cr shielded the index against global tech selloff pressure.',
+    timestamp: getTodayDateStr(0.6),
+    timeAgo: '36m ago',
+    summary: 'Nifty has been deadass playing in a tight range between 24,500 and 24,900. Geopolitical stress and FII index future short-covering keep bulls and bears locked in neutral territory.',
     bullets: [
-      '23,000 Put strike open interest stands at 1.82 crore contracts (solid floor defense).',
-      'Reliance Industries and HDFC Bank contributed 65% of the afternoon rebound points.',
-      'India VIX slipped 4.2% back to 13.45, confirming no panic among institutional desks.'
+      '24,500 Put strike holds massive open interest of 1.42 crore contracts.',
+      'Bank Nifty outperforming on private banking institutional accumulation ($HDFCBANK, $ICICIBANK).',
+      'FII net cash flow turned mildly positive (+₹480 Cr) after 6 straight sessions of outflows.'
     ],
-    whyItMatters: 'Holding 23,000 into the weekend preserves the intermediate bullish structure for a push toward 23,600.',
-    tickers: ['$NIFTY50', '$BANKNIFTY', '$RELIANCE'],
+    whyItMatters: 'Breakout above 24,850 triggers rapid short covering toward 25,200. Clean breakdown below 24,400 risks 400-point slide.',
+    tickers: ['$NIFTY50', '$BANKNIFTY', '$HDFCBANK'],
     sentiment: 'bullish',
-    noiseFiltered: 'Stripped repetitive morning commentary and recycled anchor interviews.',
+    noiseFiltered: 'Eliminated 12 generic technical indicator charts without trade context.',
     readTime: '1.5 min read',
-    content: `Institutional positioning shows structural domestic liquidity acting as a permanent shock absorber against foreign macroeconomic outflows.`
+    content: `Institutional positioning indicates strong floor defense at 24,500. Heavy Put writing confirms retail and proprietary desks expect no major systemic drop before the upcoming macro inflation readout.`
   },
   {
     id: 'story-2',
     isLead: false,
     title: 'Tata Motors Splitting stonk 1:10: Making stonks Accessible to the Retail Fam, Fr Fr 💀',
-    titleExecutive: 'Tata Motors 1:10 Stock Split Approved: Board Targets Enhanced Retail Participation',
-    source: 'ECONOMIC TIMES',
+    titleExecutive: 'Tata Motors Announces 1:10 Stock Split to Enhance Retail Market Liquidity',
+    source: 'MONEYCONTROL',
     category: 'stonks',
     categoryLabel: 'STONKS ARENA 📈',
-    timestamp: getTodayDateStr(1.2),
-    timeAgo: '1h ago',
-    summary: 'Tata Motors confirmed execution timeline for its 1:10 equity share sub-division. JLR order backlog stands firm at 148,000 units while commercial vehicle EBITDA margins expanded to 11.2%.',
+    timestamp: getTodayDateStr(1.4),
+    timeAgo: '1.4h ago',
+    summary: 'Tata Motors board approved a 1:10 stock split to improve liquidity and invite smaller retail money gang. JLR margins continue to print cash while domestic EV market share stabilizes at 68%.',
     bullets: [
-      'Face value reduced from ₹10 to ₹1 per equity share.',
-      'Target record date scheduled post shareholder AGM vote.',
-      'Demerger of Commercial Vehicles and Passenger Vehicles businesses on track for FY26-27.'
+      'Split ratio: 1 equity share of face value ₹10 split into 10 equity shares of ₹1 face value.',
+      'Record date expected within 60 days following AGM shareholder approval.',
+      'EV division demerger roadmap remains on track for Q4 FY27.'
     ],
-    whyItMatters: 'Drastically reduces F&O lot margin requirements, boosting option trading volume and small retail investor participation.',
-    tickers: ['$TATAMOTORS', '$NSE', '$AUTO'],
+    whyItMatters: 'Lowers ticket size per lot from ₹9,850 to ~₹985, drastically increasing F&O option participation and retail liquidity.',
+    tickers: ['$TATAMOTORS', '$AUTO', '$NSE'],
     sentiment: 'bullish',
-    noiseFiltered: 'Cut out repetitive management quotes and promotional EV slides.',
+    noiseFiltered: 'Filtered out promotional CEO quotes and generic auto industry history.',
     readTime: '2 min read',
-    content: `Tata Motors balance sheet turnaround remains one of the cleanest in corporate India, with net auto debt reduced by over 90% in two years.`
+    content: `Tata Motors follows global auto majors in splitting high-nominal share values. Balance sheet net automotive debt is down 92% YoY, leaving JLR and India Commercial Vehicles cleanly capitalized.`
   },
   {
     id: 'story-3',
@@ -111,20 +286,20 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     source: 'MONEYCONTROL',
     category: 'stonks',
     categoryLabel: 'STONKS ARENA 📈',
-    timestamp: getTodayDateStr(2),
-    timeAgo: '2h ago',
-    summary: 'Zomato stonk printed fresh all-time highs as Blinkit dark store count crossed 1,000 with accelerated profitability. Average order value (AOV) expanded 14% YoY.',
+    timestamp: getTodayDateStr(2.1),
+    timeAgo: '2.1h ago',
+    summary: 'Zomato stonk price pumped hard past previous all-time highs as Blinkit dark stores achieve EBITDA breakeven ahead of guidance. Average order value (AOV) expanded 14% YoY.',
     bullets: [
       'Blinkit dark store count scaled to 1,000+ stores with average store payback under 11 months.',
-      'Platform fee increased to ₹7 per order without measurable consumer churn.',
-      'Going-out events segment showing 35% quarter-on-quarter growth.'
+      'Platform fee increased by ₹1 to ₹7/order without any measurable churn.',
+      'Going-out business integration showing early synergy with ticketing ecosystem.'
     ],
-    whyItMatters: 'Quick commerce is becoming an essential daily utility, structurally eating market share from traditional kirana and modern retail.',
+    whyItMatters: 'Quick commerce is shifting from discretionary novelty to consumer utility, structurally eating traditional FMCG distribution share.',
     tickers: ['$ZOMATO', '$BLINKIT'],
     sentiment: 'bullish',
-    noiseFiltered: 'Filtered social media memes and influencer reviews.',
+    noiseFiltered: 'Cut out social media influencer memes and food review digressions.',
     readTime: '2 min read',
-    content: `Brokerage consensus has raised price targets to ₹310-₹330 on the back of faster-than-expected Blinkit margin expansion.`
+    content: `Zomato has transformed from an unprofitable food aggregator to a high-margin consumer commerce platform. Multiple global brokerages upgraded price targets to ₹310-₹330.`
   },
   {
     id: 'story-4',
@@ -134,11 +309,11 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     source: 'TECHCRUNCH',
     category: 'tech',
     categoryLabel: 'TECH SPECS 💻',
-    timestamp: getTodayDateStr(3),
+    timestamp: getTodayDateStr(3.1),
     timeAgo: '3h ago',
-    summary: 'Demand for Blackwell GB200 NVL72 racks has pushed order books into late 2027. Microsoft, Meta, and Google CAPEX announcements confirm zero AI infrastructure pause.',
+    summary: 'Demand for Blackwell GB200 NVL72 racks has pushed order books well into late 2027. Microsoft, Meta, and Google CAPEX announcements confirm zero AI infrastructure pause.',
     bullets: [
-      'TSMC CoWoS packaging capacity running at 110% utilization.',
+      'TSMC CoWoS packaging capacity expansion running at 110% utilization.',
       'Liquid cooling suppliers seeing 400% revenue guidance increases for server thermal management.',
       'Gross margins projected to hold firm at 74.5% despite node transitions.'
     ],
@@ -152,37 +327,37 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
   {
     id: 'story-5',
     isLead: false,
-    title: 'Orient Electric Q2 Profit Jumps 2x to ₹27 Cr: Revenue Expands 25% on Lighting & Fans 💡',
-    titleExecutive: 'Orient Electric Q2 Results: Net Profit Doubles to ₹27 Crore on Strong Festive Demand',
-    source: 'ECONOMIC TIMES',
-    category: 'stonks',
-    categoryLabel: 'STONKS ARENA 📈',
-    timestamp: getTodayDateStr(3.5),
-    timeAgo: '3.5h ago',
-    summary: 'Consumer electrical major Orient Electric reported a two-fold jump in second-quarter net profit to ₹27 crore, driven by 25% revenue expansion in lighting and premium energy-efficient fans.',
+    title: 'Grid Overload Alert: Data Centers Demand Dedicated Nuclear Small Modular Reactors ⚡',
+    titleExecutive: 'Utility Grid Constraints: Tech Giants Sign Long-Term Nuclear Power Purchase Agreements',
+    source: 'BLOOMBERG',
+    category: 'energy',
+    categoryLabel: 'ENERGY & GRID ⚡',
+    timestamp: getTodayDateStr(4),
+    timeAgo: '4h ago',
+    summary: 'Baseload energy requirements for gigawatt AI clusters are driving direct private contracts with nuclear plant operators. Uranium spot prices touch 15-year resistance levels.',
     bullets: [
-      'Revenue from operations grew 25% YoY to ₹720 crore.',
-      'EBITDA margins expanded 180 bps on raw material cost stabilization.',
-      'Rural distribution network additions drove 30% of total volume growth.'
+      'Constellation Energy and Talen Energy leading private PPA transactions with hyperscalers.',
+      'US Department of Energy accelerates fast-track licensing for SMR commercial deployments.',
+      'Transmission line construction backlogs now average 6.5 years across PJM and ERCOT grids.'
     ],
-    whyItMatters: 'Highlights robust Indian consumer discretionary spending into the Q3 festive season.',
-    tickers: ['$ORIENTELEC', '$CONSUMER'],
+    whyItMatters: 'The biggest bottleneck for AI scale is no longer chips—it is electricity baseload and substation transformers.',
+    tickers: ['$CEG', '$TLN', '$ETN', '$CCJ'],
     sentiment: 'bullish',
-    noiseFiltered: 'Stripped legal disclaimer boilerplates.',
-    readTime: '1.5 min read',
-    content: `Premium product mix and cost efficiency programs under execution have restored double-digit operating leverage.`
+    noiseFiltered: 'Stripped 1,200 words of environmental lobbying debate to focus on balance sheet contracts.',
+    readTime: '2 min read',
+    content: `Energy transition capital is rotating straight from intermittent wind/solar farms toward always-on 24/7 clean baseload power sources.`
   },
   {
     id: 'story-6',
     isLead: false,
-    title: 'Copper Squeeze Looming: Physical LME Inventories Drop 22% as Smelters Cut Fees ✨',
+    title: 'Copper Squeeze Looming: Supply Deficit Projected at 4.2M Metric Tons by 2028 ✨',
     titleExecutive: 'Copper Structural Deficit: Smelter Cutbacks and EV Grid Demand Tighten Physical Markets',
     source: 'REUTERS',
     category: 'metal',
     categoryLabel: 'METAL SHINE ✨',
-    timestamp: getTodayDateStr(4),
-    timeAgo: '4h ago',
-    summary: 'Smelter processing fees reached multi-year lows, forcing capacity curbs across Asian refineries. EV wiring harnesses and grid substation expansion keep red metal demand inelastic.',
+    timestamp: getTodayDateStr(4.8),
+    timeAgo: '4.8h ago',
+    summary: 'Chinese smelters agreed on processing fee reductions as raw copper concentrate shortages bite. EV harness requirements and electrification keep red metal demand inelastic.',
     bullets: [
       'LME warehouse inventories dropped 22% month-on-month.',
       'Mine permitting in Chile and Peru facing extended local regulatory timelines.',
@@ -198,25 +373,71 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
   {
     id: 'story-7',
     isLead: false,
-    title: 'OpenAI Flags European AI Adoption Gap Despite 8-Fold Surge in Agent Use 💻',
-    titleExecutive: 'European AI Adoption Trends: Enterprise Agentic Workflows Accelerate Amid Regulatory Headwinds',
-    source: 'ECONOMIC TIMES',
-    category: 'tech',
-    categoryLabel: 'TECH SPECS 💻',
-    timestamp: getTodayDateStr(5),
-    timeAgo: '5h ago',
-    summary: 'OpenAI reported an eight-fold increase in autonomous AI agent usage among small businesses, but warned of a growing productivity gap between US and European corporate adopters.',
+    title: 'VCs Stop Chasing LLM Wrappers, Pivot $18B Into Physical AI & Defense Tech 🚀',
+    titleExecutive: 'Venture Capital Capital Reallocation: Seed Funds Pivot Toward Robotics and Defense Tech',
+    source: 'TECHCRUNCH',
+    category: 'vc',
+    categoryLabel: 'VC INFLOW 🚀',
+    timestamp: getTodayDateStr(5.5),
+    timeAgo: '5.5h ago',
+    summary: 'Silicon Valley early-stage checks are drying up for API-wrapper SaaS startups. Founders with hardware, aerospace, autonomous defense, and lab robotics are raising oversubscribed seed rounds.',
     bullets: [
-      'Over 65% of Fortune 500 companies have deployed specialized coding and legal agents.',
-      'EU regulatory compliance costs cited as key hurdle for European startups.',
-      'Compute efficiency per token has improved 4x over the last 12 months.'
+      'Defense tech series A median valuations reached $85M, up 40% YoY.',
+      'Software-only startups facing down-rounds as enterprise seat-based pricing collapses.',
+      'Dual-use technology funds granted streamlined NATO and Pentagon procurement tracks.'
     ],
-    whyItMatters: 'Enterprise software spending is shifting permanently away from legacy SaaS seats into consumption-based autonomous agents.',
-    tickers: ['$MSFT', '$GOOGL', '$ORCL'],
+    whyItMatters: 'Software multiples are normalizing toward historical medians while physical moat companies command defensible software-plus-hardware margins.',
+    tickers: ['$ANDURIL', '$PLTR', '$LMT'],
     sentiment: 'neutral',
-    noiseFiltered: 'Stripped marketing soundbites and non-actionable policy rhetoric.',
+    noiseFiltered: 'Cut PR marketing pitch decks and vague founder visionary manifestos.',
     readTime: '2 min read',
-    content: `Autonomous agent architectures are transforming standard software operations from passive dashboards into active code-writing and task-executing systems.`
+    content: `The era of raising $20M for a ChatGPT prompt wrapper is officially over. Institutional allocators demand proprietary physical datasets and government-contracted revenue pipelines.`
+  },
+  {
+    id: 'story-8',
+    isLead: false,
+    title: 'US 10-Yr Yield Glides at 4.60%: Term Premium Returns as Deficit Concerns Bite 💸',
+    titleExecutive: 'Treasury Markets: 10-Year Yield Stabilizes Near 4.60% as Term Premium Rebounds',
+    source: 'BLOOMBERG',
+    category: 'yield',
+    categoryLabel: 'YIELD FLOW 💸',
+    timestamp: getTodayDateStr(6.2),
+    timeAgo: '6h ago',
+    summary: 'Bond traders are demanding higher term premium to hold long-duration sovereign paper as US fiscal deficit projections stay at 6.8% of GDP regardless of political outcomes.',
+    bullets: [
+      '2Y/10Y yield curve inversion has ended, transitioning to a healthy bull steepening regime.',
+      'Foreign central banks stabilizing gold reserves while maintaining neutral Treasury allocations.',
+      'High yield corporate spreads remain remarkably tight at 310 bps over benchmark.'
+    ],
+    whyItMatters: 'Higher baseline risk-free rates compress equity valuation multiples for long-dated unprofitable growth stories while boosting interest income for cash-rich companies.',
+    tickers: ['$TLT', '$SHY', '$HYG', '$US10Y'],
+    sentiment: 'neutral',
+    noiseFiltered: 'Cut political campaign mudslinging to isolate pure debt auction metrics.',
+    readTime: '2.5 min read',
+    content: `Treasury auction bid-to-cover ratios show solid domestic institutional demand, but primary dealers are required to absorb higher tail yields on 30-year auctions.`
+  },
+  {
+    id: 'story-9',
+    isLead: false,
+    title: 'The Art of Capital Allocation: Why Free Cash Flow Yield Crushes EBITDA Optics 🧠',
+    titleExecutive: 'Executive Dossier: High-Signal Framework for Analyzing Free Cash Flow Conversion',
+    source: 'THE BROADSHEET DOSSIER',
+    category: 'smart',
+    categoryLabel: 'SMART READS 🧠',
+    timestamp: getTodayDateStr(7),
+    timeAgo: '7h ago',
+    summary: 'A deep-dive on why accounting EBITDA is used by promoters to hide capital expenditure intensity, and how calculating owner earnings separates genuine compounders from capital incinerators.',
+    bullets: [
+      'EBITDA ignores depreciation—which in real businesses is money already spent on assets dying.',
+      'Stock-based compensation (SBC) is a real dilution cost that must be deducted from operating cash flow.',
+      'Companies with ROIC > WACC reinvesting at high rates compound wealth monotonically.'
+    ],
+    whyItMatters: 'Applying this filter to your personal portfolio eliminates 70% of potential capital trap stocks before you take a position.',
+    tickers: ['$BRK.A', '$GOOGL', '$AAPL'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Extracted purely mathematical framework; stripped all promotional trading course pitches.',
+    readTime: '4 min read',
+    content: `As Charlie Munger famously noted, "Every time you hear EBITDA, substitute the phrase 'bullshit earnings'". Real investors evaluate after-tax cash available to be pulled out of the enterprise without impairing its competitive moat.`
   }
 ];
 

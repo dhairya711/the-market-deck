@@ -2,10 +2,10 @@
 import { initialNews, categories } from '../data/defaultNews';
 import { initialIndices, defaultWatchlist } from '../data/marketData';
 
-const CURRENT_VERSION = 'v2_live_oct2026';
+const CURRENT_VERSION = 'v3_spicy_politics_hiring_oct2026';
 const STORAGE_KEYS = {
   NEWS: 'tfg_news_stories_' + CURRENT_VERSION,
-  WATCHLIST: 'tfg_user_watchlist',
+  WATCHLIST: 'tfg_user_watchlist_' + CURRENT_VERSION,
   SETTINGS: 'tfg_user_settings',
   BOOKMARKS: 'tfg_user_bookmarks',
 };
@@ -376,6 +376,42 @@ export function generateFreshTopicTake(topicOrCategory, existingStories = [], vi
         ],
         whyItMatters: 'Quick commerce is executing an Amazon-style category expansion at 10-minute delivery speeds.',
         tickers: ['$ZOMATO', '$BLINKIT'],
+        sentiment: 'bullish'
+      }
+    ],
+    politics: [
+      {
+        title: 'Cabinet Fast-Tracks High-Speed Rail Corridor & Clean Industrial Clusters 🏛️',
+        titleExecutive: 'Infrastructure Policy: Union Cabinet Clears Capital Outlay for Dedicated Freight Corridors',
+        source: 'ECONOMIC TIMES',
+        category: 'politics',
+        categoryLabel: 'POLITICS 🏛️',
+        summary: 'Ministers greenlit a ₹42,000 Cr supplemental infrastructure bill targeting rapid freight connectivity between industrial manufacturing hubs and deep-sea ports.',
+        bullets: [
+          'State matching grants approved with 50-year interest-free sovereign loans.',
+          'EPC orders slated for bidding before end of quarter ($L&T, $RVNL).',
+          'Environment clearance window reduced from 180 days to 45 days for rail lines.'
+        ],
+        whyItMatters: 'Lowers national logistics costs from 14% of GDP toward global benchmark of 8%.',
+        tickers: ['$RVNL', '$LT', '$POLITICS'],
+        sentiment: 'bullish'
+      }
+    ],
+    hiring: [
+      {
+        title: 'Tier-1 Quant Desks Offer $600K Signing Packages for High-Frequency C++ Architects 💼',
+        titleExecutive: 'Proprietary Trading Compensation: Sub-Microsecond Kernel Developers Command Record Packages',
+        source: 'FINANCIAL TIMES',
+        category: 'hiring',
+        categoryLabel: 'HIRING & TALENT 💼',
+        summary: 'Market makers and algorithmic proprietary trading firms in Mumbai and Singapore are engaged in high-stakes bidding wars for kernel network stack engineers.',
+        bullets: [
+          'First-year compensation including guaranteed sign-on bonus crosses ₹4 Cr in Mumbai.',
+          'FPGA hardware engineers in highest demand due to direct exchange co-location mandates.',
+          'Strict 12-month non-compete gardens leaves enforced by prime brokers.'
+        ],
+        whyItMatters: 'Direct indicator of high algorithmic market volume and expanding derivative liquidity.',
+        tickers: ['$EXCHANGE', '$QUANT', '$TALENT'],
         sentiment: 'bullish'
       }
     ]

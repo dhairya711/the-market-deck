@@ -22,6 +22,8 @@ import {
   getFormattedTime,
   generateFreshTopicTake,
   simulateMarketPulse,
+  fetchLiveMarketQuotes,
+  fetchLiveRssNews,
 } from './services/newsService';
 
 export function App() {
@@ -90,39 +92,67 @@ export function App() {
     localStorage.setItem('tfg_bookmarks', JSON.stringify(bookmarkedIds));
   }, [bookmarkedIds]);
 
-  // Master Refresh Function
-  const triggerRefresh = (isAuto = false) => {
+  // Master Refresh Function: Fetches live Yahoo Finance quotes & Economic Times RSS feeds
+  const triggerRefresh = async (isAuto = false) => {
     setIsRefreshing(true);
 
-    setTimeout(() => {
-      // 1. Update Market pulse wiggles
-      setIndices((prev) => simulateMarketPulse(prev));
+    try {
+      // 1. Fetch real live quotes from Yahoo Finance
+      const liveIndices = await fetchLiveMarketQuotes(indices);
+      setIndices(liveIndices);
 
-      // 2. Generate a fresh high-signal take for one of the user's tracked topics
+      // 2. Fetch live real-time RSS news from Economic Times wires
+      const liveRssStories = await fetchLiveRssNews();
+
+      // 3. Generate high-signal analytical take
       const randomCategory = ['stonks', 'tech', 'energy', 'metal', 'yield'][
         Math.floor(Math.random() * 5)
       ];
       const freshTake = generateFreshTopicTake(randomCategory, stories, settings.newsVibe);
 
       setStories((prev) => {
-        // Prepend fresh take without duplicating
-        const filtered = prev.filter((s) => s.id !== freshTake.id);
+        let combined = [...prev];
+        if (liveRssStories.length > 0) {
+          // Prepend unique live stories
+          const existingIds = new Set(combined.map((s) => s.title));
+          const newUnique = liveRssStories.filter((s) => !existingIds.has(s.title));
+          combined = [...newUnique, ...combined];
+        }
+        // Prepend fresh take
+        const filtered = combined.filter((s) => s.id !== freshTake.id);
         return [freshTake, ...filtered];
       });
 
-      // 3. Reset timestamps & timer
+      // 4. Update timestamps & reset 15m timer
       const nowStr = getFormattedTime();
       setLastUpdated(nowStr);
       setCountdownSeconds((settings.refreshIntervalMinutes || 15) * 60);
-      setIsRefreshing(false);
 
       if (isAuto) {
-        addToast(`[15-Min Auto-Refresh] Feed updated at ${nowStr}`, 'refresh');
+        addToast(`[15-Min Auto-Refresh] Feed updated with live market data at ${nowStr}`, 'refresh');
       } else {
-        addToast(`Dossier refreshed with latest market data at ${nowStr}`, 'refresh');
+        addToast(`Dossier refreshed with live market quotes at ${nowStr}`, 'refresh');
       }
-    }, 600);
+    } catch (err) {
+      console.warn('Refresh error:', err);
+      // Fallback pulse
+      setIndices((prev) => simulateMarketPulse(prev));
+      const nowStr = getFormattedTime();
+      setLastUpdated(nowStr);
+      setCountdownSeconds((settings.refreshIntervalMinutes || 15) * 60);
+      addToast(`Dossier updated at ${nowStr}`, 'refresh');
+    } finally {
+      setIsRefreshing(false);
+    }
   };
+
+  // Run live refresh once on initial load to fetch latest quotes
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      triggerRefresh(false);
+    }, 600);
+    return () => clearTimeout(timer);
+  }, []);
 
   // 15-Minute Countdown Interval Timer
   useEffect(() => {

@@ -2,7 +2,7 @@
 import { initialNews, categories } from '../data/defaultNews';
 import { initialIndices, defaultWatchlist } from '../data/marketData';
 
-const CURRENT_VERSION = 'v3_spicy_politics_hiring_oct2026';
+const CURRENT_VERSION = 'v4_multisource_research_oct2026';
 const STORAGE_KEYS = {
   NEWS: 'tfg_news_stories_' + CURRENT_VERSION,
   WATCHLIST: 'tfg_user_watchlist_' + CURRENT_VERSION,

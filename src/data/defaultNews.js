@@ -1,6 +1,7 @@
-// Default curated high-signal intelligence stories with real-time dates and spicy market/political/hiring intelligence
+// Default curated high-signal intelligence stories with multi-source coverage (Bloomberg, Reuters, FT, Moneycontrol, Mint, CNBC, TechCrunch, Business Standard)
 export const categories = [
   { id: 'all', label: 'All News', icon: '📰' },
+  { id: 'stock-research', label: 'Stock Deep-Dive 🔎', icon: '🔎', isSpecial: true },
   { id: 'politics', label: 'Politics 🏛️', icon: '🏛️' },
   { id: 'hiring', label: 'Hiring & Talent 💼', icon: '💼' },
   { id: 'stonks', label: 'Stonks Arena 📈', icon: '📈' },
@@ -23,6 +24,9 @@ const getTodayDateStr = (offsetHours = 0) => {
 };
 
 export const initialNews = [
+  /* ========================================================
+     LEAD EDITORIAL STORY
+     ======================================================== */
   {
     id: 'lead-today',
     isLead: true,
@@ -61,14 +65,87 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
   },
 
   /* ========================================================
-     HIRING & TALENT UPDATES (Spicy & High Signal)
+     BREAKTHROUGH & "GOOD NEWS" (Multi-Bagger Catalysts)
+     ======================================================== */
+  {
+    id: 'good-news-1',
+    isLead: false,
+    title: 'India Electronics Exports Surge 48% YoY to Record $38B: Foxconn & Tata Expand 6th Mega-Campus 🇮🇳',
+    titleExecutive: 'Manufacturing Milestone: Electronics Exports Reach Record $38 Billion Driven by Smartphone Assembly',
+    source: 'BUSINESS STANDARD',
+    category: 'stonks',
+    categoryLabel: 'STONKS ARENA 📈',
+    timestamp: getTodayDateStr(0.3),
+    timeAgo: '18m ago',
+    summary: 'India’s electronics exports surged 48% year-on-year to touch an all-time record of $38 Billion. Apple now produces 1 in every 7 iPhones in India, while Tata Electronics scales semiconductor assembly in Hosur and Dholera.',
+    bullets: [
+      'Smartphones accounted for 54% of total outbound shipments, surpassing petroleum product growth rate.',
+      'Domestic value addition expanded from 12% to 24% as local display modules and battery packs went live.',
+      'Over 220,000 direct formal manufacturing jobs created across Tamil Nadu and Karnataka corridors.'
+    ],
+    whyItMatters: 'Massive macroeconomic structural win: permanently reduces India’s current account deficit and elevates industrial GDP.',
+    tickers: ['$DIXON', '$KAYNES', '$TATAMOTORS', '$MAKEININDIA'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Cut political campaign speech soundbites and boilerplate press handouts.',
+    readTime: '2 min read',
+    content: `The Production Linked Incentive (PLI) scheme has catalyzed unprecedented manufacturing momentum. Dixon Technologies and Kaynes Technology continue trading at premium multiples on multi-year earnings backlogs.`
+  },
+  {
+    id: 'good-news-2',
+    isLead: false,
+    title: 'Suzlon Energy Wins 1,166 MW NTPC Mega Wind Order: Order Book Soars to Record 5.4 GW with Zero Net Debt ⚡',
+    titleExecutive: 'Clean Energy Revival: Suzlon Energy Secures Landmark 1,166 MW Wind Power Order from NTPC',
+    source: 'MINT',
+    category: 'energy',
+    categoryLabel: 'ENERGY & GRID ⚡',
+    timestamp: getTodayDateStr(0.5),
+    timeAgo: '30m ago',
+    summary: 'Suzlon Energy bagged the single largest domestic wind energy project contract in Indian history from NTPC Green Energy. The company will install 370 units of its 3.15 MW hybrid lattice tubular turbines in Gujarat.',
+    bullets: [
+      'Firm manufacturing order book crossed 5.4 GW, guaranteeing top-line revenue visibility through 2028.',
+      'Balance sheet remains completely net debt-free with over ₹1,200 Cr in surplus cash reserves.',
+      'High-margin Operations & Maintenance (O&M) service contracts will generate lifetime recurring cash flow.'
+    ],
+    whyItMatters: 'Confirms Suzlon’s turnaround from bankrupt distressed asset to dominant clean energy manufacturing monopoly (+640% 2-year run).',
+    tickers: ['$SUZLON', '$NTPC', '$RENEWABLE'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Stripped 10-year historical debt restructuring recount to focus on present cash conversion.',
+    readTime: '2 min read',
+    content: `Suzlon now commands a 32% domestic market share. With government mandates requiring 500 GW of clean energy by 2030, wind-solar hybrid projects have become essential for round-the-clock grid stability.`
+  },
+  {
+    id: 'good-news-3',
+    isLead: false,
+    title: 'India Crosses 100 GW Solar Capacity Milestone: Levelized Solar Cost Drops to Record Low ₹2.12/kWh ☀️',
+    titleExecutive: 'Renewable Power Milestone: Installed Solar Generation Surpasses 100 Gigawatts Ahead of Schedule',
+    source: 'REUTERS',
+    category: 'energy',
+    categoryLabel: 'ENERGY & GRID ⚡',
+    timestamp: getTodayDateStr(1.0),
+    timeAgo: '1h ago',
+    summary: 'India officially crossed 100 Gigawatts of installed utility-scale and rooftop solar capacity, cementing its rank as the world’s 3rd largest solar producer. Electricity generation costs dropped below ₹2.12 per unit.',
+    bullets: [
+      'Rooftop solar PM Surya Ghar scheme registrations crossed 1.3 crore households in record time.',
+      'Domestic wafer and ingot manufacturing capacity expanded 4x to curb dependence on imported Chinese cells.',
+      'Coal power share in the national generation mix slipped below 48% during peak afternoon hours.'
+    ],
+    whyItMatters: 'Cheaper domestic industrial power significantly improves gross margins for heavy manufacturing and steel producers.',
+    tickers: ['$TATAPOWER', '$ADANIGREEN', '$SOLAR'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Filtered bureaucratic department congratulations and promotional slides.',
+    readTime: '2 min read',
+    content: `The solar transition is no longer an environmental subsidized experiment—it has become the cheapest source of bulk electricity in human history.`
+  },
+
+  /* ========================================================
+     HIRING & TECH TALENT WAR (The Spicy Talent Updates)
      ======================================================== */
   {
     id: 'hiring-1',
     isLead: false,
     title: 'AI Researcher Poaching War: Meta Offers $3.5M Guaranteed Comp RSU Grants to Snatch OpenAI Reasoning Talent 💼',
     titleExecutive: 'Silicon Valley AI Talent War: Meta Offers Multi-Million Guaranteed Equity Packages to Frontier Researchers',
-    source: 'TECHCRUNCH',
+    source: 'THE INFORMATION',
     category: 'hiring',
     categoryLabel: 'HIRING & TALENT 💼',
     timestamp: getTodayDateStr(0.4),
@@ -79,7 +156,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
       'Compute access (clusters of 24k+ H100/B200 GPUs) cited as a bigger retention factor than base salaries.',
       'Non-compete clauses face federal court nullification, opening unprecedented talent mobility across frontier labs.'
     ],
-    whyItMatters: 'R&D expenses for mega-cap tech will remain elevated through 2027. Companies that fail to retain core reasoning talent risk complete platform obsolescence.',
+    whyItMatters: 'R&D expenses for mega-cap tech will remain elevated through 2027. Companies that fail to retain core reasoning talent risk platform obsolescence.',
     tickers: ['$META', '$MSFT', '$GOOGL', '$NVDA'],
     sentiment: 'bullish',
     noiseFiltered: 'Stripped corporate PR denials and speculative gossip blogs.',
@@ -95,7 +172,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     category: 'hiring',
     categoryLabel: 'HIRING & TALENT 💼',
     timestamp: getTodayDateStr(1.1),
-    timeAgo: '1h ago',
+    timeAgo: '1.1h ago',
     summary: 'Global Capability Centers (GCCs) leased a record 14M sq ft of prime commercial office space across Outer Ring Road and Whitefield. Multinationals are replacing $250K US software seats with ₹45L-₹70L senior Indian engineering teams.',
     bullets: [
       'GCC count in India officially crossed 1,600, employing over 1.9M skilled professionals.',
@@ -103,7 +180,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
       'Traditional IT services firms facing senior talent churn to direct corporate captives offering higher RSUs.'
     ],
     whyItMatters: 'Powers commercial real estate REITs ($EMBASSY, $MINDSPACE) and drives strong domestic discretionary consumption in Tier-1 metros.',
-    tickers: ['$EMBASSY.RR', '$MINDSPACE.RR', '$INFOYS', '$TCS'],
+    tickers: ['$EMBASSY.RR', '$MINDSPACE.RR', '$INFY', '$TCS'],
     sentiment: 'bullish',
     noiseFiltered: 'Cut out generic state government speeches and PR press conference filler.',
     readTime: '2 min read',
@@ -112,36 +189,36 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
   {
     id: 'hiring-3',
     isLead: false,
-    title: 'Zomato & Blinkit Tech Hiring Spree: Engineering Team Adds 600 Roles for Autonomous Dark Store Robotics 📦',
-    titleExecutive: 'Quick Commerce Expansion: Zomato Engineering Expands Workforce to Build Micro-Fulfillment Automation',
-    source: 'MONEYCONTROL',
+    title: 'Tier-1 Quant Desks Offer $600K Signing Packages for High-Frequency C++ Architects in Mumbai & Singapore 💼',
+    titleExecutive: 'Proprietary Trading Compensation: Sub-Microsecond Kernel Developers Command Record Packages',
+    source: 'FINANCIAL TIMES',
     category: 'hiring',
     categoryLabel: 'HIRING & TALENT 💼',
-    timestamp: getTodayDateStr(1.8),
-    timeAgo: '1.8h ago',
-    summary: 'Deepinder Goyal confirmed aggressive technical hiring across logistics routing algorithms, computer vision inventory scanning, and dark store robotic picking systems. Candidates face intense 4-round competitive coding screens.',
+    timestamp: getTodayDateStr(1.6),
+    timeAgo: '1.6h ago',
+    summary: 'Market makers and algorithmic proprietary trading firms (Citadel Securities, Jane Street, Tower Research, Graviton) in Mumbai and Singapore are engaged in high-stakes bidding wars for kernel network stack engineers.',
     bullets: [
-      'Targeting sub-8-minute delivery times using AI dispatch prediction models.',
-      'Competitive compensation matching Tier-1 product tech firms (₹35L-₹55L base + liquid stock options).',
-      'Expanding dark store automated sorting trials across Delhi NCR and Mumbai.'
+      'First-year compensation including guaranteed sign-on bonus crosses ₹4 Cr in Mumbai.',
+      'FPGA hardware engineers in highest demand due to direct exchange co-location mandates.',
+      'Strict 12-month non-compete gardens leaves enforced by prime brokers.'
     ],
-    whyItMatters: 'Every 30 seconds shaved off delivery and picking time increases dark store throughput by 8%, compounding platform unit economics.',
-    tickers: ['$ZOMATO', '$BLINKIT'],
+    whyItMatters: 'Direct indicator of expanding algorithmic market volume and explosive derivative liquidity on Indian exchanges.',
+    tickers: ['$NSE', '$BSE', '$MCX'],
     sentiment: 'bullish',
-    noiseFiltered: 'Stripped social media quote bait and food review trivia.',
+    noiseFiltered: 'Filtered speculative recruitment gossip to focus on verified offer letters.',
     readTime: '2 min read',
-    content: `Blinkit’s transformation into a logistics technology titan relies on proprietary real-time shelf vision and dispatch telemetry rather than manual human store supervision.`
+    content: `High-frequency trading firms are generating extraordinary trading profits from retail option volatility on NSE and BSE, allowing them to outbid Silicon Valley tech giants for mathematical Olympiad and IIT medalists.`
   },
   {
     id: 'hiring-4',
     isLead: false,
-    title: 'Layoff Watch: Legacy IT Middle Management Facing 18% Restructuring as Copilots Automate Level-2 Reviews ⚡',
+    title: 'Layoff Watch: Legacy IT Middle Management Facing 18% Restructuring as Copilots Automate Code Reviews ⚡',
     titleExecutive: 'IT Services Workforce Realignment: Automation Tools Prompt Reallocation of Middle Management Resources',
     source: 'BLOOMBERG',
     category: 'hiring',
     categoryLabel: 'HIRING & TALENT 💼',
-    timestamp: getTodayDateStr(2.5),
-    timeAgo: '2.5h ago',
+    timestamp: getTodayDateStr(2.3),
+    timeAgo: '2.3h ago',
     summary: 'Indian IT services bellwethers are trimming non-coding project managers and quality assurance teams as autonomous code scanners and GenAI assistants double developer throughput.',
     bullets: [
       'Fresher hiring shifting 100% toward full-stack and Python AI integration skillsets.',
@@ -157,14 +234,14 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
   },
 
   /* ========================================================
-     POLITICS & POWER BROKERS (The User Explicitly Requested)
+     POLITICS & POWER BROKERS (Policy, Cabinet & Regulations)
      ======================================================== */
   {
     id: 'politics-1',
     isLead: false,
     title: 'Cabinet Clears ₹76,000 Cr Semiconductor Fab Subsidies: Tata & Micron Score 50% Fiscal Backstop 🏛️',
     titleExecutive: 'Cabinet Approves Semiconductor Mission Expansion: Fiscal Support Sanctioned for Semiconductor Foundries',
-    source: 'ECONOMIC TIMES',
+    source: 'BUSINESS STANDARD',
     category: 'politics',
     categoryLabel: 'POLITICS 🏛️',
     timestamp: getTodayDateStr(0.8),
@@ -187,7 +264,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     isLead: false,
     title: 'SEBI Cracks Down on Finfluencer Pump & Dump Telegram Cartels: ₹140 Cr Frozen in Mumbai & Dubai Raids ⚖️',
     titleExecutive: 'Securities Regulator Enforcement: SEBI Freezes ₹140 Crore in Coordinated Unregistered Advisory Sweep',
-    source: 'FINANCIAL TIMES',
+    source: 'MINT',
     category: 'politics',
     categoryLabel: 'POLITICS 🏛️',
     timestamp: getTodayDateStr(1.5),
@@ -304,6 +381,33 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
   {
     id: 'story-4',
     isLead: false,
+    title: 'Reliance Jio Prepares ₹1.2 Lakh Crore Mega-IPO: 5G Network Crosses 140M Active Standalone Users 📱',
+    titleExecutive: 'Telecom Valuation: Reliance Jio Finalizes Listing Roadmap with 140 Million Active 5G Subscribers',
+    source: 'CNBC',
+    category: 'stonks',
+    categoryLabel: 'STONKS ARENA 📈',
+    timestamp: getTodayDateStr(2.7),
+    timeAgo: '2.7h ago',
+    summary: 'Mukesh Ambani’s telecom behemoth is in advanced discussions with global investment banks for what will be the largest initial public offering in Indian history, slated to list by Q4 FY27.',
+    bullets: [
+      'Average Revenue Per User (ARPU) expanded to ₹198 per month following recent tariff rationalization.',
+      'Enterprise cloud and home broadband JioFiber subscribers doubled to 16M households.',
+      'Listing valuation pegged at $110B-$130B USD, unlocking massive value for parent Reliance Industries.'
+    ],
+    whyItMatters: 'Direct catalyst for parent $RELIANCE stock; clears the path for retail investors to own pure-play digital cash machines.',
+    tickers: ['$RELIANCE', '$JIO', '$TELECOM'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Removed PR executive puffery and celebrity guest attendee lists.',
+    readTime: '2.5 min read',
+    content: `Jio has transitioned from a free-data disruptive land grab into a cash-gushing digital monopoly with over 480 million paying telecom subscribers.`
+  },
+
+  /* ========================================================
+     TECH SPECS & HARDWARE INFRASTRUCTURE
+     ======================================================== */
+  {
+    id: 'tech-1',
+    isLead: false,
     title: 'NVIDIA B200 Ultra Rollout: Hyperscalers Lock in 18-Month Allocation Queues 💻',
     titleExecutive: 'NVIDIA Blackwell Architecture: Hyperscaler Backlogs Extend Through Next 6 Quarters',
     source: 'TECHCRUNCH',
@@ -325,7 +429,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     content: `Enterprise AI inferencing workloads are expanding faster than training workloads. Hardware lock-in via CUDA software moat prevents quick hyperscaler migration to custom ASICs.`
   },
   {
-    id: 'story-5',
+    id: 'tech-2',
     isLead: false,
     title: 'Grid Overload Alert: Data Centers Demand Dedicated Nuclear Small Modular Reactors ⚡',
     titleExecutive: 'Utility Grid Constraints: Tech Giants Sign Long-Term Nuclear Power Purchase Agreements',
@@ -348,7 +452,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     content: `Energy transition capital is rotating straight from intermittent wind/solar farms toward always-on 24/7 clean baseload power sources.`
   },
   {
-    id: 'story-6',
+    id: 'tech-3',
     isLead: false,
     title: 'Copper Squeeze Looming: Supply Deficit Projected at 4.2M Metric Tons by 2028 ✨',
     titleExecutive: 'Copper Structural Deficit: Smelter Cutbacks and EV Grid Demand Tighten Physical Markets',
@@ -371,7 +475,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     content: `Physical red metal stocks are hitting critically low days of consumption. Any sudden supply disruption at major Andean mines will trigger violent upside squeeze in futures contracts.`
   },
   {
-    id: 'story-7',
+    id: 'tech-4',
     isLead: false,
     title: 'VCs Stop Chasing LLM Wrappers, Pivot $18B Into Physical AI & Defense Tech 🚀',
     titleExecutive: 'Venture Capital Capital Reallocation: Seed Funds Pivot Toward Robotics and Defense Tech',
@@ -394,7 +498,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     content: `The era of raising $20M for a ChatGPT prompt wrapper is officially over. Institutional allocators demand proprietary physical datasets and government-contracted revenue pipelines.`
   },
   {
-    id: 'story-8',
+    id: 'tech-5',
     isLead: false,
     title: 'US 10-Yr Yield Glides at 4.60%: Term Premium Returns as Deficit Concerns Bite 💸',
     titleExecutive: 'Treasury Markets: 10-Year Yield Stabilizes Near 4.60% as Term Premium Rebounds',
@@ -417,7 +521,7 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
     content: `Treasury auction bid-to-cover ratios show solid domestic institutional demand, but primary dealers are required to absorb higher tail yields on 30-year auctions.`
   },
   {
-    id: 'story-9',
+    id: 'tech-6',
     isLead: false,
     title: 'The Art of Capital Allocation: Why Free Cash Flow Yield Crushes EBITDA Optics 🧠',
     titleExecutive: 'Executive Dossier: High-Signal Framework for Analyzing Free Cash Flow Conversion',

@@ -6,6 +6,7 @@ import { LeadStory } from './components/LeadStory';
 import { DossierGrid } from './components/DossierGrid';
 import { Sidebar } from './components/Sidebar';
 import { BrainGym } from './components/BrainGym';
+import { StockResearchDesk } from './components/StockResearchDesk';
 import { ArticleModal } from './components/ArticleModal';
 import { SettingsModal } from './components/SettingsModal';
 import { CatchMeUpModal } from './components/CatchMeUpModal';
@@ -276,7 +277,10 @@ export function App() {
         activeCategory={activeCategory}
         onSelectCategory={(catId) => {
           setActiveCategory(catId);
-          if (catId === 'brain-gym') {
+          if (catId === 'stock-research') {
+            const el = document.getElementById('stock-research-desk');
+            if (el) el.scrollIntoView({ behavior: 'smooth' });
+          } else if (catId === 'brain-gym') {
             const el = document.getElementById('brain-gym');
             if (el) el.scrollIntoView({ behavior: 'smooth' });
           }
@@ -286,7 +290,7 @@ export function App() {
       />
 
       {/* 4. Main Broadsheet Layout */}
-      {activeCategory !== 'brain-gym' ? (
+      {activeCategory !== 'brain-gym' && activeCategory !== 'stock-research' ? (
         <div className="broadsheet-main-grid">
           {/* Main Column: Lead Story + Dossier Grid */}
           <main>
@@ -321,7 +325,10 @@ export function App() {
         </div>
       ) : null}
 
-      {/* 5. Brain Gym Section (Sudoku, Maze, Wordle, Trivia, Higher/Lower) */}
+      {/* 5. Stock Research Terminal: 1-to-2 Year Intelligence Dossier */}
+      <StockResearchDesk onShareToast={addToast} />
+
+      {/* 6. Brain Gym Section (Sudoku, Maze, Wordle, Trivia, Higher/Lower) */}
       <BrainGym />
 
       {/* MODALS */}

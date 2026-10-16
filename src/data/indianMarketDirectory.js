@@ -31,7 +31,25 @@ export const indianYieldCurve = [
 // 60+ Authentic Indian Stocks across sectors with NSE tickers
 export const indianStockDirectory = [
   {
+    symbol: 'FLUOROCHEM',
+    yahooSymbol: 'FLUOROCHEM.NS',
+    name: 'Gujarat Fluorochemicals Limited',
+    price: '₹4,432.60',
+    change: '-1.45%',
+    up: false,
+    sector: 'Specialty Chemicals & Fluoropolymers',
+    sentiment: 'Global EV & Clean Tech Supplier',
+    marketCap: '₹48,700 Cr',
+    pe: '46.8',
+    roe: '16.4%',
+    fiftyTwoWeek: '₹2,916.60 - ₹4,958.90',
+    oneYearReturn: '+38.2%',
+    twoYearReturn: '+12.0%',
+    tags: ['Fluoropolymers', 'EV Battery Chemicals', 'Clean Tech', 'Nifty 500']
+  },
+  {
     symbol: 'TATAMOTORS',
+    yahooSymbol: 'TATAMOTORS.NS',
     name: 'Tata Motors Limited',
     price: '₹985.40',
     change: '+3.45%',
@@ -578,43 +596,22 @@ export const indianStockDirectory = [
 
 // Search Indian stocks by ticker, name, or sector
 export function searchIndianStocks(query) {
-  if (!query || !query.trim()) return indianStockDirectory.slice(0, 10);
+  if (!query || !query.trim()) return indianStockDirectory;
   const q = query.trim().toUpperCase();
   return indianStockDirectory.filter(
     (s) =>
-      s.symbol.includes(q) ||
+      s.symbol.toUpperCase().includes(q) ||
       s.name.toUpperCase().includes(q) ||
       s.sector.toUpperCase().includes(q)
   );
 }
 
-// Get or dynamically synthesize an Indian stock profile
+// Get verified Indian stock profile (strictly real companies, no fabrication)
 export function getIndianStockProfile(tickerOrName) {
-  const clean = (tickerOrName || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!tickerOrName || !tickerOrName.trim()) return null;
+  const clean = tickerOrName.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
   const found = indianStockDirectory.find(
-    (s) => s.symbol === clean || s.name.toUpperCase().includes(clean)
+    (s) => s.symbol === clean || s.name.toUpperCase().includes(clean) || clean.includes(s.symbol)
   );
-  if (found) return found;
-
-  // Synthesize realistic Indian stock profile in Rupees
-  const basePrice = Math.floor(Math.random() * 1200 + 150);
-  const changePct = ((Math.random() - 0.42) * 5).toFixed(2);
-  const isUp = parseFloat(changePct) >= 0;
-
-  return {
-    symbol: clean || 'EQUITY',
-    name: `${tickerOrName.trim().toUpperCase()} Limited`,
-    price: `₹${basePrice.toLocaleString('en-IN')}.00`,
-    change: `${isUp ? '+' : ''}${changePct}%`,
-    up: isUp,
-    sector: 'Indian Equities & Industry',
-    sentiment: isUp ? 'Bullish Traction' : 'Consolidating',
-    marketCap: `₹${Math.floor(Math.random() * 45000 + 5000)} Cr`,
-    pe: (Math.random() * 25 + 15).toFixed(1),
-    roe: (Math.random() * 14 + 12).toFixed(1) + '%',
-    fiftyTwoWeek: `₹${Math.floor(basePrice * 0.7)} - ₹${Math.floor(basePrice * 1.35)}`,
-    oneYearReturn: `+${Math.floor(Math.random() * 60 + 18)}%`,
-    twoYearReturn: `+${Math.floor(Math.random() * 180 + 45)}%`,
-    tags: ['NSE Listed', 'BSE Tracked', 'Indian Growth']
-  };
+  return found || null;
 }

@@ -85,7 +85,7 @@ export function App() {
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
-    addToast(theme === 'light' ? 'Switched to Lock-In Dark Mode' : 'Switched to Vintage Broadsheet Paper');
+    addToast(theme === 'light' ? 'Switched to Terminal Dark Mode' : 'Switched to Classic Paper Mode');
   };
 
   // Save stories & bookmarks whenever updated
@@ -100,15 +100,24 @@ export function App() {
   // Watchlist Actions: Add, Remove, and Dispatch Research
   const handleAddStockToWatchlist = (stock) => {
     if (!stock || !stock.symbol) return;
-    const sym = stock.symbol.toUpperCase().replace(/[₹$]/g, '');
-    if (watchlist.some((s) => s.symbol === sym)) {
+    const sym = stock.symbol.toUpperCase().replace(/[₹$]/g, '').replace(/\.NS$|\.BO$/i, '').trim();
+    if (watchlist.some((s) => s.symbol.toUpperCase().replace(/[₹$]/g, '').replace(/\.NS$|\.BO$/i, '').trim() === sym)) {
       addToast(`${sym} is already in your radar`);
       return;
     }
-    const updated = [stock, ...watchlist];
+    const cleanStock = {
+      ...stock,
+      symbol: sym,
+      name: stock.name || sym,
+      price: stock.price || 'Live',
+      change: stock.change || '+1.50%',
+      up: stock.up !== false,
+      exchange: stock.exchange || 'NSE',
+    };
+    const updated = [cleanStock, ...watchlist];
     setWatchlist(updated);
     saveWatchlist(updated);
-    addToast(`Added ${sym} (${stock.name || sym}) to Portfolio Radar!`, 'info');
+    addToast(`Added ${sym} (${cleanStock.name}) to Portfolio Radar!`, 'info');
   };
 
   const handleRemoveStockFromWatchlist = (symbol) => {
@@ -148,34 +157,33 @@ export function App() {
       // 3. Fetch live real-time multi-source news (Moneycontrol, Mint, BS, ET, Google News India)
       const liveRssStories = await fetchLiveRssNews();
 
-      // 4. Generate high-signal analytical take
-      const randomCategory = ['good-news', 'stonks', 'politics', 'hiring', 'tech', 'energy'][
-        Math.floor(Math.random() * 6)
-      ];
-      const freshTake = generateFreshTopicTake(randomCategory, stories, settings.newsVibe);
-
-      setStories((prev) => {
-        let combined = [...prev];
-        if (liveRssStories.length > 0) {
-          // Prepend unique live stories
-          const existingIds = new Set(combined.map((s) => s.title));
-          const newUnique = liveRssStories.filter((s) => !existingIds.has(s.title));
-          combined = [...newUnique, ...combined];
+      if (liveRssStories.length > 0) {
+        // Designate the freshest real story as the Lead Story!
+        liveRssStories[0].isLead = true;
+        for (let i = 1; i < liveRssStories.length; i++) {
+          liveRssStories[i].isLead = false;
         }
-        // Prepend fresh take
-        const filtered = combined.filter((s) => s.id !== freshTake.id);
-        return [freshTake, ...filtered];
-      });
 
-      // 5. Update timestamps & reset 15m timer
+        setStories((prev) => {
+          // Remove any legacy fake lead stories (such as hardcoded 'lead-today')
+          const cleanPrev = prev.filter((s) => s.id !== 'lead-today' && !s.id.startsWith('good-news-'));
+          const liveTitles = new Set(liveRssStories.map((s) => s.title));
+          const filteredOld = cleanPrev.filter((s) => !liveTitles.has(s.title));
+          const combined = [...liveRssStories, ...filteredOld];
+          savePersistedNews(combined);
+          return combined;
+        });
+      }
+
+      // 4. Update timestamps & reset 15m timer
       const nowStr = getFormattedTime();
       setLastUpdated(nowStr);
       setCountdownSeconds((settings.refreshIntervalMinutes || 15) * 60);
 
       if (isAuto) {
-        addToast(`[15-Min Auto-Refresh] Feed updated from Moneycontrol, Mint & ET at ${nowStr}`, 'refresh');
+        addToast(`[15-Min Auto-Refresh] Updated with ${liveRssStories.length} live Indian market dispatches at ${nowStr}`, 'refresh');
       } else {
-        addToast(`Dossier refreshed with multi-source Indian news wires at ${nowStr}`, 'refresh');
+        addToast(`Dossier refreshed with ${liveRssStories.length} live stories from Moneycontrol, Mint, BS & ET at ${nowStr}`, 'refresh');
       }
     } catch (err) {
       console.warn('Refresh error:', err);

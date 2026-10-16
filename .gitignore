@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# IDE & Tooling
+.jetro/
+.system_generated/
+*.log

@@ -51,6 +51,25 @@ export function BrainGym() {
     setSudokuStatus(null);
   };
 
+  const handleSudokuHint = () => {
+    const uncompleted = [];
+    for (let r = 0; r < 9; r++) {
+      for (let c = 0; c < 9; c++) {
+        if (sudokuGrid[r][c] !== sudokuSolution[r][c] && initialSudoku[r][c] === 0) {
+          uncompleted.push([r, c]);
+        }
+      }
+    }
+    if (uncompleted.length > 0) {
+      const [r, c] = uncompleted[Math.floor(Math.random() * uncompleted.length)];
+      const newGrid = sudokuGrid.map((row) => [...row]);
+      newGrid[r][c] = sudokuSolution[r][c];
+      setSudokuGrid(newGrid);
+      setSelectedCell([r, c]);
+      setSudokuStatus(null);
+    }
+  };
+
   /* ================= 2. INTERACTIVE MAZE ================= */
   const canvasRef = useRef(null);
   const [mazePlayer, setMazePlayer] = useState({ x: 1, y: 1 });
@@ -167,14 +186,45 @@ export function BrainGym() {
 
   /* ================= 3. FINANCE WORDLE ================= */
   const wordsList = brainGymData.wordleWords;
-  const [currentWordIdx, setCurrentWordIdx] = useState(0);
-  const targetWord = wordsList[currentWordIdx].word;
-  const targetClue = wordsList[currentWordIdx].clue;
+  // Start with a completely random financial word on load
+  const [currentWordIdx, setCurrentWordIdx] = useState(() =>
+    Math.floor(Math.random() * brainGymData.wordleWords.length)
+  );
+  const targetWord = wordsList[currentWordIdx]?.word || 'ASSET';
+  const targetClue = wordsList[currentWordIdx]?.clue || 'Financial Asset';
 
   const [guesses, setGuesses] = useState([]);
   const [currentGuess, setCurrentGuess] = useState('');
   const [wordleOver, setWordleOver] = useState(false);
   const [wordleWon, setWordleWon] = useState(false);
+
+  // Evaluates guess against target with authentic Wordle rules (handles repeat letters)
+  const getRowStatuses = (guess, target) => {
+    if (!guess || guess.length !== 5) return Array(5).fill('');
+    const statuses = Array(5).fill('absent');
+    const targetLetters = target.split('');
+    const guessLetters = guess.split('');
+
+    // First pass: mark correct positions (green)
+    for (let i = 0; i < 5; i++) {
+      if (guessLetters[i] === targetLetters[i]) {
+        statuses[i] = 'correct';
+        targetLetters[i] = null;
+      }
+    }
+
+    // Second pass: mark present letters (yellow)
+    for (let i = 0; i < 5; i++) {
+      if (statuses[i] !== 'correct') {
+        const foundIdx = targetLetters.indexOf(guessLetters[i]);
+        if (foundIdx !== -1) {
+          statuses[i] = 'present';
+          targetLetters[foundIdx] = null;
+        }
+      }
+    }
+    return statuses;
+  };
 
   const handleWordleChar = (char) => {
     if (wordleOver) return;
@@ -206,7 +256,11 @@ export function BrainGym() {
   };
 
   const handleNewWordle = () => {
-    const nextIdx = (currentWordIdx + 1) % wordsList.length;
+    // Pick a non-repeating random word
+    let nextIdx = Math.floor(Math.random() * wordsList.length);
+    if (wordsList.length > 1 && nextIdx === currentWordIdx) {
+      nextIdx = (nextIdx + 1) % wordsList.length;
+    }
     setCurrentWordIdx(nextIdx);
     setGuesses([]);
     setCurrentGuess('');
@@ -317,6 +371,9 @@ export function BrainGym() {
             <button className="btn-newspaper btn-primary-dark" onClick={handleCheckSudoku}>
               CHECK
             </button>
+            <button className="btn-newspaper" onClick={handleSudokuHint} title="Reveal a correct number in the grid">
+              HINT
+            </button>
             <button className="btn-newspaper" onClick={handleResetSudoku}>
               RESET
             </button>
@@ -390,22 +447,19 @@ export function BrainGym() {
 
           <div className="wordle-grid">
             {Array(6).fill(null).map((_, rowIdx) => {
-              const rowGuess = guesses[rowIdx] || (rowIdx === guesses.length ? currentGuess : '');
+              const isPastGuess = rowIdx < guesses.length;
+              const isCurrentRow = rowIdx === guesses.length;
+              const rowGuess = guesses[rowIdx] || (isCurrentRow ? currentGuess : '');
+              const statuses = isPastGuess ? getRowStatuses(rowGuess, targetWord) : [];
+
               return (
                 <div key={rowIdx} className="wordle-row">
                   {Array(5).fill(null).map((__, colIdx) => {
                     const char = rowGuess[colIdx] || '';
                     let status = '';
 
-                    if (rowIdx < guesses.length) {
-                      const guessChar = rowGuess[colIdx];
-                      if (guessChar === targetWord[colIdx]) {
-                        status = 'correct';
-                      } else if (targetWord.includes(guessChar)) {
-                        status = 'present';
-                      } else {
-                        status = 'absent';
-                      }
+                    if (isPastGuess) {
+                      status = statuses[colIdx];
                     } else if (char) {
                       status = 'filled';
                     }

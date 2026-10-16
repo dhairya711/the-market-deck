@@ -25,30 +25,44 @@ export function Header({
     <header className="newspaper-header">
       {/* Top vintage folio bar */}
       <div className="masthead-top-bar">
-        <div>{settings.volumeNumber || 'VOL. II • NO. 124'}</div>
+        <div>{settings.volumeNumber || 'TERMINAL v2.5 • DALAL ST & GLOBAL PULSE'}</div>
         <div className="live-vibe-monitor">
           <span className="live-dot"></span>
-          <span>LIVE VIBE MONITOR</span>
+          <span>LIVE MARKET & INTELLIGENCE RADAR</span>
         </div>
-        <div>PRICE: PURE ATTENTION</div>
+        <div>FOCUS: PURE ALPHA • ZERO FLUFF</div>
       </div>
 
-      {/* Main Masthead Title */}
+      {/* Main Masthead Title & Intro */}
       <div className="masthead-center">
+        <div className="masthead-badge-strip">
+          <span className="terminal-badge">FINANCIAL INTELLIGENCE & CAPITAL LITERACY TERMINAL</span>
+        </div>
         <h1 className="masthead-title">
-          {(settings.newspaperTitle || 'TFG TIMES').replace(/\.+$/, '')}
+          {(settings.newspaperTitle || 'THE MARKET DECK').replace(/\.+$/, '')}
           <span className="title-dot">.</span>
         </h1>
         <p className="masthead-subtitle">
-          {settings.newspaperSubtitle || 'The only news that matters. No cap, just high-signal vibes.'}
+          {settings.newspaperSubtitle || 'Financial Intelligence & Wealth Literacy Terminal • Mastering Equities, Real-Time Dispatches & Capital Decisions'}
         </p>
+        <div className="masthead-pillars">
+          <span className="pillar-item">⚡ Live Intelligence Wire</span>
+          <span className="pillar-dot">•</span>
+          <span className="pillar-item">⚖️ Asset Comparison Arena</span>
+          <span className="pillar-dot">•</span>
+          <span className="pillar-item">🔎 1-2Y Stock Dossiers</span>
+          <span className="pillar-dot">•</span>
+          <span className="pillar-item">🎓 Zero-to-Hero Academy</span>
+          <span className="pillar-dot">•</span>
+          <span className="pillar-item">🎲 Investor Brain Gym</span>
+        </div>
       </div>
 
       {/* Dossier info strip */}
       <div className="masthead-dossier-bar">
-        <span>ESTD. 2026 • DAILY DOSSIER</span>
+        <span>ESTD. 2026 • WEALTH STRATEGY COCKPIT</span>
         <span>{currentDate}</span>
-        <span>NEWSPAPER BY ANTIGRAVITY</span>
+        <span>INTELLIGENCE RADAR BY ANTIGRAVITY</span>
       </div>
 
       {/* Control bar: Refresh timer, actions, theme toggle */}

@@ -4,7 +4,7 @@ import { initialNews, categories } from '../data/defaultNews';
 import { initialIndices, defaultWatchlist } from '../data/marketData';
 import { getIndianStockProfile, indianStockDirectory } from '../data/indianMarketDirectory';
 
-const CURRENT_VERSION = 'v5_indian_multisource_watchlist_oct2026';
+const CURRENT_VERSION = 'v6_live_real_wire_oct2026';
 const STORAGE_KEYS = {
   NEWS: 'tfg_news_stories_' + CURRENT_VERSION,
   WATCHLIST: 'tfg_user_watchlist_' + CURRENT_VERSION,
@@ -13,11 +13,11 @@ const STORAGE_KEYS = {
 };
 
 export const defaultSettings = {
-  newspaperTitle: 'TFG TIMES',
-  newspaperSubtitle: 'Dalal Street & Global High-Signal Intelligence. No fluff, pure alpha.',
-  volumeNumber: 'VOL. III • ED. 142',
+  newspaperTitle: 'THE MARKET DECK',
+  newspaperSubtitle: 'Financial Intelligence & Wealth Literacy Terminal • Mastering Equities, Real-Time Dispatches & Capital Decisions',
+  volumeNumber: 'TERMINAL v2.5 • REAL-TIME DALAL STREET & GLOBAL CAPITAL DECK',
   refreshIntervalMinutes: 15, // 15 mins auto-refresh
-  newsVibe: 'tfg', // 'tfg' (High Signal / No Fluff) or 'executive' (Wall Street / Dalal St Institutional)
+  newsVibe: 'executive', // 'tfg' or 'executive'
   liveFeedsEnabled: true,
 };
 
@@ -49,7 +49,22 @@ export function loadSettings() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
     if (raw) {
-      return { ...defaultSettings, ...JSON.parse(raw) };
+      const parsed = JSON.parse(raw);
+      // Migrate legacy names to THE MARKET DECK
+      if (
+        !parsed.newspaperTitle ||
+        parsed.newspaperTitle === 'TFG TIMES' ||
+        parsed.newspaperTitle === 'TFG Times' ||
+        parsed.newspaperTitle === 'CAPITAL PULSE' ||
+        !parsed.newspaperSubtitle ||
+        parsed.newspaperSubtitle.includes('Cockpit')
+      ) {
+        parsed.newspaperTitle = defaultSettings.newspaperTitle;
+        parsed.newspaperSubtitle = defaultSettings.newspaperSubtitle;
+        parsed.volumeNumber = defaultSettings.volumeNumber;
+        saveSettings(parsed);
+      }
+      return { ...defaultSettings, ...parsed };
     }
   } catch (e) {
     console.warn('Settings load error:', e);
@@ -129,26 +144,28 @@ export async function fetchLiveRssNews() {
 
       // Extract items from RSS/XML
       const itemMatches = text.match(/<item>[\s\S]*?<\/item>/g) || [];
-      for (const item of itemMatches.slice(0, 3)) {
-        const titleMatch = item.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/);
-        const descMatch = item.match(/<description>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/description>/);
-        const sourceMatch = item.match(/<source[^>]*>(.*?)<\/source>/);
+      for (const item of itemMatches.slice(0, 8)) {
+        const titleMatch = item.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
+        const descMatch = item.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/i);
+        const sourceMatch = item.match(/<source[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/source>/i);
+        const pubDateMatch = item.match(/<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i);
+        const linkMatch = item.match(/<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i);
 
         if (!titleMatch) continue;
 
         let rawTitle = titleMatch[1]
+          .replace(/<!\[CDATA\[|\]\]>/g, '')
           .replace(/&amp;/g, '&')
           .replace(/&#39;/g, "'")
           .replace(/&quot;/g, '"')
           .replace(/&lt;/g, '<')
           .replace(/&gt;/g, '>')
           .trim();
-        rawTitle = rawTitle.replace(/\]\]>$/, '').trim();
 
         // Extract real source if present in title or XML tag (e.g., "- Moneycontrol", "- Livemint")
         let finalSource = feed.source;
         if (sourceMatch && sourceMatch[1]) {
-          finalSource = sourceMatch[1].trim().toUpperCase();
+          finalSource = sourceMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim().toUpperCase();
         } else if (rawTitle.includes(' - ')) {
           const parts = rawTitle.split(' - ');
           const potentialSource = parts[parts.length - 1].trim().toUpperCase();
@@ -158,8 +175,8 @@ export async function fetchLiveRssNews() {
           }
         }
 
-        let rawDesc = descMatch ? descMatch[1].replace(/<[^>]+>/g, '').trim() : '';
-        rawDesc = rawDesc.replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+        let rawDesc = descMatch ? descMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/<[^>]+>/g, '').trim() : '';
+        rawDesc = rawDesc.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').trim();
 
         const lowerText = (rawTitle + ' ' + rawDesc).toLowerCase();
         const isGoodNews = lowerText.includes('record') ||
@@ -201,31 +218,64 @@ export async function fetchLiveRssNews() {
           categoryLabel = 'HIRING & TALENT 💼';
         }
 
-        const nowTime = getFormattedTime();
-        const nowDate = getFormattedDate().toUpperCase();
+        // Parse authentic publication timestamp
+        let pubTimestamp = Date.now();
+        let formattedTimeAgo = 'Just now (Live Wire)';
+        let formattedTimestamp = `${getFormattedDate().toUpperCase()} • ${getFormattedTime()}`;
+
+        if (pubDateMatch && pubDateMatch[1]) {
+          try {
+            const rawDateStr = pubDateMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim();
+            const parsedD = new Date(rawDateStr);
+            if (!isNaN(parsedD.getTime())) {
+              pubTimestamp = parsedD.getTime();
+              const diffMs = Math.max(0, Date.now() - pubTimestamp);
+              const diffMins = Math.floor(diffMs / 60000);
+              const diffHours = Math.floor(diffMins / 60);
+
+              if (diffMins < 60) {
+                formattedTimeAgo = `${Math.max(1, diffMins)}m ago`;
+              } else if (diffHours < 24) {
+                formattedTimeAgo = `${diffHours}h ago`;
+              } else {
+                formattedTimeAgo = parsedD.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+              }
+
+              formattedTimestamp = parsedD.toLocaleDateString('en-IN', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+              }).toUpperCase() + ' • ' + parsedD.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true });
+            }
+          } catch {}
+        }
+
+        const finalLink = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '';
 
         parsedStories.push({
-          id: `live-${Date.now()}-${Math.floor(Math.random() * 100000)}`,
+          id: `live-${pubTimestamp}-${Math.floor(Math.random() * 10000)}`,
+          pubTimestamp,
           isLead: false,
           title: `${rawTitle} ⚡`,
           titleExecutive: rawTitle,
           source: finalSource,
           category: category,
           categoryLabel: categoryLabel,
-          timestamp: `${nowDate} • ${nowTime}`,
-          timeAgo: 'Just now (Live Wire)',
-          summary: rawDesc.slice(0, 240) + (rawDesc.length > 240 ? '...' : '') || 'Breaking news dispatch from official institutional wire.',
+          timestamp: formattedTimestamp,
+          timeAgo: formattedTimeAgo,
+          link: finalLink,
+          summary: rawDesc.slice(0, 260) + (rawDesc.length > 260 ? '...' : '') || 'Verified breaking market dispatch from official financial news wire.',
           bullets: [
             `Verified multi-source live wire dispatch published via ${finalSource}.`,
-            'Market participants evaluating immediate auction liquidity and sectoral impact.',
+            'Market participants and institutional trading desks tracking liquidity impact.',
             'Derivatives and delivery volume accumulating on National Stock Exchange (NSE).'
           ],
           whyItMatters: 'Direct fundamental development influencing immediate trading session prices and valuation multiples.',
           tickers: extractIndianTickers(rawTitle + ' ' + rawDesc),
           sentiment: isGoodNews ? 'bullish' : 'neutral',
-          noiseFiltered: `Filtered syndication marketing headers and ads from ${finalSource}.`,
+          noiseFiltered: `Filtered marketing headers and syndicated ads from ${finalSource}.`,
           readTime: '1.5 min read',
-          content: `${rawDesc}\n\n**Published via ${finalSource}** at ${nowTime} IST.\n\nInstitutional desks and mutual funds monitoring immediate delivery volume on Dalal Street.`
+          content: `${rawDesc || rawTitle}\n\n**Published via ${finalSource}** • [Read Full Story on Original Wire](${finalLink})\n\nInstitutional desks and mutual funds monitoring immediate delivery volume on Dalal Street.`
         });
       }
     } catch (e) {
@@ -233,6 +283,8 @@ export async function fetchLiveRssNews() {
     }
   }
 
+  // Sort real stories by publication time (newest first)
+  parsedStories.sort((a, b) => b.pubTimestamp - a.pubTimestamp);
   return parsedStories;
 }
 
@@ -242,17 +294,13 @@ export async function fetchStockSpecificNews(stockQuery) {
   const clean = stockQuery.trim();
 
   try {
-    const encoded = encodeURIComponent(`${clean} share price NSE India`);
-    const feedUrl = `https://news.google.com/rss/search?q=${encoded}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const encoded = encodeURIComponent(`${clean} share stock news`);
+    const feedUrl = `/api/gnews-search?q=${encoded}&hl=en-IN&gl=IN&ceid=IN:en`;
     
-    // Attempt fetch via direct or cors-proxy
     let text = '';
-    try {
-      const res = await fetch(feedUrl);
-      if (res.ok) text = await res.text();
-    } catch {
-      const proxyRes = await fetch(`https://api.allorigins.win/raw?url=${encodeURIComponent(feedUrl)}`);
-      if (proxyRes.ok) text = await proxyRes.text();
+    const res = await fetch(feedUrl);
+    if (res.ok) {
+      text = await res.text();
     }
 
     if (!text) return [];
@@ -260,21 +308,42 @@ export async function fetchStockSpecificNews(stockQuery) {
     const items = text.match(/<item>[\s\S]*?<\/item>/g) || [];
     const stockArticles = [];
 
-    for (const item of items.slice(0, 5)) {
-      const titleMatch = item.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/);
-      const pubDateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
-      const sourceMatch = item.match(/<source[^>]*>(.*?)<\/source>/);
+    for (const item of items.slice(0, 6)) {
+      const titleMatch = item.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/i);
+      const pubDateMatch = item.match(/<pubDate>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/pubDate>/i);
+      const sourceMatch = item.match(/<source[^>]*>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/source>/i);
+      const linkMatch = item.match(/<link>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/link>/i);
 
       if (!titleMatch) continue;
 
-      let title = titleMatch[1].replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
-      const source = sourceMatch ? sourceMatch[1].trim() : 'FINANCIAL WIRE';
-      const pubDate = pubDateMatch ? pubDateMatch[1] : 'Today';
+      let title = titleMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').replace(/&amp;/g, '&').replace(/&#39;/g, "'").trim();
+      let source = sourceMatch ? sourceMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : 'FINANCIAL WIRE';
+      if (title.includes(' - ')) {
+        const parts = title.split(' - ');
+        source = parts[parts.length - 1].trim();
+        title = parts.slice(0, -1).join(' - ');
+      }
+
+      let timeAgo = 'Recent';
+      if (pubDateMatch && pubDateMatch[1]) {
+        try {
+          const d = new Date(pubDateMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim());
+          if (!isNaN(d.getTime())) {
+            const diffMins = Math.floor((Date.now() - d.getTime()) / 60000);
+            if (diffMins < 60 && diffMins >= 0) timeAgo = `${Math.max(1, diffMins)}m ago`;
+            else if (diffMins < 1440 && diffMins >= 0) timeAgo = `${Math.floor(diffMins / 60)}h ago`;
+            else timeAgo = d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+          }
+        } catch {}
+      }
+
+      const link = linkMatch ? linkMatch[1].replace(/<!\[CDATA\[|\]\]>/g, '').trim() : '#';
 
       stockArticles.push({
         title,
-        source,
-        pubDate,
+        source: source.toUpperCase(),
+        pubDate: timeAgo,
+        link,
         symbol: clean.toUpperCase(),
       });
     }

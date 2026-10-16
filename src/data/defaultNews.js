@@ -30,40 +30,27 @@ export const initialNews = [
      LEAD EDITORIAL STORY
      ======================================================== */
   {
-    id: 'lead-today',
+    id: 'lead-live-market',
     isLead: true,
-    title: 'Yes Bank AT-1 Bonds Nosedive 20%: Supreme Court Rules ₹8,415 Cr Write-Off Illegal, Reopening Balance Sheet Risk ⚡',
-    titleExecutive: 'Supreme Court Verdict: Yes Bank ₹8,415 Crore AT-1 Bond Write-Down Declared Invalid',
-    source: 'ECONOMIC TIMES',
+    title: 'Cyient DLM Share Price Tumbles 19% Post Q2 Results: Order Book Solid at ₹3,200 Cr, Management Reaffirms FY27 Guidance ⚡',
+    titleExecutive: 'Cyient DLM Q2 Earnings Review: Short-term Margin Compression Meets Multi-Year Defense & Aerospace Execution',
+    source: 'LIVEMINT',
     category: 'stonks',
     categoryLabel: 'STONKS ARENA 📈',
-    timestamp: getTodayDateStr(0.2),
-    timeAgo: '12m ago',
-    summary: 'Supreme Court delivered a landmark ruling declaring the March 2020 decision to write down ₹8,415 crore of Additional Tier-1 (AT-1) bonds illegal. Bank stock dropped sharply as investors weigh potential recapitalization requirements and liability provisions.',
+    timestamp: 'TODAY • 11:28 AM',
+    timeAgo: 'Just now (Live Wire)',
+    summary: 'Cyient DLM experienced sharp intraday profit-booking despite reporting healthy revenue order backlogs. Brokerage desks highlight structural tailwinds in aerospace and defense electronics offset by temporary component shipment deferrals.',
     bullets: [
-      'Supreme Court upholds Bombay High Court judgment; AT-1 bondholders win 4-year legal battle.',
-      'Yes Bank common equity tier-1 (CET-1) ratio could take a 160-200 bps hit if full liability is restored.',
-      'RBI and SBI consortium reviewing legal avenues including a curative petition or phased capital relief.'
+      'Total firm order backlog expanded to record ₹3,200 Crore across defense and medical electronics.',
+      'Gross margins held steady at 21.4% with zero long-term balance sheet debt.',
+      'Institutional domestic mutual funds continue accumulating shares on dips.'
     ],
-    whyItMatters: 'Direct impact on Indian banking sector risk pricing. Creates precedent for subordinated debt recovery and impacts bond yields across Tier-1 bank issuers.',
-    tickers: ['$YESBANK', '$BANKNIFTY', '$SBI', '$NSE'],
-    sentiment: 'bearish',
-    noiseFiltered: 'Stripped 1,400 words of court hallway reactions and historical reconstruction to focus on balance sheet solvency.',
+    whyItMatters: 'Key indicator of execution velocity in India’s high-precision electronics manufacturing services (EMS) sector.',
+    tickers: ['$CYIENTDLM', '$DIXON', '$KAYNES', '$NSE'],
+    sentiment: 'neutral',
+    noiseFiltered: 'Stripped speculative intraday trading noise to focus on order backlog and multi-year guidance.',
     readTime: '2 min read',
-    content: `
-### Key Tactical Analysis for Banking Investors
-
-The Supreme Court of India dismissed appeals challenging the Bombay High Court ruling that struck down the write-off of ₹8,415 crore worth of Additional Tier-1 (AT-1) bonds of Yes Bank in March 2020.
-
-#### 1. Balance Sheet Implications
-* **Total AT-1 Exposure**: ₹8,415 Crore.
-* **Potential Capital Erosion**: Estimated 160 to 200 basis points on CET-1 ratio.
-* **Potential SBI Backstop**: State Bank of India currently holds a 24% stake following the 2020 reconstruction scheme and may be required to participate in recapitalization.
-
-#### 2. Sector-Wide Contagion Assessment
-* Private sector banks with outstanding AT-1 paper ($HDFCBANK, $ICICIBANK, $AXISBANK) trade on pristine standalone capital buffers (>16% CAR) and are insulated from direct legal read-across.
-* Spreads on perpetual debt paper may widen 15-25 bps in the short term.
-    `
+    content: `Cyient DLM management maintained positive long-term visibility, reiterating strong defense and industrial demand under the Make in India initiative.`
   },
 
   /* ========================================================
@@ -666,26 +653,26 @@ The Supreme Court of India dismissed appeals challenging the Bombay High Court r
 export const brainGymData = {
   sudoku: {
     puzzle: [
-      [0, 8, 3, 0, 7, 0, 0, 6, 0],
-      [9, 0, 1, 5, 0, 2, 7, 4, 8],
-      [2, 0, 7, 1, 0, 0, 0, 0, 0],
-      [1, 0, 0, 0, 0, 0, 0, 3, 0],
-      [6, 5, 2, 8, 0, 0, 0, 7, 0],
-      [0, 0, 4, 0, 0, 1, 5, 0, 0],
-      [5, 0, 1, 0, 0, 6, 0, 9, 7],
-      [8, 4, 0, 7, 0, 9, 3, 0, 0],
-      [7, 2, 9, 0, 0, 0, 0, 0, 6]
+      [5, 3, 0, 0, 7, 0, 0, 0, 0],
+      [6, 0, 0, 1, 9, 5, 0, 0, 0],
+      [0, 9, 8, 0, 0, 0, 0, 6, 0],
+      [8, 0, 0, 0, 6, 0, 0, 0, 3],
+      [4, 0, 0, 8, 0, 3, 0, 0, 1],
+      [7, 0, 0, 0, 2, 0, 0, 0, 6],
+      [0, 6, 0, 0, 0, 0, 2, 8, 0],
+      [0, 0, 0, 4, 1, 9, 0, 0, 5],
+      [0, 0, 0, 0, 8, 0, 0, 7, 9]
     ],
     solution: [
-      [4, 8, 3, 9, 7, 5, 1, 6, 2],
-      [9, 6, 1, 5, 3, 2, 7, 4, 8],
-      [2, 5, 7, 1, 6, 8, 9, 3, 4],
-      [1, 9, 8, 6, 4, 7, 2, 3, 5],
-      [6, 5, 2, 8, 9, 3, 4, 7, 1],
-      [3, 7, 4, 2, 5, 1, 5, 8, 9],
-      [5, 3, 1, 4, 8, 6, 2, 9, 7],
-      [8, 4, 6, 7, 2, 9, 3, 1, 5],
-      [7, 2, 9, 3, 1, 4, 8, 5, 6]
+      [5, 3, 4, 6, 7, 8, 9, 1, 2],
+      [6, 7, 2, 1, 9, 5, 3, 4, 8],
+      [1, 9, 8, 3, 4, 2, 5, 6, 7],
+      [8, 5, 9, 7, 6, 1, 4, 2, 3],
+      [4, 2, 6, 8, 5, 3, 7, 9, 1],
+      [7, 1, 3, 9, 2, 4, 8, 5, 6],
+      [9, 6, 1, 5, 3, 7, 2, 8, 4],
+      [2, 8, 7, 4, 1, 9, 6, 3, 5],
+      [3, 4, 5, 2, 8, 6, 1, 7, 9]
     ]
   },
   wordleWords: [
@@ -696,10 +683,34 @@ export const brainGymData = {
     { word: 'BONDS', clue: 'Fixed income debt instruments issued by states or firms' },
     { word: 'FUNDS', clue: 'Pooled capital allocated for investments' },
     { word: 'SHARE', clue: 'One unit of ownership in a corporation' },
-    { word: 'STONK', clue: 'Internet slang for an equity with meme momentum' },
-    { word: 'DIVVY', clue: 'Informal term for dividend payout' },
+    { word: 'STOCK', clue: 'Equity security representing company ownership' },
     { word: 'TRADE', clue: 'Buying or selling a financial security' },
-    { word: 'DELTA', clue: 'Ratio comparing change in derivative price to underlying' }
+    { word: 'DELTA', clue: 'Ratio comparing change in derivative price to underlying' },
+    { word: 'VALUE', clue: 'Intrinsic economic worth of a business' },
+    { word: 'HEDGE', clue: 'Position taken to reduce downside portfolio risk' },
+    { word: 'RALLY', clue: 'A sustained period of upward market price movement' },
+    { word: 'INDEX', clue: 'Benchmark measuring performance of a basket of securities' },
+    { word: 'ENTRY', clue: 'Price or timing at which an investor opens a position' },
+    { word: 'FLOAT', clue: 'Shares available for public trading in the open market' },
+    { word: 'ALPHA', clue: 'Excess return of an investment relative to benchmark' },
+    { word: 'SWAPS', clue: 'Derivative contract to exchange cash flow streams' },
+    { word: 'LIMIT', clue: 'Order type specifying a maximum buy or minimum sell price' },
+    { word: 'SHORT', clue: 'Selling borrowed shares anticipating a price drop' },
+    { word: 'CRASH', clue: 'Sudden, steep, and dramatic decline in asset prices' },
+    { word: 'MONEY', clue: 'Medium of exchange and standard unit of account' },
+    { word: 'PRICE', clue: 'Current market exchange value of a financial asset' },
+    { word: 'BANKS', clue: 'Financial institutions managing deposits and loans' },
+    { word: 'RATES', clue: 'Interest costs charged by central banks for borrowing' },
+    { word: 'GAINS', clue: 'Capital appreciation profits realized on investments' },
+    { word: 'DEBTS', clue: 'Borrowed funds that must be repaid with interest' },
+    { word: 'RISKS', clue: 'The exposure to potential capital loss or volatility' },
+    { word: 'ORDER', clue: 'Instruction given to broker to execute a trade' },
+    { word: 'TREND', clue: 'General direction in which an asset price develops' },
+    { word: 'SPLIT', clue: 'Corporate action increasing shares to boost liquidity' },
+    { word: 'CHART', clue: 'Graphical depiction of price and volume action' },
+    { word: 'AUDIT', clue: 'Official financial inspection of corporate accounts' },
+    { word: 'DIVVY', clue: 'Slang term for dividend cash payout to shareholders' },
+    { word: 'STONK', clue: 'Internet slang for retail-driven momentum equities' }
   ],
   triviaQuestions: [
     {

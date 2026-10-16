@@ -1,7 +1,8 @@
 {
-  "name": "tfg-newspaper",
+  "name": "the-market-deck",
+  "version": "2.5.0",
+  "description": "The Market Deck • Real-Time Financial Intelligence & Wealth Literacy Terminal",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

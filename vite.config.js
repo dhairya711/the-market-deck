@@ -50,6 +50,12 @@ export default defineConfig({
         rewrite: () => '',
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       },
+      '/api/gnews-search': {
+        target: 'https://news.google.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/gnews-search/, '/rss/search'),
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      },
       '/api/et-markets': {
         target: 'https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms',
         changeOrigin: true,

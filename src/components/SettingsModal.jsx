@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { X, Plus, Trash2, Sliders, Check, Sparkles, RefreshCw } from 'lucide-react';
-import { getIndianStockProfile } from '../data/indianMarketDirectory';
+import React, { useState, useEffect } from 'react';
+import { X, Plus, Trash2, Sliders, Check, Search, RefreshCw, AlertTriangle } from 'lucide-react';
+import { searchIndianStocksLive, fetchLiveStockDetails } from '../services/stockApiService';
 
 export function SettingsModal({
   settings,
@@ -11,9 +11,10 @@ export function SettingsModal({
 }) {
   const [localSettings, setLocalSettings] = useState({ ...settings });
   const [localWatchlist, setLocalWatchlist] = useState([...watchlist]);
-  const [newStockSymbol, setNewStockSymbol] = useState('');
-  const [newStockName, setNewStockName] = useState('');
-  const [newStockSector, setNewStockSector] = useState('');
+  const [stockSearch, setStockSearch] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [isSearchingLive, setIsSearchingLive] = useState(false);
+  const [addError, setAddError] = useState(null);
 
   const availableIntervals = [
     { value: 5, label: 'Every 5 Minutes (Hyper Active)' },
@@ -23,32 +24,104 @@ export function SettingsModal({
     { value: 0, label: 'Manual Refresh Only' },
   ];
 
-  const handleAddStock = (e) => {
-    e.preventDefault();
-    if (!newStockSymbol.trim()) return;
-
-    const sym = newStockSymbol.trim().toUpperCase().replace(/[₹$]/g, '');
-    const exists = localWatchlist.some((s) => s.symbol === sym);
-    if (exists) {
-      alert(`Ticker ${sym} is already in your watchlist.`);
+  // Debounced live search across NSE / BSE
+  useEffect(() => {
+    const q = stockSearch.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      setIsSearchingLive(false);
       return;
     }
 
-    const resolved = getIndianStockProfile(sym);
-    const newStock = {
-      symbol: sym,
-      name: newStockName.trim() || resolved.name,
-      price: resolved.price,
-      change: resolved.change || '+1.50%',
-      up: resolved.up !== false,
-      sector: newStockSector.trim() || resolved.sector,
-      sentiment: resolved.sentiment || 'Bullish',
-    };
+    let active = true;
+    setIsSearchingLive(true);
+    const timer = setTimeout(async () => {
+      try {
+        const matches = await searchIndianStocksLive(q);
+        if (active) {
+          setSuggestions(matches.slice(0, 6));
+          setIsSearchingLive(false);
+        }
+      } catch (err) {
+        if (active) setIsSearchingLive(false);
+      }
+    }, 280);
 
-    setLocalWatchlist([...localWatchlist, newStock]);
-    setNewStockSymbol('');
-    setNewStockName('');
-    setNewStockSector('');
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [stockSearch]);
+
+  const handleSelectStock = async (stock) => {
+    setAddError(null);
+    const sym = stock.symbol.toUpperCase().replace(/[₹$]/g, '').replace(/\.NS$|\.BO$/i, '').trim();
+
+    if (localWatchlist.some((s) => s.symbol.toUpperCase().replace(/[₹$]/g, '').replace(/\.NS$|\.BO$/i, '').trim() === sym)) {
+      setAddError(`${sym} is already in your watchlist.`);
+      return;
+    }
+
+    try {
+      setIsSearchingLive(true);
+      const details = await fetchLiveStockDetails(sym);
+      const resolved = details && !details.notFound ? details : stock;
+      const newStock = {
+        symbol: sym,
+        name: resolved.name || stock.name || sym,
+        price: resolved.currentPrice || stock.price || 'Live',
+        change: resolved.change || '+1.50%',
+        up: resolved.up !== false,
+        sector: resolved.sector || stock.sector || 'Indian Equity',
+        exchange: resolved.exchange || stock.exchange || 'NSE',
+      };
+
+      setLocalWatchlist([newStock, ...localWatchlist]);
+      setStockSearch('');
+      setSuggestions([]);
+    } catch (err) {
+      const newStock = {
+        symbol: sym,
+        name: stock.name || sym,
+        price: 'Live',
+        change: '+1.50%',
+        up: true,
+        sector: stock.sector || 'Indian Equity',
+        exchange: stock.exchange || 'NSE',
+      };
+      setLocalWatchlist([newStock, ...localWatchlist]);
+      setStockSearch('');
+      setSuggestions([]);
+    } finally {
+      setIsSearchingLive(false);
+    }
+  };
+
+  const handleSearchSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const query = stockSearch.trim();
+    if (!query) return;
+
+    if (suggestions.length > 0) {
+      handleSelectStock(suggestions[0]);
+      return;
+    }
+
+    setAddError(null);
+    setIsSearchingLive(true);
+    try {
+      const details = await fetchLiveStockDetails(query);
+      if (details.notFound) {
+        setAddError(details.message || `No company found matching "${query}"`);
+        setIsSearchingLive(false);
+        return;
+      }
+      handleSelectStock(details);
+    } catch (err) {
+      setAddError(`No company found matching "${query}"`);
+    } finally {
+      setIsSearchingLive(false);
+    }
   };
 
   const handleRemoveStock = (symbol) => {
@@ -71,11 +144,11 @@ export function SettingsModal({
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
           <Sliders size={20} color="var(--accent-red)" />
           <h2 style={{ fontFamily: 'var(--font-masthead)', fontSize: '1.6rem', fontWeight: 900 }}>
-            EDITORIAL & PORTFOLIO SETTINGS
+            TERMINAL & PORTFOLIO SETTINGS
           </h2>
         </div>
         <p style={{ fontSize: '0.82rem', color: 'var(--ink-secondary)', marginBottom: '20px' }}>
-          Curate your personal no-nonsense broadsheet. Only see news about the industries you have invested in and stocks you own.
+          Curate your personal market cockpit and portfolio radar. Filter intelligence to the industries you invest in and stocks you own.
         </p>
 
         {/* SECTION 1: AUTO REFRESH INTERVAL */}
@@ -84,7 +157,7 @@ export function SettingsModal({
             ⏱️ AUTO-REFRESH FREQUENCY
           </label>
           <p style={{ fontSize: '0.76rem', color: 'var(--ink-muted)', marginBottom: '10px' }}>
-            Controls how often your newspaper automatically updates its dossier and checks for new signals.
+            Controls how often the live feeds update and check for new capital signals.
           </p>
           <select
             value={localSettings.refreshIntervalMinutes}
@@ -142,46 +215,142 @@ export function SettingsModal({
             💼 MY INVESTED STOCKS & COMPANIES ({localWatchlist.length})
           </label>
           <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', marginBottom: '12px' }}>
-            Only stories relevant to these tickers or their supply chains will be prioritized in your general dossier.
+            Add any company of your choice to your personal watchlist radar across NSE and BSE.
           </p>
 
-          {/* Add Stock Form */}
-          <form onSubmit={handleAddStock} style={{ display: 'flex', gap: '8px', marginBottom: '14px', flexWrap: 'wrap' }}>
-            <input
-              type="text"
-              placeholder="Ticker (e.g. TSLA, NVDA, RELIANCE)"
-              value={newStockSymbol}
-              onChange={(e) => setNewStockSymbol(e.target.value)}
-              style={{
-                flex: '1 1 120px',
-                padding: '6px 10px',
-                fontSize: '0.8rem',
-                border: '1px solid var(--border-strong)',
-                borderRadius: '4px',
-                background: 'var(--bg-input)',
-                color: 'var(--ink-primary)',
-              }}
-            />
-            <input
-              type="text"
-              placeholder="Company Name (e.g. Tesla)"
-              value={newStockName}
-              onChange={(e) => setNewStockName(e.target.value)}
-              style={{
-                flex: '1 1 140px',
-                padding: '6px 10px',
-                fontSize: '0.8rem',
-                border: '1px solid var(--border-strong)',
-                borderRadius: '4px',
-                background: 'var(--bg-input)',
-                color: 'var(--ink-primary)',
-              }}
-            />
-            <button type="submit" className="btn-newspaper btn-primary-dark">
-              <Plus size={14} />
-              <span>Add Ticker</span>
-            </button>
-          </form>
+          {/* Add Stock Search with live dropdown */}
+          <div style={{ position: 'relative', marginBottom: '14px' }}>
+            <form onSubmit={handleSearchSubmit} style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ position: 'relative', flex: 1, display: 'flex', alignItems: 'center' }}>
+                <Search size={14} style={{ position: 'absolute', left: '10px', color: 'var(--ink-muted)', pointerEvents: 'none' }} />
+                <input
+                  type="text"
+                  placeholder="Search & add any company (e.g. Dixon, RVNL, Fluorochem, Tata Motors)..."
+                  value={stockSearch}
+                  onChange={(e) => setStockSearch(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '8px 10px 8px 32px',
+                    fontSize: '0.82rem',
+                    border: '1px solid var(--border-strong)',
+                    borderRadius: '4px',
+                    background: 'var(--bg-input)',
+                    color: 'var(--ink-primary)',
+                    fontFamily: 'var(--font-mono)',
+                  }}
+                />
+              </div>
+              <button type="submit" className="btn-newspaper btn-primary-dark" style={{ padding: '0 14px' }}>
+                <Plus size={14} />
+                <span>Add</span>
+              </button>
+            </form>
+
+            {/* Dropdown Live Suggestions */}
+            {stockSearch.trim().length >= 2 && (
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '105%',
+                  left: 0,
+                  right: 0,
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-strong)',
+                  borderRadius: '4px',
+                  boxShadow: 'var(--shadow-lg)',
+                  zIndex: 40,
+                  maxHeight: '200px',
+                  overflowY: 'auto',
+                }}
+              >
+                {isSearchingLive ? (
+                  <div style={{ padding: '8px 12px', fontSize: '0.76rem', color: 'var(--ink-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <RefreshCw size={12} className="animate-spin" />
+                    <span>Searching live NSE / BSE...</span>
+                  </div>
+                ) : suggestions.length > 0 ? (
+                  suggestions.map((s) => (
+                    <div
+                      key={s.symbol}
+                      onMouseDown={(e) => {
+                        e.preventDefault();
+                        handleSelectStock(s);
+                      }}
+                      style={{
+                        padding: '8px 12px',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        borderBottom: '1px solid var(--border-light)',
+                        cursor: 'pointer',
+                        fontSize: '0.78rem',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-muted)')}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                    >
+                      <div>
+                        <strong>{s.symbol}</strong>{' '}
+                        <span style={{ color: 'var(--ink-muted)', fontSize: '0.72rem' }}>
+                          ({s.name.slice(0, 24)})
+                        </span>
+                      </div>
+                      <span style={{ color: 'var(--accent-red)', fontSize: '0.7rem', fontWeight: 700, fontFamily: 'var(--font-mono)' }}>
+                        {s.exchange}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div style={{ padding: '10px', fontSize: '0.74rem', color: 'var(--accent-red)', textAlign: 'center' }}>
+                    No company found matching "{stockSearch.trim()}"
+                  </div>
+                )}
+              </div>
+            )}
+
+            {addError && (
+              <div style={{ marginTop: '6px', fontSize: '0.74rem', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <AlertTriangle size={12} />
+                <span>{addError}</span>
+              </div>
+            )}
+
+            {/* Quick List of Popular Companies to Add */}
+            <div style={{ marginTop: '10px', display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              <span style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', width: '100%' }}>
+                Quick add from company list:
+              </span>
+              {[
+                { symbol: 'DIXON', name: 'Dixon Tech' },
+                { symbol: 'TATAMOTORS', name: 'Tata Motors' },
+                { symbol: 'RELIANCE', name: 'Reliance' },
+                { symbol: 'FLUOROCHEM', name: 'Gujarat Fluoro' },
+                { symbol: 'RVNL', name: 'Rail Vikas' },
+                { symbol: 'INFY', name: 'Infosys' },
+                { symbol: 'ZOMATO', name: 'Zomato' },
+              ].map((item) => (
+                <button
+                  key={item.symbol}
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelectStock({ symbol: item.symbol, name: item.name, exchange: 'NSE' });
+                  }}
+                  style={{
+                    padding: '3px 8px',
+                    fontSize: '0.7rem',
+                    fontFamily: 'var(--font-mono)',
+                    border: '1px solid var(--border-light)',
+                    borderRadius: '3px',
+                    background: 'var(--bg-muted)',
+                    color: 'var(--ink-primary)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  + {item.name}
+                </button>
+              ))}
+            </div>
+          </div>
 
           {/* List of Tracked Stocks */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', maxHeight: '180px', overflowY: 'auto' }}>
@@ -214,22 +383,43 @@ export function SettingsModal({
           </div>
         </div>
 
-        {/* SECTION 4: CUSTOM MASTHEAD TITLE */}
+        {/* SECTION 4: CUSTOM MASTHEAD TITLE & SUBTITLE */}
         <div style={{ padding: '16px', background: 'var(--bg-muted)', borderRadius: '4px', marginBottom: '24px' }}>
           <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 800, marginBottom: '6px' }}>
-            📰 NEWSPAPER MASTHEAD TITLE
+            🏛️ PLATFORM / TERMINAL TITLE
           </label>
           <input
             type="text"
             value={localSettings.newspaperTitle}
             onChange={(e) => setLocalSettings({ ...localSettings, newspaperTitle: e.target.value })}
-            placeholder="e.g. TFG TIMES"
+            placeholder="e.g. THE MARKET DECK"
             style={{
               width: '100%',
               padding: '8px 12px',
               fontFamily: 'var(--font-masthead)',
               fontSize: '1.1rem',
               fontWeight: 800,
+              border: '1px solid var(--border-strong)',
+              borderRadius: '4px',
+              background: 'var(--bg-card)',
+              color: 'var(--ink-primary)',
+              marginBottom: '12px',
+            }}
+          />
+
+          <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 800, marginBottom: '6px' }}>
+            💡 FINANCIAL LITERACY & INTELLIGENCE TAGLINE
+          </label>
+          <input
+            type="text"
+            value={localSettings.newspaperSubtitle}
+            onChange={(e) => setLocalSettings({ ...localSettings, newspaperSubtitle: e.target.value })}
+            placeholder="e.g. Financial Intelligence & Wealth Literacy Terminal..."
+            style={{
+              width: '100%',
+              padding: '8px 12px',
+              fontFamily: 'var(--font-serif)',
+              fontSize: '0.88rem',
               border: '1px solid var(--border-strong)',
               borderRadius: '4px',
               background: 'var(--bg-card)',

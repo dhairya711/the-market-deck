@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Scale,
   TrendingUp,
@@ -7,27 +7,112 @@ import {
   ArrowRight,
   ShieldCheck,
   AlertCircle,
+  AlertTriangle,
   Sparkles,
   Search,
   Check,
   Zap,
+  RefreshCw,
+  Loader2,
 } from 'lucide-react';
 import {
   compareFinancialAssets,
+  compareFinancialAssetsLive,
   comparisonAssetCatalog,
 } from '../data/assetComparisonDatabase';
-import { searchIndianStocks } from '../data/indianMarketDirectory';
+import { searchIndianStocksLive } from '../services/stockApiService';
 
 export function AssetComparisonArena() {
   const [inputA, setInputA] = useState('ZOMATO');
   const [inputB, setInputB] = useState('SWIGGY');
   const [inputC, setInputC] = useState('');
   const [showThirdInput, setShowThirdInput] = useState(false);
+  const [isComparing, setIsComparing] = useState(false);
+  const [comparisonError, setComparisonError] = useState(null);
+
+  // Autocomplete suggestion states
+  const [suggestionsA, setSuggestionsA] = useState([]);
+  const [suggestionsB, setSuggestionsB] = useState([]);
+  const [suggestionsC, setSuggestionsC] = useState([]);
+  const [activeInput, setActiveInput] = useState(null); // 'A', 'B', 'C', or null
 
   // Active comparison state
   const [comparisonResult, setComparisonResult] = useState(() =>
     compareFinancialAssets('ZOMATO', 'SWIGGY')
   );
+
+  const arenaRef = useRef(null);
+
+  // Close suggestion popups on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (arenaRef.current && !arenaRef.current.contains(event.target)) {
+        setActiveInput(null);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Debounced search for Input A
+  useEffect(() => {
+    const q = inputA.trim();
+    if (q.length < 2 || activeInput !== 'A') {
+      setSuggestionsA([]);
+      return;
+    }
+    let active = true;
+    const timer = setTimeout(async () => {
+      try {
+        const matches = await searchIndianStocksLive(q);
+        if (active) setSuggestionsA(matches.slice(0, 5));
+      } catch (err) {}
+    }, 250);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [inputA, activeInput]);
+
+  // Debounced search for Input B
+  useEffect(() => {
+    const q = inputB.trim();
+    if (q.length < 2 || activeInput !== 'B') {
+      setSuggestionsB([]);
+      return;
+    }
+    let active = true;
+    const timer = setTimeout(async () => {
+      try {
+        const matches = await searchIndianStocksLive(q);
+        if (active) setSuggestionsB(matches.slice(0, 5));
+      } catch (err) {}
+    }, 250);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [inputB, activeInput]);
+
+  // Debounced search for Input C
+  useEffect(() => {
+    const q = inputC.trim();
+    if (q.length < 2 || activeInput !== 'C') {
+      setSuggestionsC([]);
+      return;
+    }
+    let active = true;
+    const timer = setTimeout(async () => {
+      try {
+        const matches = await searchIndianStocksLive(q);
+        if (active) setSuggestionsC(matches.slice(0, 5));
+      } catch (err) {}
+    }, 250);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [inputC, activeInput]);
 
   const presets = [
     { label: 'Zomato vs Swiggy', a: 'ZOMATO', b: 'SWIGGY' },
@@ -38,27 +123,62 @@ export function AssetComparisonArena() {
     { label: 'Gold (24K) vs Nifty 50', a: 'GOLD', b: 'NIFTY50' },
   ];
 
-  const handleRunComparison = (e) => {
+  const handleRunComparison = async (e) => {
     if (e) e.preventDefault();
     if (!inputA.trim() || !inputB.trim()) return;
-    const res = compareFinancialAssets(inputA, inputB, showThirdInput && inputC.trim() ? inputC : null);
-    setComparisonResult(res);
+
+    setActiveInput(null);
+    setIsComparing(true);
+    setComparisonError(null);
+
+    try {
+      const res = await compareFinancialAssetsLive(
+        inputA,
+        inputB,
+        showThirdInput && inputC.trim() ? inputC : null
+      );
+
+      if (res.notFound) {
+        setComparisonError(
+          res.message || `No company name found matching "${res.notFoundItem || 'your query'}"`
+        );
+        setComparisonResult({ notFound: true, items: [], verdict: null });
+      } else {
+        setComparisonResult(res);
+        setComparisonError(null);
+      }
+    } catch (err) {
+      console.warn('Comparison error:', err);
+      setComparisonError('Unable to complete comparison. Please check ticker spelling.');
+    } finally {
+      setIsComparing(false);
+    }
   };
 
-  const handleApplyPreset = (p) => {
+  const handleApplyPreset = async (p) => {
     setInputA(p.a);
     setInputB(p.b);
     setInputC('');
     setShowThirdInput(false);
-    const res = compareFinancialAssets(p.a, p.b);
-    setComparisonResult(res);
+    setActiveInput(null);
+    setIsComparing(true);
+    setComparisonError(null);
+
+    try {
+      const res = await compareFinancialAssetsLive(p.a, p.b);
+      setComparisonResult(res);
+    } catch (err) {
+      setComparisonResult(compareFinancialAssets(p.a, p.b));
+    } finally {
+      setIsComparing(false);
+    }
   };
 
-  const items = comparisonResult.items;
+  const items = comparisonResult.items || [];
   const verdict = comparisonResult.verdict;
 
   return (
-    <section className="asset-comparison-section" id="compare-arena" style={{ marginTop: '36px', marginBottom: '40px' }}>
+    <section className="asset-comparison-section" id="compare-arena" style={{ marginTop: '36px', marginBottom: '40px' }} ref={arenaRef}>
       <div
         style={{
           background: 'var(--bg-card)',
@@ -76,7 +196,7 @@ export function AssetComparisonArena() {
             Compare Any 2 to 3 Things in Finance
           </h2>
           <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '0.95rem', color: 'var(--ink-secondary)', maxWidth: '750px', margin: '4px auto 0 auto' }}>
-            Enter any 2 or 3 stocks, funds, or financial instruments. The AI comparison model breaks down past 6 months, 1 year, and 5 year returns, institutional cross-holdings, corporate investments, and synthesizes which is better for your goals.
+            Enter any 2 or 3 Indian listed companies, funds, or assets. Connects directly to live NSE/BSE exchange records for real prices, returns, and institutional cross-analysis.
           </p>
 
           {/* Preset Buttons */}
@@ -96,16 +216,21 @@ export function AssetComparisonArena() {
           </div>
         </div>
 
-        {/* Comparison Input Bar */}
-        <div style={{ maxWidth: '780px', margin: '0 auto 26px auto' }}>
+        {/* Comparison Input Bar with Live Autocomplete */}
+        <div style={{ maxWidth: '820px', margin: '0 auto 26px auto' }}>
           <form onSubmit={handleRunComparison}>
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center', marginBottom: '10px' }}>
-              <div style={{ flex: '1 1 180px' }}>
+              {/* Input A */}
+              <div style={{ flex: '1 1 200px', position: 'relative' }}>
                 <input
                   type="text"
-                  placeholder="Asset #1 (e.g. Zomato, Tata Motors, Nifty 50)"
+                  placeholder="Asset #1 (e.g. Zomato, Dixon, TCS)"
                   value={inputA}
-                  onChange={(e) => setInputA(e.target.value)}
+                  onFocus={() => setActiveInput('A')}
+                  onChange={(e) => {
+                    setInputA(e.target.value);
+                    setActiveInput('A');
+                  }}
                   style={{
                     width: '100%',
                     padding: '10px 12px',
@@ -118,16 +243,59 @@ export function AssetComparisonArena() {
                     color: 'var(--ink-primary)',
                   }}
                 />
+                {activeInput === 'A' && suggestionsA.length > 0 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '105%',
+                      left: 0,
+                      right: 0,
+                      background: 'var(--bg-card)',
+                      border: '2px solid var(--border-strong)',
+                      borderRadius: '4px',
+                      boxShadow: 'var(--shadow-md)',
+                      zIndex: 40,
+                    }}
+                  >
+                    {suggestionsA.map((s) => (
+                      <div
+                        key={s.symbol}
+                        onClick={() => {
+                          setInputA(s.symbol);
+                          setActiveInput(null);
+                        }}
+                        style={{
+                          padding: '7px 10px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          borderBottom: '1px solid var(--border-light)',
+                          cursor: 'pointer',
+                          fontSize: '0.78rem',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-muted)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <span><strong>{s.symbol}</strong> ({s.name})</span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--accent-red)', fontFamily: 'var(--font-mono)' }}>{s.exchange}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <span style={{ fontFamily: 'var(--font-masthead)', fontWeight: 900, color: 'var(--accent-red)' }}>VS</span>
 
-              <div style={{ flex: '1 1 180px' }}>
+              {/* Input B */}
+              <div style={{ flex: '1 1 200px', position: 'relative' }}>
                 <input
                   type="text"
                   placeholder="Asset #2 (e.g. Swiggy, Bank FD, Maruti)"
                   value={inputB}
-                  onChange={(e) => setInputB(e.target.value)}
+                  onFocus={() => setActiveInput('B')}
+                  onChange={(e) => {
+                    setInputB(e.target.value);
+                    setActiveInput('B');
+                  }}
                   style={{
                     width: '100%',
                     padding: '10px 12px',
@@ -140,17 +308,60 @@ export function AssetComparisonArena() {
                     color: 'var(--ink-primary)',
                   }}
                 />
+                {activeInput === 'B' && suggestionsB.length > 0 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '105%',
+                      left: 0,
+                      right: 0,
+                      background: 'var(--bg-card)',
+                      border: '2px solid var(--border-strong)',
+                      borderRadius: '4px',
+                      boxShadow: 'var(--shadow-md)',
+                      zIndex: 40,
+                    }}
+                  >
+                    {suggestionsB.map((s) => (
+                      <div
+                        key={s.symbol}
+                        onClick={() => {
+                          setInputB(s.symbol);
+                          setActiveInput(null);
+                        }}
+                        style={{
+                          padding: '7px 10px',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          borderBottom: '1px solid var(--border-light)',
+                          cursor: 'pointer',
+                          fontSize: '0.78rem',
+                        }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-muted)')}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <span><strong>{s.symbol}</strong> ({s.name})</span>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--accent-red)', fontFamily: 'var(--font-mono)' }}>{s.exchange}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
+              {/* Input C (Optional 3rd) */}
               {showThirdInput && (
                 <>
                   <span style={{ fontFamily: 'var(--font-masthead)', fontWeight: 900, color: 'var(--accent-red)' }}>VS</span>
-                  <div style={{ flex: '1 1 180px' }}>
+                  <div style={{ flex: '1 1 200px', position: 'relative' }}>
                     <input
                       type="text"
-                      placeholder="Asset #3 (e.g. Gold, Liquid Fund)"
+                      placeholder="Asset #3 (e.g. Gold, Liquid Fund, RVNL)"
                       value={inputC}
-                      onChange={(e) => setInputC(e.target.value)}
+                      onFocus={() => setActiveInput('C')}
+                      onChange={(e) => {
+                        setInputC(e.target.value);
+                        setActiveInput('C');
+                      }}
                       style={{
                         width: '100%',
                         padding: '10px 12px',
@@ -163,13 +374,65 @@ export function AssetComparisonArena() {
                         color: 'var(--ink-primary)',
                       }}
                     />
+                    {activeInput === 'C' && suggestionsC.length > 0 && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: '105%',
+                          left: 0,
+                          right: 0,
+                          background: 'var(--bg-card)',
+                          border: '2px solid var(--border-strong)',
+                          borderRadius: '4px',
+                          boxShadow: 'var(--shadow-md)',
+                          zIndex: 40,
+                        }}
+                      >
+                        {suggestionsC.map((s) => (
+                          <div
+                            key={s.symbol}
+                            onClick={() => {
+                              setInputC(s.symbol);
+                              setActiveInput(null);
+                            }}
+                            style={{
+                              padding: '7px 10px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              borderBottom: '1px solid var(--border-light)',
+                              cursor: 'pointer',
+                              fontSize: '0.78rem',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-muted)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                          >
+                            <span><strong>{s.symbol}</strong> ({s.name})</span>
+                            <span style={{ fontSize: '0.72rem', color: 'var(--accent-red)', fontFamily: 'var(--font-mono)' }}>{s.exchange}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </>
               )}
 
-              <button type="submit" className="btn-newspaper btn-primary-dark" style={{ padding: '10px 20px', fontSize: '0.85rem' }}>
-                <Scale size={14} />
-                <span>Compare Head-to-Head</span>
+              <button
+                type="submit"
+                className="btn-newspaper btn-primary-dark"
+                disabled={isComparing}
+                style={{ padding: '10px 20px', fontSize: '0.85rem' }}
+              >
+                {isComparing ? (
+                  <>
+                    <RefreshCw size={14} className="animate-spin" />
+                    <span>Querying Live Markets...</span>
+                  </>
+                ) : (
+                  <>
+                    <Scale size={14} />
+                    <span>Compare Head-to-Head</span>
+                  </>
+                )}
               </button>
             </div>
 
@@ -185,10 +448,32 @@ export function AssetComparisonArena() {
           </form>
         </div>
 
+        {/* NOT FOUND ERROR ALERT (Zero Fake Generation) */}
+        {comparisonError && (
+          <div
+            style={{
+              background: 'var(--bg-muted)',
+              border: '2px solid var(--accent-red)',
+              padding: '18px 20px',
+              borderRadius: '4px',
+              textAlign: 'center',
+              marginBottom: '24px',
+            }}
+          >
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', color: 'var(--accent-red)', fontWeight: 800, fontSize: '0.94rem', marginBottom: '6px' }}>
+              <AlertTriangle size={18} />
+              <span>COMPANY NOT FOUND ON NSE / BSE</span>
+            </div>
+            <p style={{ fontSize: '0.86rem', color: 'var(--ink-secondary)', maxWidth: '640px', margin: '0 auto' }}>
+              {comparisonError}. Strictly genuine market data is enforced: please enter a valid Indian listed company (e.g. Dixon, Fluorochem, Suzlon, Tata Motors, Reliance) or financial instrument (e.g. Bank FD, Gold, Liquid Fund).
+            </p>
+          </div>
+        )}
+
         {/* =========================================================================
             COMPARISON REPORT RESULTS
             ========================================================================= */}
-        {items.length >= 2 && (
+        {!comparisonError && items.length >= 2 && (
           <div style={{ background: 'var(--bg-page)', border: '1px solid var(--border-strong)', padding: '22px', borderRadius: '4px' }}>
             {/* 1. Side-by-Side Contenders Overview */}
             <div

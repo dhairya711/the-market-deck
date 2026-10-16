@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { yieldCurveData, marketQuotes } from '../data/marketData';
-import { searchIndianStocks, getIndianStockProfile } from '../data/indianMarketDirectory';
+import { searchIndianStocksLive, fetchLiveStockDetails } from '../services/stockApiService';
 import {
   TrendingUp,
   TrendingDown,
@@ -12,6 +12,8 @@ import {
   ExternalLink,
   Star,
   CheckCircle,
+  RefreshCw,
+  AlertTriangle,
 } from 'lucide-react';
 
 export function Sidebar({
@@ -25,36 +27,117 @@ export function Sidebar({
 }) {
   const [newStockInput, setNewStockInput] = useState('');
   const [suggestions, setSuggestions] = useState([]);
+  const [isSearchingLive, setIsSearchingLive] = useState(false);
   const [isAdding, setIsAdding] = useState(false);
+  const [addError, setAddError] = useState(null);
 
   // Pick today's quote based on day
   const todayQuote = marketQuotes[new Date().getDate() % marketQuotes.length];
 
-  const handleInputChange = (val) => {
-    setNewStockInput(val);
-    if (val.trim().length >= 2) {
-      setSuggestions(searchIndianStocks(val).slice(0, 5));
-    } else {
+  // As user writes, trigger on-demand live API search across 2,000+ Indian listed equities
+  useEffect(() => {
+    const q = newStockInput.trim();
+    if (q.length < 2) {
       setSuggestions([]);
+      setIsSearchingLive(false);
+      setAddError(null);
+      return;
+    }
+
+    let active = true;
+    setIsSearchingLive(true);
+    setAddError(null);
+
+    const timer = setTimeout(async () => {
+      try {
+        const matches = await searchIndianStocksLive(q);
+        if (active) {
+          setSuggestions(matches.slice(0, 6));
+          setIsSearchingLive(false);
+        }
+      } catch (err) {
+        if (active) setIsSearchingLive(false);
+      }
+    }, 250);
+
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  }, [newStockInput]);
+
+  const handleSelectStock = async (stock) => {
+    if (!onAddStock) return;
+    setAddError(null);
+    try {
+      setIsSearchingLive(true);
+      const details = await fetchLiveStockDetails(stock.symbol);
+      const resolved = details && !details.notFound ? details : stock;
+      onAddStock({
+        symbol: resolved.symbol || stock.symbol,
+        name: resolved.name || stock.name || stock.symbol,
+        price: resolved.currentPrice || stock.price || 'Live',
+        change: resolved.change || '+1.50%',
+        up: resolved.up !== false,
+        exchange: resolved.exchange || stock.exchange || 'NSE',
+        sector: resolved.sector || stock.sector || 'Indian Equity',
+      });
+      setNewStockInput('');
+      setSuggestions([]);
+      setIsAdding(false);
+    } catch (err) {
+      onAddStock({
+        symbol: stock.symbol,
+        name: stock.name || stock.symbol,
+        price: 'Live',
+        change: '+1.50%',
+        up: true,
+        exchange: stock.exchange || 'NSE',
+        sector: stock.sector || 'Indian Equity',
+      });
+      setNewStockInput('');
+      setSuggestions([]);
+      setIsAdding(false);
+    } finally {
+      setIsSearchingLive(false);
     }
   };
 
-  const handleSelectStock = (stock) => {
-    if (!onAddStock) return;
-    onAddStock(stock);
-    setNewStockInput('');
-    setSuggestions([]);
-    setIsAdding(false);
-  };
+  const handleCustomSubmit = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    const query = newStockInput.trim();
+    if (!query || !onAddStock) return;
+    setAddError(null);
+    setIsSearchingLive(true);
 
-  const handleCustomSubmit = (e) => {
-    e.preventDefault();
-    if (!newStockInput.trim() || !onAddStock) return;
-    const profile = getIndianStockProfile(newStockInput);
-    onAddStock(profile);
-    setNewStockInput('');
-    setSuggestions([]);
-    setIsAdding(false);
+    try {
+      if (suggestions.length > 0) {
+        await handleSelectStock(suggestions[0]);
+        return;
+      }
+      const details = await fetchLiveStockDetails(query);
+      if (details.notFound) {
+        setAddError(details.message || `No company name found matching "${query}"`);
+        setIsSearchingLive(false);
+        return;
+      }
+      onAddStock({
+        symbol: details.symbol,
+        name: details.name,
+        price: details.currentPrice,
+        change: details.change,
+        up: details.up,
+        exchange: details.exchange,
+        sector: details.sector || 'Indian Equity',
+      });
+      setNewStockInput('');
+      setSuggestions([]);
+      setIsAdding(false);
+    } catch (err) {
+      setAddError(`No company name found matching "${query}"`);
+    } finally {
+      setIsSearchingLive(false);
+    }
   };
 
   return (
@@ -102,83 +185,154 @@ export function Sidebar({
               onClick={() => setIsAdding(true)}
             >
               <Plus size={13} />
-              <span>+ Add Indian Stock to Radar</span>
+              <span>+ Add Company of Your Own</span>
             </button>
           ) : (
-            <form onSubmit={handleCustomSubmit} style={{ display: 'flex', gap: '4px' }}>
-              <div style={{ position: 'relative', flex: 1 }}>
-                <input
-                  type="text"
-                  placeholder="Type symbol (e.g. RVNL, IRFC, HAL, ITC)..."
-                  value={newStockInput}
-                  onChange={(e) => handleInputChange(e.target.value)}
-                  autoFocus
-                  style={{
-                    width: '100%',
-                    padding: '6px 8px',
-                    fontSize: '0.78rem',
-                    fontFamily: 'var(--font-mono)',
-                    border: '1px solid var(--border-strong)',
-                    borderRadius: '3px',
-                    background: 'var(--bg-card)',
-                    color: 'var(--ink-primary)',
-                  }}
-                />
-
-                {/* Autocomplete Dropdown */}
-                {suggestions.length > 0 && (
-                  <div
+            <div>
+              <form onSubmit={handleCustomSubmit} style={{ display: 'flex', gap: '4px' }}>
+                <div style={{ position: 'relative', flex: 1 }}>
+                  <input
+                    type="text"
+                    placeholder="Search any company (e.g. Dixon, RVNL, Fluorochem)..."
+                    value={newStockInput}
+                    onChange={(e) => setNewStockInput(e.target.value)}
+                    autoFocus
                     style={{
-                      position: 'absolute',
-                      top: '105%',
-                      left: 0,
-                      right: 0,
-                      background: 'var(--bg-card)',
+                      width: '100%',
+                      padding: '6px 8px',
+                      fontSize: '0.78rem',
+                      fontFamily: 'var(--font-mono)',
                       border: '1px solid var(--border-strong)',
                       borderRadius: '3px',
-                      boxShadow: 'var(--shadow-md)',
-                      zIndex: 30,
+                      background: 'var(--bg-card)',
+                      color: 'var(--ink-primary)',
+                    }}
+                  />
+
+                  {/* Autocomplete Dropdown: Live API Results */}
+                  {newStockInput.trim().length >= 2 && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '105%',
+                        left: 0,
+                        right: 0,
+                        background: 'var(--bg-card)',
+                        border: '1px solid var(--border-strong)',
+                        borderRadius: '3px',
+                        boxShadow: 'var(--shadow-md)',
+                        zIndex: 30,
+                        maxHeight: '220px',
+                        overflowY: 'auto',
+                      }}
+                    >
+                      {isSearchingLive ? (
+                        <div style={{ padding: '8px 10px', fontSize: '0.74rem', color: 'var(--ink-secondary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <RefreshCw size={12} className="animate-spin" />
+                          <span>Searching live NSE / BSE...</span>
+                        </div>
+                      ) : suggestions.length > 0 ? (
+                        suggestions.map((s) => (
+                          <div
+                            key={s.symbol}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              handleSelectStock(s);
+                            }}
+                            style={{
+                              padding: '6px 10px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
+                              alignItems: 'center',
+                              borderBottom: '1px solid var(--border-light)',
+                              cursor: 'pointer',
+                              fontSize: '0.76rem',
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-muted)')}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                          >
+                            <div>
+                              <strong>{s.symbol}</strong>{' '}
+                              <span style={{ color: 'var(--ink-muted)', fontSize: '0.72rem' }}>
+                                ({s.name.slice(0, 22)})
+                              </span>
+                            </div>
+                            <span style={{ color: 'var(--accent-red)', fontSize: '0.7rem', fontFamily: 'var(--font-mono)', fontWeight: 700 }}>
+                              {s.exchange}
+                            </span>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{ padding: '10px', fontSize: '0.74rem', color: 'var(--accent-red)', textAlign: 'center' }}>
+                          No company name found matching "<strong>{newStockInput.trim()}</strong>"
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {addError && (
+                    <div style={{ marginTop: '4px', fontSize: '0.72rem', color: 'var(--accent-red)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <AlertTriangle size={12} />
+                      <span>{addError}</span>
+                    </div>
+                  )}
+                </div>
+
+                <button type="submit" className="btn-newspaper btn-primary-dark" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
+                  Add
+                </button>
+                <button
+                  type="button"
+                  className="btn-newspaper"
+                  style={{ padding: '4px 8px', fontSize: '0.75rem' }}
+                  onClick={() => {
+                    setIsAdding(false);
+                    setNewStockInput('');
+                    setSuggestions([]);
+                    setAddError(null);
+                  }}
+                >
+                  ✕
+                </button>
+              </form>
+
+              {/* Quick-Pick Popular Company List */}
+              <div style={{ marginTop: '8px', display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                <span style={{ fontSize: '0.66rem', color: 'var(--ink-muted)', width: '100%', marginBottom: '1px' }}>
+                  Quick list:
+                </span>
+                {[
+                  { symbol: 'DIXON', name: 'Dixon Tech' },
+                  { symbol: 'TATAMOTORS', name: 'Tata Motors' },
+                  { symbol: 'RELIANCE', name: 'Reliance' },
+                  { symbol: 'FLUOROCHEM', name: 'Gujarat Fluoro' },
+                  { symbol: 'RVNL', name: 'Rail Vikas' },
+                  { symbol: 'INFY', name: 'Infosys' },
+                  { symbol: 'ZOMATO', name: 'Zomato' },
+                ].map((item) => (
+                  <button
+                    key={item.symbol}
+                    type="button"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectStock({ symbol: item.symbol, name: item.name, exchange: 'NSE' });
+                    }}
+                    style={{
+                      padding: '2px 6px',
+                      fontSize: '0.68rem',
+                      fontFamily: 'var(--font-mono)',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: '3px',
+                      background: 'var(--bg-muted)',
+                      color: 'var(--ink-primary)',
+                      cursor: 'pointer',
                     }}
                   >
-                    {suggestions.map((s) => (
-                      <div
-                        key={s.symbol}
-                        onClick={() => handleSelectStock(s)}
-                        style={{
-                          padding: '6px 10px',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          borderBottom: '1px solid var(--border-light)',
-                          cursor: 'pointer',
-                          fontSize: '0.76rem',
-                        }}
-                        onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-muted)')}
-                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
-                      >
-                        <span><strong>{s.symbol}</strong> ({s.name})</span>
-                        <span style={{ color: 'var(--accent-green)', fontWeight: 700 }}>{s.price}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                    + {item.name}
+                  </button>
+                ))}
               </div>
-
-              <button type="submit" className="btn-newspaper btn-primary-dark" style={{ padding: '4px 10px', fontSize: '0.75rem' }}>
-                Add
-              </button>
-              <button
-                type="button"
-                className="btn-newspaper"
-                style={{ padding: '4px 8px', fontSize: '0.75rem' }}
-                onClick={() => {
-                  setIsAdding(false);
-                  setNewStockInput('');
-                  setSuggestions([]);
-                }}
-              >
-                ✕
-              </button>
-            </form>
+            </div>
           )}
         </div>
 

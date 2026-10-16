@@ -182,12 +182,55 @@ body::before {
   color: var(--accent-red);
 }
 
+.masthead-badge-strip {
+  margin-bottom: 10px;
+}
+
+.terminal-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  padding: 4px 14px;
+  background: var(--bg-muted);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  color: var(--ink-primary);
+}
+
 .masthead-subtitle {
   font-family: var(--font-serif);
   font-style: italic;
   font-size: 1.15rem;
   color: var(--ink-secondary);
   letter-spacing: 0.02em;
+  margin-bottom: 6px;
+}
+
+.masthead-pillars {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--ink-secondary);
+}
+
+.pillar-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pillar-dot {
+  color: var(--accent-red);
+  font-size: 0.7rem;
 }
 
 /* Dossier Date / Issue Strip */

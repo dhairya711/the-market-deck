@@ -24,7 +24,7 @@ export function CatchMeUpModal({ stories, onClose }) {
     }
 
     window.speechSynthesis.cancel();
-    const script = `Good day. Here is your 60-second TFG high-signal market dossier. First, ${topBriefings.map((b, i) => `Point ${i + 1}: ${b.title}. ${b.takeaway}`).join('. Next, ')}. You are now fully caught up on your portfolio. Have high conviction today.`;
+    const script = `Good day. Here is your 60-second The Market Deck high-signal intelligence briefing. First, ${topBriefings.map((b, i) => `Point ${i + 1}: ${b.title}. ${b.takeaway}`).join('. Next, ')}. You are now fully caught up on your portfolio. Have high conviction today.`;
 
     const utterance = new SpeechSynthesisUtterance(script);
     utterance.rate = 1.05;

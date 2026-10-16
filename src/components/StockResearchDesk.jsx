@@ -214,8 +214,12 @@ export function StockResearchDesk({ onShareToast, onAddToWatchlist, watchlist = 
         loadStockData(sym);
       }
     };
+    window.addEventListener('market_deck_open_stock_research', handleTrigger);
     window.addEventListener('tfg_open_stock_research', handleTrigger);
-    return () => window.removeEventListener('tfg_open_stock_research', handleTrigger);
+    return () => {
+      window.removeEventListener('market_deck_open_stock_research', handleTrigger);
+      window.removeEventListener('tfg_open_stock_research', handleTrigger);
+    };
   }, []);
 
   const handleSearchSubmit = (e) => {

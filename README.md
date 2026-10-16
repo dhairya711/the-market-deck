@@ -97,7 +97,7 @@ Unlike conventional clickbait news feeds and promotional trading apps, **The Mar
 | **Custom Company Watchlist** | Add ANY company on NSE/BSE to your personal radar with live debounced search and quick-pick chips. | `Sidebar.jsx`, `SettingsModal.jsx` + `stockApiService.js` |
 | **Dossier Export** | One-click clipboard export of institutional equity research reports formatted for analysts. | Asynchronous `navigator.clipboard.writeText` with toast feedback |
 | **Dual Aesthetic Design** | Switch effortlessly between *Terminal Dark Mode* and *Classic Vintage Broadsheet Paper*. | CSS Custom Properties token design system via `data-theme` |
-| **Editorial Vibe Toggle** | Choose between *Wall Street Executive* (zero-fluff quantitative) and *TFG Style* (high-signal punchy). | Dynamic story synthesis based on tone preset |
+| **Editorial Vibe Toggle** | Choose between *Wall Street Executive* (zero-fluff quantitative) and *Market Deck Alpha* (high-signal punchy). | Dynamic story synthesis based on tone preset |
 | **Live Dalal Street Wire** | Aggregated real-time dispatches from *Moneycontrol, Livemint, Business Standard, ET, and CNBC-TV18*. | Multi-source RSS pipeline with local proxy fallback & deduplication |
 | **Munger ROIC Filter** | Focuses strictly on owner earnings, deducting SBC dilution and verifying return on invested capital. | Mathematical ROIC vs. WACC evaluation engine |
 | **Noise Filtering Engine** | Strips out promotional trading courses, penny-stock tips, and speculative clickbait. | Algorithmic filter flagging sponsored content and promotional keywords |

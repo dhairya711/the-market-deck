@@ -6,10 +6,10 @@ import { getIndianStockProfile, indianStockDirectory } from '../data/indianMarke
 
 const CURRENT_VERSION = 'v6_live_real_wire_oct2026';
 const STORAGE_KEYS = {
-  NEWS: 'tfg_news_stories_' + CURRENT_VERSION,
-  WATCHLIST: 'tfg_user_watchlist_' + CURRENT_VERSION,
-  SETTINGS: 'tfg_user_settings',
-  BOOKMARKS: 'tfg_user_bookmarks',
+  NEWS: 'market_deck_news_stories_' + CURRENT_VERSION,
+  WATCHLIST: 'market_deck_user_watchlist_' + CURRENT_VERSION,
+  SETTINGS: 'market_deck_user_settings',
+  BOOKMARKS: 'market_deck_user_bookmarks',
 };
 
 export const defaultSettings = {
@@ -17,14 +17,13 @@ export const defaultSettings = {
   newspaperSubtitle: 'Financial Intelligence & Wealth Literacy Terminal • Mastering Equities, Real-Time Dispatches & Capital Decisions',
   volumeNumber: 'TERMINAL v2.5 • REAL-TIME DALAL STREET & GLOBAL CAPITAL DECK',
   refreshIntervalMinutes: 15, // 15 mins auto-refresh
-  newsVibe: 'executive', // 'tfg' or 'executive'
+  newsVibe: 'executive', // 'market_deck' or 'executive'
   liveFeedsEnabled: true,
 };
 
-// Load persisted stories or fallback
 export function loadPersistedNews() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.NEWS);
+    const raw = localStorage.getItem(STORAGE_KEYS.NEWS) || localStorage.getItem('tfg_news_stories_' + CURRENT_VERSION);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -47,7 +46,7 @@ export function savePersistedNews(news) {
 
 export function loadSettings() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS);
+    const raw = localStorage.getItem(STORAGE_KEYS.SETTINGS) || localStorage.getItem('tfg_user_settings');
     if (raw) {
       const parsed = JSON.parse(raw);
       // Migrate legacy names to THE MARKET DECK
@@ -82,7 +81,7 @@ export function saveSettings(settings) {
 
 export function loadWatchlist() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEYS.WATCHLIST);
+    const raw = localStorage.getItem(STORAGE_KEYS.WATCHLIST) || localStorage.getItem('tfg_user_watchlist_' + CURRENT_VERSION);
     if (raw) {
       const parsed = JSON.parse(raw);
       if (Array.isArray(parsed) && parsed.length > 0) {
@@ -484,7 +483,7 @@ export function simulateMarketPulse(indices = initialIndices) {
 }
 
 // Dynamic Indian Topic & Story Generator
-export function generateFreshTopicTake(topicOrCategory, existingStories = [], vibe = 'tfg') {
+export function generateFreshTopicTake(topicOrCategory, existingStories = [], vibe = 'market_deck') {
   const nowTime = getFormattedTime();
   const nowDate = getFormattedDate().toUpperCase();
   const timestamp = `${nowDate} • ${nowTime}`;

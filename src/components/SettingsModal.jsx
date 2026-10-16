@@ -192,11 +192,11 @@ export function SettingsModal({
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
             <button
               type="button"
-              className={`btn-newspaper ${localSettings.newsVibe === 'tfg' ? 'btn-primary-dark' : ''}`}
+              className={`btn-newspaper ${localSettings.newsVibe === 'market_deck' || localSettings.newsVibe === 'tfg' ? 'btn-primary-dark' : ''}`}
               style={{ justifyContent: 'center', padding: '10px' }}
-              onClick={() => setLocalSettings({ ...localSettings, newsVibe: 'tfg' })}
+              onClick={() => setLocalSettings({ ...localSettings, newsVibe: 'market_deck' })}
             >
-              <span>TFG Vibe (No Cap / High Signal)</span>
+              <span>Market Deck Alpha (High Signal / No Fluff)</span>
             </button>
             <button
               type="button"

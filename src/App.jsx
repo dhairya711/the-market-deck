@@ -33,7 +33,7 @@ import {
 export function App() {
   // Theme state: 'light' or 'dark'
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('tfg_theme') || 'light';
+    return localStorage.getItem('market_deck_theme') || localStorage.getItem('tfg_theme') || 'light';
   });
 
   // Settings & Watchlist
@@ -48,7 +48,7 @@ export function App() {
   const [isWatchlistOnly, setIsWatchlistOnly] = useState(false);
   const [bookmarkedIds, setBookmarkedIds] = useState(() => {
     try {
-      return JSON.parse(localStorage.getItem('tfg_bookmarks') || '[]');
+      return JSON.parse(localStorage.getItem('market_deck_bookmarks') || localStorage.getItem('tfg_bookmarks') || '[]');
     } catch {
       return [];
     }
@@ -80,7 +80,7 @@ export function App() {
   // Sync theme to DOM
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('tfg_theme', theme);
+    localStorage.setItem('market_deck_theme', theme);
   }, [theme]);
 
   const toggleTheme = () => {
@@ -94,7 +94,7 @@ export function App() {
   }, [stories]);
 
   useEffect(() => {
-    localStorage.setItem('tfg_bookmarks', JSON.stringify(bookmarkedIds));
+    localStorage.setItem('market_deck_bookmarks', JSON.stringify(bookmarkedIds));
   }, [bookmarkedIds]);
 
   // Watchlist Actions: Add, Remove, and Dispatch Research
@@ -134,7 +134,7 @@ export function App() {
     }
     // Dispatch custom event to notify StockResearchDesk
     window.dispatchEvent(
-      new CustomEvent('tfg_open_stock_research', { detail: { symbol } })
+      new CustomEvent('market_deck_open_stock_research', { detail: { symbol } })
     );
   };
 

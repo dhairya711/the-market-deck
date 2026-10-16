@@ -411,7 +411,7 @@ export const initialNews = [
   },
 
   /* ========================================================
-     STONKS ARENA (High Signal, Spicy WSB / TFG Vibe)
+     STONKS ARENA (High Signal, Market Deck Alpha)
      ======================================================== */
   {
     id: 'story-1',

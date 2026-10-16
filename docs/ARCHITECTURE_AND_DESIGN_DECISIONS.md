@@ -85,7 +85,7 @@ Many AI-assisted financial tools generate plausible-sounding stock prices or fab
 Rather than introducing heavy Redux or MobX dependencies, application state is coordinated through `App.jsx` using React 19 primitives:
 - `useState` for local component focus and interactive game states.
 - `useEffect` hooks with debounced event handlers for real-time stock searches (280ms debounce window).
-- `CustomEvent` dispatching (`window.dispatchEvent(new CustomEvent('tfg_open_stock_research', ...))`) enabling cross-widget communication (e.g., clicking "Dossier" on a Watchlist stock smoothly scrolls and hydrates the Research Desk).
+- `CustomEvent` dispatching (`window.dispatchEvent(new CustomEvent('market_deck_open_stock_research', ...))`) enabling cross-widget communication (e.g., clicking "Dossier" on a Watchlist stock smoothly scrolls and hydrates the Research Desk).
 
 ### 4.2 Transparent Local Storage Migration
 To prevent breaking changes when data structures evolve, `newsService.js` incorporates automated schema migration in `loadSettings()`. If a user visited during early prototypes, their settings and watchlist are seamlessly migrated to the latest schema without clearing their portfolio.

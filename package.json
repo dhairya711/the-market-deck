@@ -3,6 +3,7 @@
   "version": "2.5.0",
   "description": "The Market Deck • Real-Time Financial Intelligence & Wealth Literacy Terminal",
   "private": true,
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",

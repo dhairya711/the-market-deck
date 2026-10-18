@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   GraduationCap,
   Trophy,
@@ -13,72 +13,92 @@ import {
   Zap,
   HelpCircle,
   RefreshCw,
+  Shuffle,
+  AlertTriangle,
+  Flame,
+  Calculator,
+  Check,
+  ChevronRight,
 } from 'lucide-react';
 import {
   financeGlossary,
-  financeQuizLevels,
+  masterQuizQuestionBank,
+  getRandomizedQuiz,
   higherReturnDuels,
 } from '../data/financeEducationData';
 
 export function FinanceZeroToHero() {
-  const [activeTab, setActiveTab] = useState('game'); // 'game' | 'duels' | 'masterclass'
+  // Default to 'learn' as requested: learn FIRST, then play
+  const [activeTab, setActiveTab] = useState('learn'); // 'learn' | 'quiz' | 'duels'
 
-  // Game / Quiz State
-  const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
+  // Masterclass Concept State
+  const [selectedConceptKey, setSelectedConceptKey] = useState('sip');
+
+  // Interactive SIP Calculator inside Learn section
+  const [calcMonthly, setCalcMonthly] = useState(5000);
+  const [calcYears, setCalcYears] = useState(15);
+  const [calcRate, setCalcRate] = useState(13.5);
+
+  // Interactive FD Post-Tax Calculator inside Learn section
+  const [fdInterestRate, setFdInterestRate] = useState(7.0);
+  const [taxSlab, setTaxSlab] = useState(30);
+  const [inflationRate, setInflationRate] = useState(5.5);
+
+  // Quiz / Game State: initialized with randomized questions!
+  const [quizQuestions, setQuizQuestions] = useState(() => getRandomizedQuiz(10));
+  const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
   const [selectedOption, setSelectedOption] = useState(null);
   const [score, setScore] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [completedLevels, setCompletedLevels] = useState([]);
   const [streak, setStreak] = useState(0);
+  const [completedCount, setCompletedCount] = useState(0);
 
   // Duels State
   const [selectedDuelIdx, setSelectedDuelIdx] = useState(0);
   const [userGuess, setUserGuess] = useState(null);
   const [duelRevealed, setDuelRevealed] = useState(false);
 
-  // Masterclass Concept State
-  const [selectedConceptKey, setSelectedConceptKey] = useState('liquidFund');
-
-  const currentLevel = financeQuizLevels[currentLevelIdx];
+  const currentConcept = financeGlossary[selectedConceptKey] || financeGlossary.sip;
+  const currentQuestion = quizQuestions[currentQuestionIdx];
   const currentDuel = higherReturnDuels[selectedDuelIdx];
-  const currentConcept = financeGlossary[selectedConceptKey];
 
-  // Handle Option Selection in Game
+  // Helper to start a fresh randomized quiz session
+  const handleShuffleNewQuiz = () => {
+    setQuizQuestions(getRandomizedQuiz(10));
+    setCurrentQuestionIdx(0);
+    setSelectedOption(null);
+    setShowFeedback(false);
+    setScore(0);
+    setStreak(0);
+    setCompletedCount(0);
+  };
+
+  // Handle Option Selection in Quiz
   const handleSelectOption = (idx) => {
     if (showFeedback) return;
     setSelectedOption(idx);
     setShowFeedback(true);
 
-    const isCorrect = currentLevel.options[idx].isCorrect;
+    const isCorrect = currentQuestion.options[idx].isCorrect;
     if (isCorrect) {
-      setScore((prev) => prev + 100 + streak * 20);
+      setScore((prev) => prev + 100 + streak * 25);
       setStreak((prev) => prev + 1);
-      if (!completedLevels.includes(currentLevel.level)) {
-        setCompletedLevels([...completedLevels, currentLevel.level]);
-      }
+      setCompletedCount((prev) => prev + 1);
     } else {
       setStreak(0);
     }
   };
 
-  const handleNextLevel = () => {
+  const handleNextQuestion = () => {
     setSelectedOption(null);
     setShowFeedback(false);
-    if (currentLevelIdx < financeQuizLevels.length - 1) {
-      setCurrentLevelIdx((prev) => prev + 1);
+    if (currentQuestionIdx < quizQuestions.length - 1) {
+      setCurrentQuestionIdx((prev) => prev + 1);
     } else {
-      // Reached the top!
-      setCurrentLevelIdx(0);
+      // Reached the end of this random 10-question set; generate a new fresh set!
+      setQuizQuestions(getRandomizedQuiz(10));
+      setCurrentQuestionIdx(0);
     }
-  };
-
-  const handleResetGame = () => {
-    setCurrentLevelIdx(0);
-    setSelectedOption(null);
-    setShowFeedback(false);
-    setScore(0);
-    setStreak(0);
-    setCompletedLevels([]);
   };
 
   // Handle Duel Guess
@@ -93,8 +113,48 @@ export function FinanceZeroToHero() {
     setSelectedDuelIdx((prev) => (prev + 1) % higherReturnDuels.length);
   };
 
+  // SIP Compound Math Helper
+  const calculateSipResult = () => {
+    const months = calcYears * 12;
+    const r = calcRate / 100 / 12;
+    const futureVal = calcMonthly * ((Math.pow(1 + r, months) - 1) / r) * (1 + r);
+    const invested = calcMonthly * months;
+    return {
+      invested: Math.round(invested),
+      futureVal: Math.round(futureVal),
+      gain: Math.round(futureVal - invested),
+    };
+  };
+
+  // FD Post-Tax Math Helper
+  const calculateFdResult = () => {
+    const postTaxReturn = fdInterestRate * (1 - taxSlab / 100);
+    const realReturn = postTaxReturn - inflationRate;
+    return {
+      postTax: postTaxReturn.toFixed(2),
+      real: realReturn.toFixed(2),
+      isNegative: realReturn < 0,
+    };
+  };
+
+  const sipRes = calculateSipResult();
+  const fdRes = calculateFdResult();
+
+  const conceptKeys = [
+    { key: 'sip', label: '1. SIP Mechanics' },
+    { key: 'fixedDeposit', label: '2. Bank FD Reality' },
+    { key: 'largeCap', label: '3. Large Cap Index' },
+    { key: 'midCap', label: '4. Mid Cap Funds' },
+    { key: 'smallCap', label: '5. Small Cap Funds' },
+    { key: 'licVsTerm', label: '6. LIC vs Term Plan' },
+    { key: 'stocksValuation', label: '7. Stock Valuation (P/E)' },
+    { key: 'ppf', label: '8. PPF (100% Tax-Free)' },
+    { key: 'sgbGold', label: '9. Sovereign Gold Bonds' },
+    { key: 'liquidFunds', label: '10. Liquid Cash Funds' },
+  ];
+
   return (
-    <section className="finance-academy-section" id="finance-game" style={{ marginTop: '36px', marginBottom: '40px' }}>
+    <section className="finance-academy-section" id="finance-game" style={{ marginTop: '28px', marginBottom: '40px' }}>
       <div
         style={{
           background: 'var(--bg-card)',
@@ -103,55 +163,396 @@ export function FinanceZeroToHero() {
           boxShadow: 'var(--shadow-md)',
         }}
       >
-        {/* Header */}
-        <div style={{ textAlign: 'center', borderBottom: '2px solid var(--border-strong)', paddingBottom: '16px', marginBottom: '22px' }}>
+        {/* Masthead Header */}
+        <div style={{ textAlign: 'center', borderBottom: '2px solid var(--border-strong)', paddingBottom: '18px', marginBottom: '22px' }}>
           <div className="section-meta-label" style={{ justifyContent: 'center', marginBottom: '6px' }}>
-            ACADEMY & ARENA • INTERACTIVE FINANCE MASTERY
+            CAPITAL LITERACY FIRST • INTERACTIVE WEALTH ARENA
           </div>
-          <h2 style={{ fontFamily: 'var(--font-masthead)', fontSize: '2.1rem', fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
+          <h2 style={{ fontFamily: 'var(--font-masthead)', fontSize: '2.15rem', fontWeight: 900, letterSpacing: '-0.02em', textTransform: 'uppercase' }}>
             Finance: Zero-to-Hero Academy
           </h2>
-          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '0.95rem', color: 'var(--ink-secondary)', maxWidth: '750px', margin: '4px auto 0 auto' }}>
-            Master investing from the ground up: understand what Liquid Funds, SIPs, and Fixed Deposits really do, discover what gives higher returns, and level up from novice saver to Dalal Street hero.
+          <p style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '0.96rem', color: 'var(--ink-secondary)', maxWidth: '780px', margin: '4px auto 0 auto' }}>
+            First learn how SIPs, Bank FDs, Small/Mid/Large Cap Funds, Stocks, and LIC policies truly work with visual math. Then test your mastery with randomized Dalal Street challenges and return duels.
           </p>
 
-          {/* Navigation Mode Tabs */}
+          {/* Primary Section Switcher (Learn First, then Play) */}
           <div style={{ display: 'flex', justifyContent: 'center', gap: '8px', marginTop: '16px', flexWrap: 'wrap' }}>
             <button
               type="button"
-              className={`btn-newspaper ${activeTab === 'game' ? 'btn-primary-dark' : ''}`}
-              onClick={() => setActiveTab('game')}
+              className={`btn-newspaper ${activeTab === 'learn' ? 'btn-primary-dark' : ''}`}
+              onClick={() => setActiveTab('learn')}
+              style={{ fontWeight: activeTab === 'learn' ? 900 : 700 }}
             >
-              <Trophy size={14} />
-              <span>Zero-to-Hero Quest (Level Quiz)</span>
+              <BookOpen size={15} />
+              <span>1. LEARN CAPITAL CONCEPTS (START HERE)</span>
+            </button>
+
+            <button
+              type="button"
+              className={`btn-newspaper ${activeTab === 'quiz' ? 'btn-primary-dark' : ''}`}
+              onClick={() => setActiveTab('quiz')}
+              style={{ fontWeight: activeTab === 'quiz' ? 900 : 700 }}
+            >
+              <Trophy size={15} />
+              <span>2. PLAY & TEST: ZERO-TO-HERO QUEST (RANDOM QUIZ)</span>
             </button>
 
             <button
               type="button"
               className={`btn-newspaper ${activeTab === 'duels' ? 'btn-primary-dark' : ''}`}
               onClick={() => setActiveTab('duels')}
+              style={{ fontWeight: activeTab === 'duels' ? 900 : 700 }}
             >
-              <Swords size={14} />
-              <span>Higher Return Duels (What Gives More?)</span>
-            </button>
-
-            <button
-              type="button"
-              className={`btn-newspaper ${activeTab === 'masterclass' ? 'btn-primary-dark' : ''}`}
-              onClick={() => setActiveTab('masterclass')}
-            >
-              <BookOpen size={14} />
-              <span>The Financial Instruments Masterclass</span>
+              <Swords size={15} />
+              <span>3. HIGHER RETURN DUELS (BET & REVEAL)</span>
             </button>
           </div>
         </div>
 
         {/* =========================================================================
-            TAB 1: ZERO-TO-HERO QUEST (LEVEL GAME)
+            SECTION 1: LEARN CAPITAL CONCEPTS (LEARN FIRST!)
             ========================================================================= */}
-        {activeTab === 'game' && (
+        {activeTab === 'learn' && (
           <div>
-            {/* Score & Level Ribbon */}
+            {/* Concept Selector Strip */}
+            <div style={{ marginBottom: '22px' }}>
+              <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)', marginBottom: '8px', textTransform: 'uppercase' }}>
+                SELECT CONCEPT TO STUDY:
+              </div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                {conceptKeys.map((c) => {
+                  const isActive = selectedConceptKey === c.key;
+                  return (
+                    <button
+                      key={c.key}
+                      type="button"
+                      onClick={() => setSelectedConceptKey(c.key)}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        padding: '6px 12px',
+                        borderRadius: '3px',
+                        border: isActive ? '2px solid var(--accent-red)' : '1px solid var(--border-strong)',
+                        background: isActive ? 'var(--bg-muted)' : 'var(--bg-page)',
+                        color: isActive ? 'var(--accent-red)' : 'var(--ink-primary)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: '0.78rem',
+                        fontWeight: isActive ? 900 : 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                    >
+                      <span>{c.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Active Concept Dossier Card */}
+            <div
+              style={{
+                background: 'var(--bg-page)',
+                border: '1px solid var(--border-strong)',
+                borderRadius: '4px',
+                padding: '24px',
+                marginBottom: '24px',
+              }}
+            >
+              {/* Concept Title & Meta */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', borderBottom: '2px solid var(--border-strong)', paddingBottom: '16px', marginBottom: '20px' }}>
+                <div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)' }}>
+                      {currentConcept.category.toUpperCase()}
+                    </span>
+                    <span className="ticker-badge" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
+                      {currentConcept.badge}
+                    </span>
+                  </div>
+                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.75rem', fontWeight: 900, margin: '2px 0 6px 0' }}>
+                    {currentConcept.title}
+                  </h3>
+                  <div style={{ fontFamily: 'var(--font-serif)', fontStyle: 'italic', fontSize: '1.05rem', color: 'var(--ink-secondary)' }}>
+                    "{currentConcept.oneLiner}"
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  className="btn-newspaper btn-primary-dark"
+                  onClick={() => setActiveTab('quiz')}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 14px' }}
+                >
+                  <Trophy size={14} />
+                  <span>Test Knowledge in Quiz</span>
+                  <ArrowRight size={13} />
+                </button>
+              </div>
+
+              {/* 4 Essential Metric Badges */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+                  gap: '12px',
+                  background: 'var(--bg-muted)',
+                  padding: '14px',
+                  borderRadius: '4px',
+                  marginBottom: '22px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.78rem',
+                }}
+              >
+                <div>
+                  <span style={{ color: 'var(--ink-muted)', display: 'block', fontSize: '0.68rem' }}>EXPECTED RETURN</span>
+                  <strong style={{ color: 'var(--accent-green)', fontSize: '0.9rem' }}>{currentConcept.expectedReturn}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--ink-muted)', display: 'block', fontSize: '0.68rem' }}>RISK / VOLATILITY</span>
+                  <strong style={{ color: 'var(--accent-red)', fontSize: '0.9rem' }}>{currentConcept.riskLevel}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--ink-muted)', display: 'block', fontSize: '0.68rem' }}>LOCK-IN PERIOD</span>
+                  <strong style={{ color: 'var(--ink-primary)', fontSize: '0.9rem' }}>{currentConcept.lockIn}</strong>
+                </div>
+                <div>
+                  <span style={{ color: 'var(--ink-muted)', display: 'block', fontSize: '0.68rem' }}>TAXATION RULES</span>
+                  <strong style={{ color: 'var(--accent-blue)', fontSize: '0.82rem' }}>{currentConcept.taxation}</strong>
+                </div>
+              </div>
+
+              {/* Core Explanation */}
+              <div style={{ marginBottom: '22px' }}>
+                <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-red)', marginBottom: '8px', letterSpacing: '0.06em' }}>
+                  CORE EXPLANATION & MECHANISM:
+                </h4>
+                <p style={{ fontSize: '0.92rem', color: 'var(--ink-primary)', lineHeight: '1.65', margin: 0 }}>
+                  {currentConcept.explanation}
+                </p>
+              </div>
+
+              {/* How It Actually Works: Step-by-Step */}
+              {currentConcept.howItWorks && (
+                <div style={{ marginBottom: '22px' }}>
+                  <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.8rem', fontWeight: 800, color: 'var(--accent-blue)', marginBottom: '10px', letterSpacing: '0.06em' }}>
+                    HOW IT ACTUALLY WORKS IN PRACTICE:
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '10px' }}>
+                    {currentConcept.howItWorks.map((step, idx) => (
+                      <div
+                        key={idx}
+                        style={{
+                          background: 'var(--bg-card)',
+                          border: '1px solid var(--border-light)',
+                          padding: '12px',
+                          borderRadius: '4px',
+                          display: 'flex',
+                          alignItems: 'flex-start',
+                          gap: '10px',
+                        }}
+                      >
+                        <span style={{ background: 'var(--bg-muted)', border: '1px solid var(--border-strong)', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.72rem', fontWeight: 900, flexShrink: 0, fontFamily: 'var(--font-mono)' }}>
+                          {idx + 1}
+                        </span>
+                        <span style={{ fontSize: '0.82rem', color: 'var(--ink-secondary)', lineHeight: '1.45' }}>
+                          {step}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Real Math Calculation & Traps Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '22px' }}>
+                {/* Math Card */}
+                <div style={{ background: 'var(--bg-muted)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--accent-green)', padding: '16px', borderRadius: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-green)', marginBottom: '6px' }}>
+                    <Calculator size={15} />
+                    <span>THE REAL COMPOUNDING MATH:</span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: 'var(--ink-primary)', lineHeight: '1.5', margin: 0, fontFamily: 'var(--font-mono)' }}>
+                    {currentConcept.theMath}
+                  </p>
+                </div>
+
+                {/* Common Traps Card */}
+                <div style={{ background: 'var(--bg-muted)', border: '1px solid var(--border-strong)', borderLeft: '4px solid var(--accent-red)', padding: '16px', borderRadius: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.78rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)', marginBottom: '6px' }}>
+                    <AlertTriangle size={15} />
+                    <span>COMMON TRAPS & MYTHS BUSTED:</span>
+                  </div>
+                  <p style={{ fontSize: '0.84rem', color: 'var(--ink-primary)', lineHeight: '1.5', margin: 0 }}>
+                    {currentConcept.commonTraps}
+                  </p>
+                </div>
+              </div>
+
+              {/* Best For Tagline */}
+              <div style={{ background: 'var(--bg-card)', padding: '10px 14px', borderRadius: '4px', border: '1px solid var(--border-light)', fontSize: '0.8rem', fontFamily: 'var(--font-mono)' }}>
+                <span style={{ color: 'var(--ink-muted)' }}>WHO THIS IS BEST FOR: </span>
+                <strong style={{ color: 'var(--ink-primary)' }}>{currentConcept.bestFor}</strong>
+              </div>
+            </div>
+
+            {/* Interactive Embedded Mini-Calculator for Hands-On Learning */}
+            <div style={{ background: 'var(--bg-page)', border: '2px solid var(--border-strong)', borderRadius: '4px', padding: '20px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '14px' }}>
+                <Sparkles size={17} style={{ color: 'var(--accent-red)' }} />
+                <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+                  Hands-On Learning Simulator: {selectedConceptKey === 'fixedDeposit' ? 'Bank FD Post-Tax Inflation Drag' : 'Systematic Compounding Visualizer'}
+                </h4>
+              </div>
+
+              {selectedConceptKey === 'fixedDeposit' ? (
+                // FD Post-Tax vs Inflation Calculator
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                    <div>
+                      <label style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px' }}>
+                        FD Gross Interest: <strong>{fdInterestRate}% p.a.</strong>
+                      </label>
+                      <input
+                        type="range"
+                        min="5.0"
+                        max="9.0"
+                        step="0.1"
+                        value={fdInterestRate}
+                        onChange={(e) => setFdInterestRate(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px' }}>
+                        Your Income Tax Slab: <strong>{taxSlab}%</strong>
+                      </label>
+                      <select
+                        value={taxSlab}
+                        onChange={(e) => setTaxSlab(Number(e.target.value))}
+                        style={{ width: '100%', padding: '6px', fontFamily: 'var(--font-mono)', background: 'var(--bg-card)', color: 'var(--ink-primary)', border: '1px solid var(--border-strong)' }}
+                      >
+                        <option value={0}>0% (Tax Free / Student)</option>
+                        <option value={10}>10% Slab</option>
+                        <option value={20}>20% Slab</option>
+                        <option value={30}>30% Slab (Peak Tax)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px' }}>
+                        Expected Annual CPI Inflation: <strong>{inflationRate}%</strong>
+                      </label>
+                      <input
+                        type="range"
+                        min="4.0"
+                        max="8.0"
+                        step="0.1"
+                        value={inflationRate}
+                        onChange={(e) => setInflationRate(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', background: 'var(--bg-muted)', padding: '14px', borderRadius: '4px', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>NOMINAL FD RATE:</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 800 }}>{fdInterestRate}%</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>AFTER-TAX RETURN:</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--ink-primary)' }}>{fdRes.postTax}%</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>REAL WEALTH GROWTH:</div>
+                      <div style={{ fontSize: '1.2rem', fontWeight: 900, color: fdRes.isNegative ? 'var(--accent-red)' : 'var(--accent-green)' }}>
+                        {fdRes.real > 0 ? `+${fdRes.real}%` : `${fdRes.real}%`}
+                      </div>
+                      <div style={{ fontSize: '0.66rem', color: fdRes.isNegative ? 'var(--accent-red)' : 'var(--accent-green)' }}>
+                        {fdRes.isNegative ? 'Losing purchasing power!' : 'Beating inflation'}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                // SIP Compounding Calculator
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '16px' }}>
+                    <div>
+                      <label style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px' }}>
+                        Monthly SIP Amount: <strong>₹{calcMonthly.toLocaleString('en-IN')}</strong>
+                      </label>
+                      <input
+                        type="range"
+                        min="1000"
+                        max="50000"
+                        step="1000"
+                        value={calcMonthly}
+                        onChange={(e) => setCalcMonthly(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px' }}>
+                        Investment Tenure: <strong>{calcYears} Years</strong>
+                      </label>
+                      <input
+                        type="range"
+                        min="3"
+                        max="30"
+                        step="1"
+                        value={calcYears}
+                        onChange={(e) => setCalcYears(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '4px' }}>
+                        Expected CAGR Return: <strong>{calcRate}% p.a.</strong>
+                      </label>
+                      <input
+                        type="range"
+                        min="6.0"
+                        max="22.0"
+                        step="0.5"
+                        value={calcRate}
+                        onChange={(e) => setCalcRate(Number(e.target.value))}
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', background: 'var(--bg-muted)', padding: '14px', borderRadius: '4px', textAlign: 'center', fontFamily: 'var(--font-mono)' }}>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>TOTAL INVESTED:</div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 800 }}>₹{sipRes.invested.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>COMPOUNDED PROFIT:</div>
+                      <div style={{ fontSize: '1.15rem', fontWeight: 800, color: 'var(--accent-green)' }}>+₹{sipRes.gain.toLocaleString('en-IN')}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.7rem', color: 'var(--ink-muted)' }}>FINAL WEALTH:</div>
+                      <div style={{ fontSize: '1.25rem', fontWeight: 900, color: 'var(--accent-blue)' }}>₹{sipRes.futureVal.toLocaleString('en-IN')}</div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* =========================================================================
+            SECTION 2: PLAY & TEST: ZERO-TO-HERO QUEST (RANDOMIZED QUIZ!)
+            ========================================================================= */}
+        {activeTab === 'quiz' && currentQuestion && (
+          <div>
+            {/* Top Game Ribbon: Score, Streak, Shuffle */}
             <div
               style={{
                 display: 'flex',
@@ -168,415 +569,310 @@ export function FinanceZeroToHero() {
               }}
             >
               <div>
-                <span style={{ color: 'var(--ink-muted)' }}>CURRENT RANK: </span>
-                <strong style={{ color: 'var(--accent-red)' }}>{currentLevel.badge}</strong>
-                <span style={{ marginLeft: '12px', color: 'var(--ink-muted)' }}>
-                  (Level {currentLevel.level} of {financeQuizLevels.length})
+                <span style={{ color: 'var(--ink-muted)' }}>QUESTION: </span>
+                <strong style={{ color: 'var(--accent-red)' }}>
+                  {currentQuestionIdx + 1} of {quizQuestions.length}
+                </strong>
+                <span style={{ marginLeft: '10px', color: 'var(--ink-muted)' }}>
+                  [{currentQuestion.topic}]
                 </span>
               </div>
 
-              <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '14px', alignItems: 'center' }}>
                 <div>
                   <span style={{ color: 'var(--ink-muted)' }}>XP SCORE: </span>
-                  <strong>{score} pts</strong>
+                  <strong style={{ color: 'var(--accent-green)' }}>{score} pts</strong>
                 </div>
+
                 {streak > 1 && (
-                  <div style={{ color: 'var(--accent-green)', fontWeight: 800 }}>
-                    🔥 {streak}x Streak!
+                  <div style={{ color: 'var(--accent-green)', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    <Flame size={14} />
+                    <span>{streak}x Streak!</span>
                   </div>
                 )}
+
                 <button
                   type="button"
-                  onClick={handleResetGame}
+                  onClick={handleShuffleNewQuiz}
                   className="btn-newspaper"
-                  style={{ padding: '2px 8px', fontSize: '0.7rem' }}
-                  title="Reset Game"
+                  style={{ padding: '4px 10px', fontSize: '0.72rem', display: 'flex', alignItems: 'center', gap: '5px' }}
+                  title="Shuffle 10 New Random Questions"
                 >
-                  <RefreshCw size={11} />
-                  <span>Restart</span>
+                  <Shuffle size={12} />
+                  <span>Randomize Set</span>
                 </button>
               </div>
             </div>
 
-            {/* Level Question Box */}
+            {/* Question Card */}
             <div
               style={{
                 background: 'var(--bg-page)',
                 border: '1px solid var(--border-strong)',
-                padding: '24px',
                 borderRadius: '4px',
+                padding: '24px',
                 marginBottom: '20px',
               }}
             >
-              <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', color: 'var(--accent-blue)', fontWeight: 800, textTransform: 'uppercase', marginBottom: '8px' }}>
-                LEVEL {currentLevel.level} MISSION • {currentLevel.levelName}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+                <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)' }}>
+                  {currentQuestion.badge}
+                </span>
               </div>
 
-              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.35rem', fontWeight: 800, lineHeight: 1.4, marginBottom: '20px' }}>
-                {currentLevel.question}
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', fontWeight: 800, lineHeight: '1.4', marginBottom: '20px' }}>
+                {currentQuestion.question}
               </h3>
 
               {/* Options */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', marginBottom: '20px' }}>
-                {currentLevel.options.map((opt, oIdx) => {
-                  let borderStyle = '1px solid var(--border-light)';
-                  let bgStyle = 'var(--bg-card)';
-                  let icon = null;
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {currentQuestion.options.map((opt, idx) => {
+                  const isSelected = selectedOption === idx;
+                  let optStyle = {
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                    padding: '14px 16px',
+                    borderRadius: '4px',
+                    border: '1px solid var(--border-strong)',
+                    background: 'var(--bg-card)',
+                    color: 'var(--ink-primary)',
+                    textAlign: 'left',
+                    cursor: showFeedback ? 'default' : 'pointer',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.15s ease',
+                  };
 
                   if (showFeedback) {
                     if (opt.isCorrect) {
-                      borderStyle = '2px solid var(--accent-green)';
-                      bgStyle = 'rgba(16, 185, 129, 0.08)';
-                      icon = <CheckCircle2 size={18} color="var(--accent-green)" />;
-                    } else if (selectedOption === oIdx) {
-                      borderStyle = '2px solid var(--accent-red)';
-                      bgStyle = 'rgba(239, 68, 68, 0.08)';
-                      icon = <XCircle size={18} color="var(--accent-red)" />;
+                      optStyle.background = 'rgba(16, 185, 129, 0.12)';
+                      optStyle.border = '2px solid var(--accent-green)';
+                      optStyle.color = 'var(--accent-green)';
+                      optStyle.fontWeight = 800;
+                    } else if (isSelected && !opt.isCorrect) {
+                      optStyle.background = 'rgba(239, 68, 68, 0.12)';
+                      optStyle.border = '2px solid var(--accent-red)';
+                      optStyle.color = 'var(--accent-red)';
                     }
-                  } else if (selectedOption === oIdx) {
-                    borderStyle = '2px solid var(--border-strong)';
+                  } else if (isSelected) {
+                    optStyle.border = '2px solid var(--accent-red)';
                   }
 
                   return (
-                    <div
-                      key={oIdx}
-                      onClick={() => handleSelectOption(oIdx)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'space-between',
-                        padding: '14px 18px',
-                        background: bgStyle,
-                        border: borderStyle,
-                        borderRadius: '4px',
-                        cursor: showFeedback ? 'default' : 'pointer',
-                        transition: 'all 0.15s ease',
-                      }}
-                      onMouseEnter={(e) => {
-                        if (!showFeedback) e.currentTarget.style.background = 'var(--bg-muted)';
-                      }}
-                      onMouseLeave={(e) => {
-                        if (!showFeedback && selectedOption !== oIdx) e.currentTarget.style.background = 'var(--bg-card)';
-                      }}
+                    <button
+                      key={idx}
+                      type="button"
+                      disabled={showFeedback}
+                      onClick={() => handleSelectOption(idx)}
+                      style={optStyle}
                     >
-                      <div style={{ fontSize: '0.92rem', fontWeight: 600, color: 'var(--ink-primary)' }}>
-                        <span style={{ fontFamily: 'var(--font-mono)', marginRight: '10px', color: 'var(--ink-muted)' }}>
-                          {String.fromCharCode(65 + oIdx)}.
-                        </span>
-                        {opt.text}
-                      </div>
-                      {icon}
-                    </div>
+                      <span
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          border: '1px solid var(--border-strong)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '0.75rem',
+                          fontFamily: 'var(--font-mono)',
+                          fontWeight: 800,
+                          flexShrink: 0,
+                          background: 'var(--bg-muted)',
+                        }}
+                      >
+                        {String.fromCharCode(65 + idx)}
+                      </span>
+                      <span style={{ lineHeight: '1.45' }}>{opt.text}</span>
+                      {showFeedback && opt.isCorrect && (
+                        <CheckCircle2 size={18} style={{ color: 'var(--accent-green)', marginLeft: 'auto', flexShrink: 0 }} />
+                      )}
+                      {showFeedback && isSelected && !opt.isCorrect && (
+                        <XCircle size={18} style={{ color: 'var(--accent-red)', marginLeft: 'auto', flexShrink: 0 }} />
+                      )}
+                    </button>
                   );
                 })}
               </div>
 
-              {/* Feedback and Axiom Box */}
+              {/* Feedback Reveal Card */}
               {showFeedback && (
                 <div
                   style={{
-                    background: currentLevel.options[selectedOption]?.isCorrect
-                      ? 'rgba(16, 185, 129, 0.08)'
-                      : 'rgba(239, 68, 68, 0.08)',
-                    border: `1px solid ${currentLevel.options[selectedOption]?.isCorrect ? 'var(--accent-green)' : 'var(--accent-red)'}`,
-                    padding: '16px 20px',
+                    marginTop: '20px',
+                    padding: '16px',
                     borderRadius: '4px',
-                    marginBottom: '16px',
+                    background: 'var(--bg-muted)',
+                    borderLeft: selectedOption !== null && currentQuestion.options[selectedOption].isCorrect
+                      ? '4px solid var(--accent-green)'
+                      : '4px solid var(--accent-red)',
                   }}
                 >
-                  <div style={{ fontWeight: 800, fontSize: '0.92rem', color: currentLevel.options[selectedOption]?.isCorrect ? 'var(--accent-green)' : 'var(--accent-red)', marginBottom: '4px' }}>
-                    {currentLevel.options[selectedOption]?.isCorrect ? '🎉 Correct Decision!' : '⚠️ Caution & Learning Point:'}
+                  <div style={{ fontWeight: 800, fontSize: '0.88rem', marginBottom: '6px', color: currentQuestion.options[selectedOption].isCorrect ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                    {currentQuestion.options[selectedOption].isCorrect ? '✓ CORRECT ANSWER!' : '✗ INCORRECT!'}
                   </div>
-                  <p style={{ fontSize: '0.86rem', color: 'var(--ink-primary)', lineHeight: 1.5, marginBottom: '10px' }}>
-                    {currentLevel.options[selectedOption]?.feedback}
+                  <p style={{ fontSize: '0.86rem', color: 'var(--ink-secondary)', margin: '0 0 10px 0', lineHeight: '1.45' }}>
+                    {currentQuestion.options[selectedOption].feedback}
                   </p>
-                  <div style={{ fontSize: '0.8rem', fontStyle: 'italic', color: 'var(--ink-secondary)', borderTop: '1px solid var(--border-light)', paddingTop: '8px' }}>
-                    <strong>Golden Axiom:</strong> "{currentLevel.axiom}"
+
+                  <div style={{ fontSize: '0.78rem', fontStyle: 'italic', color: 'var(--ink-primary)', borderTop: '1px dashed var(--border-light)', paddingTop: '8px' }}>
+                    <strong>Axiom to Remember: </strong>{currentQuestion.axiom}
+                  </div>
+
+                  <div style={{ marginTop: '14px', display: 'flex', justifyContent: 'flex-end' }}>
+                    <button
+                      type="button"
+                      className="btn-newspaper btn-primary-dark"
+                      onClick={handleNextQuestion}
+                      style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', padding: '8px 16px' }}
+                    >
+                      <span>{currentQuestionIdx < quizQuestions.length - 1 ? 'Next Question' : 'Complete Set & Roll New 10'}</span>
+                      <ArrowRight size={14} />
+                    </button>
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
 
-              {/* Next Level Button */}
-              {showFeedback && (
-                <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        {/* =========================================================================
+            SECTION 3: HIGHER RETURN DUELS (BET & REVEAL)
+            ========================================================================= */}
+        {activeTab === 'duels' && currentDuel && (
+          <div>
+            <div style={{ textAlign: 'center', maxWidth: '720px', margin: '0 auto 20px auto' }}>
+              <div style={{ fontSize: '0.74rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)', marginBottom: '4px' }}>
+                HEAD-TO-HEAD WEALTH RACE • DUEL {selectedDuelIdx + 1} OF {higherReturnDuels.length}
+              </div>
+              <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.55rem', fontWeight: 900, margin: '0 0 8px 0' }}>
+                {currentDuel.title}
+              </h3>
+              <p style={{ fontSize: '0.92rem', color: 'var(--ink-secondary)' }}>
+                {currentDuel.question}
+              </p>
+            </div>
+
+            {/* The 2 Contenders */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '780px', margin: '0 auto 20px auto' }}>
+              {/* Contender A */}
+              <div
+                style={{
+                  background: 'var(--bg-page)',
+                  border: userGuess === 'A' ? '2px solid var(--accent-red)' : '1px solid var(--border-strong)',
+                  padding: '20px',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)' }}>
+                  CONTENDER A
+                </div>
+                <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: 800, margin: '6px 0 10px 0' }}>
+                  {currentDuel.assetA.name}
+                </h4>
+                <div style={{ fontSize: '0.82rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-muted)', marginBottom: '14px' }}>
+                  Annual Benchmark: <strong>{currentDuel.assetA.annualReturn}</strong>
+                </div>
+
+                {!duelRevealed ? (
+                  <button
+                    type="button"
+                    className="btn-newspaper"
+                    style={{ width: '100%', padding: '10px', fontWeight: 800 }}
+                    onClick={() => handleDuelGuess('A')}
+                  >
+                    Bet on Contender A
+                  </button>
+                ) : (
+                  <div style={{ background: 'var(--bg-muted)', padding: '10px', borderRadius: '4px', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
+                    {currentDuel.outcomeA}
+                  </div>
+                )}
+              </div>
+
+              {/* Contender B */}
+              <div
+                style={{
+                  background: 'var(--bg-page)',
+                  border: userGuess === 'B' ? '2px solid var(--accent-red)' : '1px solid var(--border-strong)',
+                  padding: '20px',
+                  borderRadius: '4px',
+                  textAlign: 'center',
+                }}
+              >
+                <div style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-red)' }}>
+                  CONTENDER B
+                </div>
+                <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.25rem', fontWeight: 800, margin: '6px 0 10px 0' }}>
+                  {currentDuel.assetB.name}
+                </h4>
+                <div style={{ fontSize: '0.82rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-muted)', marginBottom: '14px' }}>
+                  Annual Benchmark: <strong>{currentDuel.assetB.annualReturn}</strong>
+                </div>
+
+                {!duelRevealed ? (
+                  <button
+                    type="button"
+                    className="btn-newspaper"
+                    style={{ width: '100%', padding: '10px', fontWeight: 800 }}
+                    onClick={() => handleDuelGuess('B')}
+                  >
+                    Bet on Contender B
+                  </button>
+                ) : (
+                  <div style={{ background: 'var(--bg-muted)', padding: '10px', borderRadius: '4px', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
+                    {currentDuel.outcomeB}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Duel Result Card */}
+            {duelRevealed && (
+              <div
+                style={{
+                  maxWidth: '780px',
+                  margin: '0 auto',
+                  background: 'var(--bg-muted)',
+                  border: '2px solid var(--border-strong)',
+                  borderLeft: '5px solid var(--accent-green)',
+                  padding: '20px',
+                  borderRadius: '4px',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontWeight: 900, fontSize: '1.1rem', marginBottom: '8px' }}>
+                  <CheckCircle2 size={20} />
+                  <span>WINNER: CONTENDER {currentDuel.winner} DELIVERS HIGHER WEALTH!</span>
+                </div>
+
+                <div style={{ fontSize: '0.9rem', fontWeight: 800, color: 'var(--ink-primary)', marginBottom: '8px', fontFamily: 'var(--font-mono)' }}>
+                  {currentDuel.difference}
+                </div>
+
+                <div style={{ fontSize: '0.84rem', color: 'var(--ink-secondary)', fontStyle: 'italic', borderTop: '1px dashed var(--border-light)', paddingTop: '10px' }}>
+                  <strong>Dalal Street Lesson: </strong>{currentDuel.takeaway}
+                </div>
+
+                <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'flex-end' }}>
                   <button
                     type="button"
                     className="btn-newspaper btn-primary-dark"
-                    onClick={handleNextLevel}
-                    style={{ padding: '8px 20px', fontSize: '0.85rem' }}
+                    onClick={handleNextDuel}
+                    style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                   >
-                    <span>{currentLevelIdx < financeQuizLevels.length - 1 ? 'Next Level Mission →' : '🏆 Complete Academy & Celebrate!'}</span>
+                    <span>Next Duel</span>
+                    <ArrowRight size={14} />
                   </button>
                 </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* =========================================================================
-            TAB 2: HIGHER RETURN DUELS (WHAT GIVES MORE?)
-            ========================================================================= */}
-        {activeTab === 'duels' && (
-          <div>
-            {/* Duel Selector Pills */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px', justifyContent: 'center' }}>
-              {higherReturnDuels.map((d, dIdx) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  className={`ticker-badge ${selectedDuelIdx === dIdx ? 'active' : ''}`}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '5px 12px',
-                    fontSize: '0.78rem',
-                    background: selectedDuelIdx === dIdx ? 'var(--border-strong)' : 'var(--bg-muted)',
-                    color: selectedDuelIdx === dIdx ? 'var(--bg-card)' : 'var(--ink-primary)',
-                  }}
-                  onClick={() => {
-                    setSelectedDuelIdx(dIdx);
-                    setUserGuess(null);
-                    setDuelRevealed(false);
-                  }}
-                >
-                  Duel #{dIdx + 1}: {d.assetA.name.split(' ')[0]} vs {d.assetB.name.split(' ')[0]}
-                </button>
-              ))}
-            </div>
-
-            {/* Arena Duel Card */}
-            <div style={{ background: 'var(--bg-page)', border: '2px solid var(--border-strong)', padding: '24px', borderRadius: '4px' }}>
-              <div style={{ textAlign: 'center', marginBottom: '18px' }}>
-                <span className="ticker-badge" style={{ background: 'var(--accent-red)', color: '#fff', fontSize: '0.72rem' }}>
-                  ⚔️ RETURN DUEL ARENA
-                </span>
-                <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.45rem', fontWeight: 800, marginTop: '6px' }}>
-                  {currentDuel.title}
-                </h3>
-                <p style={{ fontSize: '0.88rem', color: 'var(--ink-secondary)', maxWidth: '640px', margin: '4px auto 0 auto' }}>
-                  {currentDuel.question}
-                </p>
               </div>
-
-              {/* Side-by-Side Contenders */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', gap: '16px', alignItems: 'center', marginBottom: '24px' }}>
-                {/* Contender A */}
-                <div
-                  onClick={() => !duelRevealed && handleDuelGuess('A')}
-                  style={{
-                    background: 'var(--bg-card)',
-                    border: userGuess === 'A' ? '2px solid var(--border-strong)' : '1px solid var(--border-light)',
-                    padding: '18px',
-                    borderRadius: '4px',
-                    textAlign: 'center',
-                    cursor: duelRevealed ? 'default' : 'pointer',
-                  }}
-                >
-                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>CONTENDER A</div>
-                  <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', fontWeight: 800, margin: '6px 0' }}>
-                    {currentDuel.assetA.name}
-                  </h4>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--accent-blue)', fontWeight: 700 }}>
-                    {currentDuel.assetA.annualReturn}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
-                    Risk: {currentDuel.assetA.risk}
-                  </div>
-
-                  {!duelRevealed && (
-                    <button type="button" className="btn-newspaper" style={{ width: '100%', marginTop: '12px', justifyContent: 'center' }}>
-                      Bet on Option A
-                    </button>
-                  )}
-                </div>
-
-                {/* VS Badge */}
-                <div style={{ fontFamily: 'var(--font-masthead)', fontSize: '1.5rem', fontWeight: 900, color: 'var(--accent-red)' }}>
-                  VS
-                </div>
-
-                {/* Contender B */}
-                <div
-                  onClick={() => !duelRevealed && handleDuelGuess('B')}
-                  style={{
-                    background: 'var(--bg-card)',
-                    border: userGuess === 'B' ? '2px solid var(--border-strong)' : '1px solid var(--border-light)',
-                    padding: '18px',
-                    borderRadius: '4px',
-                    textAlign: 'center',
-                    cursor: duelRevealed ? 'default' : 'pointer',
-                  }}
-                >
-                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>CONTENDER B</div>
-                  <h4 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.15rem', fontWeight: 800, margin: '6px 0' }}>
-                    {currentDuel.assetB.name}
-                  </h4>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.1rem', color: 'var(--accent-green)', fontWeight: 700 }}>
-                    {currentDuel.assetB.annualReturn}
-                  </div>
-                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', marginTop: '4px' }}>
-                    Risk: {currentDuel.assetB.risk}
-                  </div>
-
-                  {!duelRevealed && (
-                    <button type="button" className="btn-newspaper btn-primary-dark" style={{ width: '100%', marginTop: '12px', justifyContent: 'center' }}>
-                      Bet on Option B
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Reveal Result Box */}
-              {duelRevealed && (
-                <div
-                  style={{
-                    background: 'var(--bg-muted)',
-                    border: '2px dashed var(--border-strong)',
-                    padding: '18px 22px',
-                    borderRadius: '4px',
-                    marginBottom: '16px',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--accent-green)', fontWeight: 800, fontSize: '0.9rem', marginBottom: '8px' }}>
-                    <Trophy size={16} />
-                    <span>WINNER: {currentDuel.winner === 'B' ? currentDuel.assetB.name : currentDuel.assetA.name}</span>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px', fontFamily: 'var(--font-mono)', fontSize: '0.8rem' }}>
-                    <div style={{ background: 'var(--bg-card)', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
-                      <strong>{currentDuel.assetA.name}:</strong>
-                      <div>{currentDuel.outcomeA}</div>
-                    </div>
-                    <div style={{ background: 'var(--bg-card)', padding: '10px', borderRadius: '4px', border: '1px solid var(--border-light)' }}>
-                      <strong>{currentDuel.assetB.name}:</strong>
-                      <div>{currentDuel.outcomeB}</div>
-                    </div>
-                  </div>
-
-                  <div style={{ fontSize: '0.88rem', fontWeight: 700, color: 'var(--accent-red)', marginBottom: '8px' }}>
-                    📊 {currentDuel.difference}
-                  </div>
-
-                  <p style={{ fontSize: '0.84rem', color: 'var(--ink-secondary)', lineHeight: 1.45 }}>
-                    <strong>Strategic Lesson:</strong> {currentDuel.takeaway}
-                  </p>
-
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
-                    <button type="button" className="btn-newspaper" onClick={handleNextDuel}>
-                      <span>Try Next Duel Challenge →</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-
-        {/* =========================================================================
-            TAB 3: THE FINANCIAL INSTRUMENTS MASTERCLASS (CONCEPTS)
-            ========================================================================= */}
-        {activeTab === 'masterclass' && (
-          <div>
-            {/* Concept Selector Buttons */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px', justifyContent: 'center' }}>
-              {Object.entries(financeGlossary).map(([key, item]) => (
-                <button
-                  key={key}
-                  type="button"
-                  className={`btn-newspaper ${selectedConceptKey === key ? 'btn-primary-dark' : ''}`}
-                  onClick={() => setSelectedConceptKey(key)}
-                  style={{ fontSize: '0.78rem' }}
-                >
-                  <span>{item.title}</span>
-                </button>
-              ))}
-            </div>
-
-            {/* Selected Concept Deep-Dive Card */}
-            <div style={{ background: 'var(--bg-page)', border: '1px solid var(--border-strong)', padding: '24px', borderRadius: '4px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--border-light)', paddingBottom: '14px', marginBottom: '16px' }}>
-                <div>
-                  <span className="ticker-badge" style={{ fontSize: '0.72rem', background: 'var(--border-strong)', color: 'var(--bg-card)' }}>
-                    {currentConcept.category}
-                  </span>
-                  <h3 style={{ fontFamily: 'var(--font-serif)', fontSize: '1.7rem', fontWeight: 800, marginTop: '4px' }}>
-                    {currentConcept.title}
-                  </h3>
-                  <p style={{ fontSize: '0.88rem', color: 'var(--accent-red)', fontWeight: 600, fontStyle: 'italic' }}>
-                    "{currentConcept.oneLiner}"
-                  </p>
-                </div>
-
-                <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap' }}>
-                  <div style={{ background: 'var(--bg-card)', padding: '8px 12px', border: '1px solid var(--border-light)', borderRadius: '4px', textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.66rem', color: 'var(--ink-muted)', display: 'block', fontFamily: 'var(--font-mono)' }}>EXPECTED RETURN</span>
-                    <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '1.05rem', color: 'var(--accent-green)' }}>{currentConcept.expectedReturn}</strong>
-                  </div>
-                  <div style={{ background: 'var(--bg-card)', padding: '8px 12px', border: '1px solid var(--border-light)', borderRadius: '4px', textAlign: 'right' }}>
-                    <span style={{ fontSize: '0.66rem', color: 'var(--ink-muted)', display: 'block', fontFamily: 'var(--font-mono)' }}>LOCK-IN PERIOD</span>
-                    <strong style={{ fontFamily: 'var(--font-mono)', fontSize: '0.95rem' }}>{currentConcept.lockIn}</strong>
-                  </div>
-                </div>
-              </div>
-
-              {/* In-Depth Explanation */}
-              <div style={{ marginBottom: '20px' }}>
-                <h4 style={{ fontFamily: 'var(--font-mono)', fontSize: '0.76rem', color: 'var(--accent-blue)', fontWeight: 800, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '8px' }}>
-                  What Exactly Is It & How It Works
-                </h4>
-                <p style={{ fontSize: '0.92rem', color: 'var(--ink-primary)', lineHeight: 1.6, whiteSpace: 'pre-line' }}>
-                  {currentConcept.explanation}
-                </p>
-              </div>
-
-              {/* Tactical Cards Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '18px' }}>
-                {currentConcept.whyBetterThanSavings && (
-                  <div style={{ background: 'rgba(16, 185, 129, 0.06)', border: '1px solid var(--accent-green)', padding: '14px', borderRadius: '4px' }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.78rem', color: 'var(--accent-green)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
-                      ⚡ THE EDGE OVER SAVINGS / TRADITIONAL CASH
-                    </div>
-                    <p style={{ fontSize: '0.84rem', color: 'var(--ink-primary)', lineHeight: 1.45 }}>
-                      {currentConcept.whyBetterThanSavings}
-                    </p>
-                  </div>
-                )}
-
-                {currentConcept.mathExample && (
-                  <div style={{ background: 'rgba(59, 130, 246, 0.06)', border: '1px solid var(--accent-blue)', padding: '14px', borderRadius: '4px' }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.78rem', color: 'var(--accent-blue)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
-                      📈 REAL WEALTH COMPOUNDING MATH
-                    </div>
-                    <p style={{ fontSize: '0.84rem', color: 'var(--ink-primary)', lineHeight: 1.45 }}>
-                      {currentConcept.mathExample}
-                    </p>
-                  </div>
-                )}
-
-                {currentConcept.taxation && (
-                  <div style={{ background: 'var(--bg-card)', border: '1px solid var(--border-light)', padding: '14px', borderRadius: '4px' }}>
-                    <div style={{ fontWeight: 800, fontSize: '0.78rem', color: 'var(--accent-red)', fontFamily: 'var(--font-mono)', marginBottom: '4px' }}>
-                      ⚖️ TAXATION & DEDUCTIONS
-                    </div>
-                    <p style={{ fontSize: '0.84rem', color: 'var(--ink-primary)', lineHeight: 1.45 }}>
-                      {currentConcept.taxation}
-                    </p>
-                  </div>
-                )}
-              </div>
-
-              {/* Best For Summary */}
-              <div style={{ background: 'var(--bg-muted)', padding: '12px 16px', borderRadius: '4px', borderLeft: '4px solid var(--border-strong)' }}>
-                <span style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--ink-muted)', textTransform: 'uppercase' }}>
-                  WHO SHOULD USE THIS:
-                </span>
-                <p style={{ fontSize: '0.88rem', fontWeight: 600, color: 'var(--ink-primary)', marginTop: '2px' }}>
-                  {currentConcept.bestFor}
-                </p>
-              </div>
-            </div>
+            )}
           </div>
         )}
       </div>
     </section>
   );
 }
+
+export default FinanceZeroToHero;

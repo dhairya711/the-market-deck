@@ -119,7 +119,7 @@ export function ArticleModal({
         {/* Executive Bullets */}
         {article.bullets && article.bullets.length > 0 && (
           <div className="high-signal-bullets" style={{ marginBottom: '22px' }}>
-            <div className="bullet-title">⚡ High-Signal Takeaways</div>
+            <div className="bullet-title">Key Executive Takeaways</div>
             {article.bullets.map((b, i) => (
               <div key={i} className="bullet-item">{b}</div>
             ))}
@@ -138,7 +138,7 @@ export function ArticleModal({
             }}
           >
             <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.74rem', fontWeight: '800', color: 'var(--accent-red)', textTransform: 'uppercase', marginBottom: '6px' }}>
-              🎯 Why It Matters To Your Portfolio
+              Portfolio Impact Analysis
             </div>
             <p style={{ fontSize: '0.9rem', color: 'var(--ink-primary)', lineHeight: 1.5 }}>
               {article.whyItMatters}

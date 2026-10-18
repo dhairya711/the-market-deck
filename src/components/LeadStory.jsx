@@ -38,7 +38,7 @@ export function LeadStory({
 
       {story.bullets && story.bullets.length > 0 && (
         <div className="high-signal-bullets">
-          <div className="bullet-title">⚡ Zero-Fluff Intelligence Dossier</div>
+          <div className="bullet-title">Executive Intelligence Dossier</div>
           {story.bullets.map((b, i) => (
             <div key={i} className="bullet-item">{b}</div>
           ))}

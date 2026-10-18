@@ -84,7 +84,7 @@ export function CatchMeUpModal({ stories, onClose }) {
         >
           <div>
             <div style={{ fontWeight: 800, fontSize: '0.85rem' }}>
-              🎙️ AI Executive Audio Briefing
+              Executive Audio Briefing
             </div>
             <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)' }}>
               Natural speech synthesis readout of today's key moves

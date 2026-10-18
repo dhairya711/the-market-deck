@@ -1,17 +1,14 @@
 import React from 'react';
-import { RefreshCw, Zap, Moon, Sun, Sliders, Volume2, Clock } from 'lucide-react';
+import { Clock } from 'lucide-react';
 import { getFormattedDate } from '../services/newsService';
 
 export function Header({
   settings,
   lastUpdated,
   countdownSeconds,
-  isRefreshing,
-  theme,
-  onToggleTheme,
-  onManualRefresh,
-  onOpenSettings,
-  onOpenCatchMeUp,
+  activePage,
+  activeFinancialTab,
+  onSelectPage,
 }) {
   const currentDate = getFormattedDate();
 
@@ -23,106 +20,96 @@ export function Header({
 
   return (
     <header className="newspaper-header">
-      {/* Top vintage folio bar */}
+      {/* 1. Top Folio Bar: ESTD on left, Date in center, Last Updated in corner */}
       <div className="masthead-top-bar">
-        <div>{settings.volumeNumber || 'TERMINAL v2.5 • DALAL ST & GLOBAL PULSE'}</div>
-        <div className="live-vibe-monitor">
+        <div className="top-bar-left">
+          ESTD. 2026 • WEALTH STRATEGY COCKPIT
+        </div>
+
+        <div className="top-bar-center">
           <span className="live-dot"></span>
-          <span>LIVE MARKET & INTELLIGENCE RADAR</span>
+          <span>{currentDate} • NEW DELHI / MUMBAI</span>
         </div>
-        <div>FOCUS: PURE ALPHA • ZERO FLUFF</div>
-      </div>
 
-      {/* Main Masthead Title & Intro */}
-      <div className="masthead-center">
-        <div className="masthead-badge-strip">
-          <span className="terminal-badge">FINANCIAL INTELLIGENCE & CAPITAL LITERACY TERMINAL</span>
-        </div>
-        <h1 className="masthead-title">
-          {(settings.newspaperTitle || 'THE MARKET DECK').replace(/\.+$/, '')}
-          <span className="title-dot">.</span>
-        </h1>
-        <p className="masthead-subtitle">
-          {settings.newspaperSubtitle || 'Financial Intelligence & Wealth Literacy Terminal • Mastering Equities, Real-Time Dispatches & Capital Decisions'}
-        </p>
-        <div className="masthead-pillars">
-          <span className="pillar-item">⚡ Live Intelligence Wire</span>
-          <span className="pillar-dot">•</span>
-          <span className="pillar-item">⚖️ Asset Comparison Arena</span>
-          <span className="pillar-dot">•</span>
-          <span className="pillar-item">🔎 1-2Y Stock Dossiers</span>
-          <span className="pillar-dot">•</span>
-          <span className="pillar-item">🎓 Zero-to-Hero Academy</span>
-          <span className="pillar-dot">•</span>
-          <span className="pillar-item">🎲 Investor Brain Gym</span>
-        </div>
-      </div>
-
-      {/* Dossier info strip */}
-      <div className="masthead-dossier-bar">
-        <span>ESTD. 2026 • WEALTH STRATEGY COCKPIT</span>
-        <span>{currentDate}</span>
-        <span>INTELLIGENCE RADAR BY ANTIGRAVITY</span>
-      </div>
-
-      {/* Control bar: Refresh timer, actions, theme toggle */}
-      <div className="control-toolbar">
-        <div className="toolbar-left">
-          <span>🕒 Last Updated: <strong>{lastUpdated}</strong></span>
-          <span className="countdown-badge" title="Auto-refreshes every 15 minutes">
-            <Clock size={13} />
-            Next in: <strong>{formatCountdown(countdownSeconds)}</strong>
+        <div className="top-bar-right">
+          <Clock size={12} style={{ display: 'inline', marginRight: '4px' }} />
+          <span>Last Updated: <strong>{lastUpdated}</strong></span>
+          <span className="countdown-pill" title="Auto-refreshes every 15 minutes">
+            Next: {formatCountdown(countdownSeconds)}
           </span>
         </div>
+      </div>
 
-        <div className="toolbar-right">
+      {/* 2. Main Masthead Title & Quick Navigation */}
+      <div className="masthead-center">
+        <h1 className="masthead-title">
+          {(settings?.newspaperTitle || 'THE MARKET DECK').replace(/\.+$/, '')}
+          <span className="title-dot">.</span>
+        </h1>
+
+        <p className="masthead-subtitle">
+          {settings?.newspaperSubtitle || 'Financial Intelligence & Wealth Literacy Terminal • Mastering Equities, Real-Time Dispatches & Capital Decisions'}
+        </p>
+
+        {/* Compact Pillar Quick Links */}
+        <div className="masthead-pillars">
           <button
-            className="btn-newspaper btn-catch-up"
-            onClick={onOpenCatchMeUp}
-            title="Listen to 60-second executive audio briefing"
+            type="button"
+            className={`pillar-link-btn ${activePage === 'all-news' ? 'active' : ''}`}
+            onClick={() => onSelectPage && onSelectPage('all-news')}
+            title="Read Daily Broadsheet News Wire"
           >
-            <Zap size={14} />
-            <span>CATCH ME UP</span>
+            Live News Wire
           </button>
-
+          <span className="pillar-dot">•</span>
           <button
-            className="btn-newspaper"
-            onClick={onManualRefresh}
-            disabled={isRefreshing}
-            title="Refresh feed with latest market intelligence"
+            type="button"
+            className={`pillar-link-btn ${activePage === 'financial-hub' && activeFinancialTab === 'compare-arena' ? 'active' : ''}`}
+            onClick={() => onSelectPage && onSelectPage('financial-hub', 'compare-arena')}
+            title="Open Asset Comparison Arena"
           >
-            <RefreshCw size={14} className={isRefreshing ? 'spin-anim' : ''} />
-            <span>{isRefreshing ? 'Refreshing...' : 'Refresh Now'}</span>
+            Asset Comparator
           </button>
-
+          <span className="pillar-dot">•</span>
           <button
-            className="btn-newspaper"
-            onClick={onOpenSettings}
-            title="Customize your portfolio stocks, industries, and vibes"
+            type="button"
+            className={`pillar-link-btn ${activePage === 'financial-hub' && activeFinancialTab === 'funds-comparator' ? 'active' : ''}`}
+            onClick={() => onSelectPage && onSelectPage('financial-hub', 'funds-comparator')}
+            title="Open All Funds & Wealth Schemes Comparator"
           >
-            <Sliders size={14} />
-            <span>Watchlist & Topics</span>
+            All Funds & Schemes
           </button>
-
+          <span className="pillar-dot">•</span>
           <button
-            className="btn-newspaper btn-pill-mode"
-            onClick={onToggleTheme}
-            title="Switch between Vintage Broadsheet Paper and Dark Lock-In Mode"
+            type="button"
+            className={`pillar-link-btn ${activePage === 'financial-hub' && activeFinancialTab === 'stock-research' ? 'active' : ''}`}
+            onClick={() => onSelectPage && onSelectPage('financial-hub', 'stock-research')}
+            title="Open 1-2 Year Stock Dossiers"
           >
-            {theme === 'dark' ? (
-              <>
-                <Sun size={13} style={{ color: '#fbbf24' }} />
-                <span>PAPER MODE</span>
-              </>
-            ) : (
-              <>
-                <Moon size={13} />
-                <span>DARK MODE (LOCK IN)</span>
-              </>
-            )}
+            Stock Dossiers
+          </button>
+          <span className="pillar-dot">•</span>
+          <button
+            type="button"
+            className={`pillar-link-btn ${activePage === 'financial-hub' && activeFinancialTab === 'finance-game' ? 'active' : ''}`}
+            onClick={() => onSelectPage && onSelectPage('financial-hub', 'finance-game')}
+            title="Open Zero-to-Hero Academy"
+          >
+            Zero-to-Hero Academy
+          </button>
+          <span className="pillar-dot">•</span>
+          <button
+            type="button"
+            className={`pillar-link-btn ${activePage === 'brain-games' ? 'active' : ''}`}
+            onClick={() => onSelectPage && onSelectPage('brain-games')}
+            title="Open Investor Brain Gym"
+          >
+            Brain Gym
           </button>
         </div>
       </div>
     </header>
   );
 }
+
+export default Header;

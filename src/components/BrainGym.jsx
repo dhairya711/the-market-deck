@@ -1,9 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react';
 import confetti from 'canvas-confetti';
 import { brainGymData } from '../data/defaultNews';
-import { RefreshCw, CheckCircle2, RotateCcw, HelpCircle, Trophy } from 'lucide-react';
+import { RefreshCw, CheckCircle2, RotateCcw, HelpCircle, Trophy, ArrowRight, Gamepad2, Sparkles } from 'lucide-react';
 
-export function BrainGym() {
+export function BrainGym({
+  title = 'BRAIN GYM',
+  subtitle = 'touch grass later',
+  tagline = 'INVESTOR COGNITIVE ALPHA • 5 INTERACTIVE GAMES',
+  onOpenFullArcade = null,
+  defaultGame = 'all',
+}) {
+  const [selectedGameFilter, setSelectedGameFilter] = useState(defaultGame);
+
   /* ================= 1. SUDOKU ================= */
   const initialSudoku = brainGymData.sudoku.puzzle;
   const sudokuSolution = brainGymData.sudoku.solution;
@@ -315,15 +323,55 @@ export function BrainGym() {
     }, 1200);
   };
 
+  const gameFilters = [
+    { id: 'all', label: 'All Games' },
+    { id: 'sudoku', label: 'Sudoku' },
+    { id: 'maze', label: 'Bull vs Bear Maze' },
+    { id: 'wordle', label: 'Finance Wordle' },
+    { id: 'trivia', label: 'Finance Trivia' },
+    { id: 'higher-lower', label: 'Higher or Lower' },
+  ];
+
   return (
     <section className="brain-gym-section" id="brain-gym">
       <div className="brain-gym-header">
-        <h2 className="brain-gym-title">BRAIN GYM</h2>
-        <p className="brain-gym-subtitle">touch grass later</p>
+        <div className="brain-gym-title-area">
+          <div className="brain-gym-badge-tag">{tagline}</div>
+          <h2 className="brain-gym-title">{title}</h2>
+          <p className="brain-gym-subtitle">{subtitle}</p>
+        </div>
+
+        {onOpenFullArcade && (
+          <button
+            type="button"
+            className="btn-newspaper btn-arcade-jump"
+            onClick={onOpenFullArcade}
+            title="Open Dedicated Brain Games Lounge"
+          >
+            <Gamepad2 size={15} />
+            <span>OPEN FULL 5-GAME ARCADE</span>
+            <ArrowRight size={14} />
+          </button>
+        )}
       </div>
 
-      <div className="games-grid">
+      {/* Game Filter Pills */}
+      <div className="brain-game-selector-bar">
+        {gameFilters.map((gf) => (
+          <button
+            key={gf.id}
+            type="button"
+            className={`category-pill ${selectedGameFilter === gf.id ? 'active' : ''}`}
+            onClick={() => setSelectedGameFilter(gf.id)}
+          >
+            {gf.label}
+          </button>
+        ))}
+      </div>
+
+      <div className={`games-grid ${selectedGameFilter !== 'all' ? 'single-game-mode' : ''}`}>
         {/* GAME 1: SUDOKU */}
+        {(selectedGameFilter === 'all' || selectedGameFilter === 'sudoku') && (
         <div className="game-card">
           <div className="game-title">SUDOKU</div>
           <p className="game-desc">Today's grid. Lock in and fill it out.</p>
@@ -390,8 +438,10 @@ export function BrainGym() {
             </div>
           )}
         </div>
+        )}
 
         {/* GAME 2: MAZE */}
+        {(selectedGameFilter === 'all' || selectedGameFilter === 'maze') && (
         <div className="game-card">
           <div className="game-title">MAZE</div>
           <p className="game-desc">Click in, lock in, then arrow keys it out.</p>
@@ -423,7 +473,7 @@ export function BrainGym() {
           <div style={{ textAlign: 'center' }}>
             {mazeWon ? (
               <div style={{ color: 'var(--accent-green)', fontWeight: 'bold', marginBottom: '8px' }}>
-                🎉 You Escaped the Matrix!
+                You Escaped the Maze!
               </div>
             ) : (
               <div style={{ fontSize: '0.72rem', color: 'var(--ink-muted)', marginBottom: '8px' }}>
@@ -435,14 +485,16 @@ export function BrainGym() {
             </button>
           </div>
         </div>
+        )}
 
         {/* GAME 3: FINANCE WORDLE */}
+        {(selectedGameFilter === 'all' || selectedGameFilter === 'wordle') && (
         <div className="game-card">
           <div className="game-title">FINANCE WORDLE</div>
           <p className="game-desc">5-letter money word. 6 tries. We gave you a clue, use it.</p>
 
           <div className="wordle-clue-box">
-            🔍 <strong>Clue:</strong> {targetClue}
+            <strong>Clue:</strong> {targetClue}
           </div>
 
           <div className="wordle-grid">
@@ -503,7 +555,7 @@ export function BrainGym() {
 
           {wordleWon && (
             <div style={{ color: 'var(--accent-green)', fontWeight: 'bold', textAlign: 'center', marginTop: '8px' }}>
-              🎯 Correct! Word was {targetWord}
+              Correct! Word was {targetWord}
             </div>
           )}
           {wordleOver && !wordleWon && (
@@ -512,11 +564,14 @@ export function BrainGym() {
             </div>
           )}
         </div>
+        )}
       </div>
 
       {/* BOTTOM GAMES: Trivia & Higher/Lower */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '28px' }}>
+      {(selectedGameFilter === 'all' || selectedGameFilter === 'trivia' || selectedGameFilter === 'higher-lower') && (
+      <div style={{ display: 'grid', gridTemplateColumns: selectedGameFilter !== 'all' ? '1fr' : 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginTop: '28px' }}>
         {/* Trivia */}
+        {(selectedGameFilter === 'all' || selectedGameFilter === 'trivia') && (
         <div className="game-card">
           <div className="game-title">FINANCE TRIVIA</div>
           <p className="game-desc">Multiple choice. Flex your market literacy.</p>
@@ -552,7 +607,7 @@ export function BrainGym() {
 
           {selectedTriviaOption !== null && (
             <div style={{ fontSize: '0.78rem', color: 'var(--ink-secondary)', marginBottom: '8px' }}>
-              💡 {currentTrivia.explanation}
+              {currentTrivia.explanation}
             </div>
           )}
 
@@ -561,8 +616,10 @@ export function BrainGym() {
             <button className="btn-newspaper" onClick={handleNextTrivia}>Next Question</button>
           </div>
         </div>
+        )}
 
         {/* Higher or Lower */}
+        {(selectedGameFilter === 'all' || selectedGameFilter === 'higher-lower') && (
         <div className="game-card">
           <div className="game-title">HIGHER OR LOWER</div>
           <p className="game-desc">Which asset or company flexes higher valuation?</p>
@@ -597,7 +654,7 @@ export function BrainGym() {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.78rem', fontFamily: 'var(--font-mono)' }}>
-            <span>Streak: <strong>{hlStreak} 🔥</strong></span>
+            <span>Streak: <strong>{hlStreak}</strong></span>
             {hlResult && (
               <span style={{ color: hlResult === 'correct' ? 'var(--accent-green)' : 'var(--accent-red)', fontWeight: 'bold' }}>
                 {hlResult === 'correct' ? 'CORRECT!' : 'MISSED!'}
@@ -605,7 +662,9 @@ export function BrainGym() {
             )}
           </div>
         </div>
+        )}
       </div>
+      )}
     </section>
   );
 }

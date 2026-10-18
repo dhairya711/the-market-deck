@@ -119,14 +119,14 @@ export function getFormattedTime() {
 // ==========================================
 export async function fetchLiveRssNews() {
   const feedSources = [
-    { url: '/api/gnews-india', source: 'GOOGLE NEWS INDIA', fallbackCategory: 'good-news', label: 'GOOD NEWS 🌟' },
-    { url: '/api/mc-markets', source: 'MONEYCONTROL', fallbackCategory: 'stonks', label: 'STONKS ARENA 📈' },
-    { url: '/api/mc-top', source: 'MONEYCONTROL', fallbackCategory: 'good-news', label: 'GOOD NEWS 🌟' },
-    { url: '/api/mint-markets', source: 'LIVEMINT', fallbackCategory: 'stonks', label: 'STONKS ARENA 📈' },
-    { url: '/api/mint-companies', source: 'LIVEMINT', fallbackCategory: 'stonks', label: 'STONKS ARENA 📈' },
-    { url: '/api/bs-markets', source: 'BUSINESS STANDARD', fallbackCategory: 'stonks', label: 'STONKS ARENA 📈' },
-    { url: '/api/et-stocks', source: 'ECONOMIC TIMES', fallbackCategory: 'stonks', label: 'STONKS ARENA 📈' },
-    { url: '/api/et-politics', source: 'ECONOMIC TIMES', fallbackCategory: 'politics', label: 'POLITICS 🏛️' },
+    { url: '/api/gnews-india', source: 'GOOGLE NEWS INDIA', fallbackCategory: 'good-news', label: 'GOOD NEWS' },
+    { url: '/api/mc-markets', source: 'MONEYCONTROL', fallbackCategory: 'stonks', label: 'STONKS ARENA' },
+    { url: '/api/mc-top', source: 'MONEYCONTROL', fallbackCategory: 'good-news', label: 'GOOD NEWS' },
+    { url: '/api/mint-markets', source: 'LIVEMINT', fallbackCategory: 'stonks', label: 'STONKS ARENA' },
+    { url: '/api/mint-companies', source: 'LIVEMINT', fallbackCategory: 'stonks', label: 'STONKS ARENA' },
+    { url: '/api/bs-markets', source: 'BUSINESS STANDARD', fallbackCategory: 'stonks', label: 'STONKS ARENA' },
+    { url: '/api/et-stocks', source: 'ECONOMIC TIMES', fallbackCategory: 'stonks', label: 'STONKS ARENA' },
+    { url: '/api/et-politics', source: 'ECONOMIC TIMES', fallbackCategory: 'politics', label: 'POLITICS' },
   ];
 
   const parsedStories = [];
@@ -208,13 +208,13 @@ export async function fetchLiveRssNews() {
 
         if (isGoodNews && category !== 'politics') {
           category = 'good-news';
-          categoryLabel = 'GOOD NEWS 🌟';
+          categoryLabel = 'GOOD NEWS';
         } else if (isPolitics) {
           category = 'politics';
-          categoryLabel = 'POLITICS 🏛️';
+          categoryLabel = 'POLITICS';
         } else if (isHiring) {
           category = 'hiring';
-          categoryLabel = 'HIRING & TALENT 💼';
+          categoryLabel = 'HIRING & TALENT';
         }
 
         // Parse authentic publication timestamp
@@ -255,7 +255,7 @@ export async function fetchLiveRssNews() {
           id: `live-${pubTimestamp}-${Math.floor(Math.random() * 10000)}`,
           pubTimestamp,
           isLead: false,
-          title: `${rawTitle} ⚡`,
+          title: rawTitle,
           titleExecutive: rawTitle,
           source: finalSource,
           category: category,
@@ -493,11 +493,11 @@ export function generateFreshTopicTake(topicOrCategory, existingStories = [], vi
   const freshAnglePool = {
     'good-news': [
       {
-        title: 'India Manufacturing PMI Touches 59.2: Domestic Capex Boom Enters 4th Super-Cycle Year 🌟',
+        title: 'India Manufacturing PMI Touches 59.2: Domestic Capex Boom Enters 4th Super-Cycle Year',
         titleExecutive: 'Macro Production Indicator: Purchasing Managers Index Signals Broad-Based Industrial Expansion',
         source: 'MONEYCONTROL',
         category: 'good-news',
-        categoryLabel: 'GOOD NEWS 🌟',
+        categoryLabel: 'GOOD NEWS',
         summary: 'Manufacturing PMI surged to 59.2, fueled by record capital goods order books, factory automation investments, and surging rural vehicle demand.',
         bullets: [
           'Order backlogs across engineering and electronics exporters touched highest levels since 2011.',
@@ -509,11 +509,11 @@ export function generateFreshTopicTake(topicOrCategory, existingStories = [], vi
         sentiment: 'bullish'
       },
       {
-        title: 'Sovereign Green Bond Issuance Oversubscribed 4.2x: International Funds Pile into India Clean Infrastructure 🌟',
+        title: 'Sovereign Green Bond Issuance Oversubscribed 4.2x: International Funds Pile into India Clean Infrastructure',
         titleExecutive: 'Sovereign Debt Allocation: Green Bond Tranche Attracts $3.2B in Bids from Global ESG Desks',
         source: 'FINANCIAL EXPRESS',
         category: 'good-news',
-        categoryLabel: 'GOOD NEWS 🌟',
+        categoryLabel: 'GOOD NEWS',
         summary: 'Ministry of Finance completed its ₹12,000 Cr sovereign green bond auction with coupon yields priced 5 bps tighter than regular G-Secs, proving the India greenium.',
         bullets: [
           'Funds earmarked for dedicated rail freight corridors, offshore wind tenders, and green hydrogen hubs.',
@@ -527,11 +527,11 @@ export function generateFreshTopicTake(topicOrCategory, existingStories = [], vi
     ],
     stonks: [
       {
-        title: 'DII Equity Inflows Cross ₹40,000 Cr This Month: Mutual Funds Defend 24,500 Support on Dalal Street 📈',
+        title: 'DII Equity Inflows Cross ₹40,000 Cr This Month: Mutual Funds Defend 24,500 Support on Dalal Street',
         titleExecutive: 'Institutional Flows: Domestic Mutual Funds Expand Net Buying as SIP Run-Rate Anchors Market',
         source: 'BUSINESS STANDARD',
         category: 'stonks',
-        categoryLabel: 'STONKS ARENA 📈',
+        categoryLabel: 'STONKS ARENA',
         summary: 'Domestic mutual funds deployed record cash balances in afternoon trading, accumulating top auto, bank, and renewable energy leaders during market consolidation.',
         bullets: [
           'Cash-rich domestic institutional balance sheets comfortably absorb intermittent foreign portfolio selling.',
@@ -545,11 +545,11 @@ export function generateFreshTopicTake(topicOrCategory, existingStories = [], vi
     ],
     politics: [
       {
-        title: 'Union Cabinet Greenlights ₹54,000 Cr Industrial Freight Corridors & Port Rail Links 🏛️',
+        title: 'Union Cabinet Greenlights ₹54,000 Cr Industrial Freight Corridors & Port Rail Links',
         titleExecutive: 'Infrastructure Policy: Cabinet Clears Capital Outlay for Multi-Modal National Logistics Grid',
         source: 'ECONOMIC TIMES',
         category: 'politics',
-        categoryLabel: 'POLITICS 🏛️',
+        categoryLabel: 'POLITICS',
         summary: 'Ministers approved high-speed rail connectivity linking manufacturing clusters in Gujarat, Maharashtra, and Tamil Nadu directly to deep-water container ports.',
         bullets: [
           'Reduces national transit freight times by 40% between inland factories and export terminals.',
@@ -563,11 +563,11 @@ export function generateFreshTopicTake(topicOrCategory, existingStories = [], vi
     ],
     hiring: [
       {
-        title: 'Global Capability Centers (GCCs) Add 180,000 Engineering Jobs in Bengaluru & Hyderabad 💼',
+        title: 'Global Capability Centers (GCCs) Add 180,000 Engineering Jobs in Bengaluru & Hyderabad',
         titleExecutive: 'Enterprise Talent Demand: Fortune 500 GCCs Expand AI Research Centers in India',
         source: 'LIVEMINT',
         category: 'hiring',
-        categoryLabel: 'HIRING & TALENT 💼',
+        categoryLabel: 'HIRING & TALENT',
         summary: 'Multinational banking, semiconductor, and healthcare corporations opened 45 new Global Capability Centers in Q3, hiring specialized AI, firmware, and cloud architects.',
         bullets: [
           'Average tech compensation packages in GCCs outpace traditional IT services by 35-50%.',

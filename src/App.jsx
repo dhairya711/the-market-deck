@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Header } from './components/Header';
 import { TickerTape } from './components/TickerTape';
+import { PrimaryNav } from './components/PrimaryNav';
 import { CategoryNav } from './components/CategoryNav';
 import { LeadStory } from './components/LeadStory';
 import { DossierGrid } from './components/DossierGrid';
@@ -9,12 +10,15 @@ import { BrainGym } from './components/BrainGym';
 import { StockResearchDesk } from './components/StockResearchDesk';
 import { FinanceZeroToHero } from './components/FinanceZeroToHero';
 import { AssetComparisonArena } from './components/AssetComparisonArena';
+import { WealthFundsComparator } from './components/WealthFundsComparator';
 import { ArticleModal } from './components/ArticleModal';
 import { SettingsModal } from './components/SettingsModal';
 import { CatchMeUpModal } from './components/CatchMeUpModal';
+import { TerminalGuideModal } from './components/TerminalGuideModal';
 import { Toast } from './components/Toast';
 
 import { initialIndices } from './data/marketData';
+import { categories, financialNewsCategories } from './data/defaultNews';
 import {
   loadPersistedNews,
   savePersistedNews,
@@ -30,6 +34,34 @@ import {
   updateWatchlistQuotes,
 } from './services/newsService';
 
+// Helper to determine initial page and sub-tab from window hash
+function parseNavigationFromHash() {
+  const hash = (window.location.hash || '').replace('#', '').toLowerCase();
+  
+  if (hash.includes('brain-games') || hash === 'games' || hash === 'brain-gym') {
+    return { page: 'brain-games', subTab: 'stock-research' };
+  }
+  if (hash.includes('fund') || hash.includes('scheme') || hash.includes('wealth')) {
+    return { page: 'financial-hub', subTab: 'funds-comparator' };
+  }
+  if (hash.includes('compare-arena') || hash.includes('compare')) {
+    return { page: 'financial-hub', subTab: 'compare-arena' };
+  }
+  if (hash.includes('game') || hash.includes('academy') || hash.includes('hero')) {
+    return { page: 'financial-hub', subTab: 'finance-game' };
+  }
+  if (hash.includes('research') || hash.includes('deepdive') || hash.includes('deep-dive')) {
+    return { page: 'financial-hub', subTab: 'stock-research' };
+  }
+  if (hash.includes('finance-news') || hash.includes('financial-news')) {
+    return { page: 'financial-hub', subTab: 'finance-news' };
+  }
+  if (hash.includes('financial-hub') || hash === 'finance') {
+    return { page: 'financial-hub', subTab: 'stock-research' };
+  }
+  return { page: 'all-news', subTab: 'stock-research' };
+}
+
 export function App() {
   // Theme state: 'light' or 'dark'
   const [theme, setTheme] = useState(() => {
@@ -43,7 +75,18 @@ export function App() {
 
   // Stories
   const [stories, setStories] = useState(loadPersistedNews);
-  const [activeCategory, setActiveCategory] = useState('all');
+
+  // 3 Distinct Pages Navigation:
+  // 1. 'all-news' (Broadsheet News)
+  // 2. 'financial-hub' (Stock Deep-Dive, Compare 2 Things, Academy & Financial News)
+  // 3. 'brain-games' (Dedicated Investor Brain Games Arcade)
+  const initialNav = parseNavigationFromHash();
+  const [activePage, setActivePage] = useState(initialNav.page);
+  const [financialSubTab, setFinancialSubTab] = useState(initialNav.subTab);
+
+  // Categories & Filters
+  const [newsCategory, setNewsCategory] = useState('all');
+  const [financialCategory, setFinancialCategory] = useState('all-finance');
   const [searchQuery, setSearchQuery] = useState('');
   const [isWatchlistOnly, setIsWatchlistOnly] = useState(false);
   const [bookmarkedIds, setBookmarkedIds] = useState(() => {
@@ -59,6 +102,24 @@ export function App() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isCatchMeUpOpen, setIsCatchMeUpOpen] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Guided Tour State (7 slides max, first visit option with 'no thanks')
+  const [isTourOpen, setIsTourOpen] = useState(false);
+  const [showFirstVisitPrompt, setShowFirstVisitPrompt] = useState(() => {
+    return !localStorage.getItem('market_deck_guided_tour_dismissed');
+  });
+
+  const handleOpenTour = () => {
+    setIsTourOpen(true);
+    setShowFirstVisitPrompt(false);
+    localStorage.setItem('market_deck_guided_tour_dismissed', 'true');
+  };
+
+  const handleDismissFirstVisitPrompt = () => {
+    setShowFirstVisitPrompt(false);
+    localStorage.setItem('market_deck_guided_tour_dismissed', 'true');
+    addToast("Tour dismissed. You can reopen it anytime by clicking 'Tour' on the top bar.");
+  };
 
   // Auto-refresh countdown timer (15 minutes = 900 seconds default)
   const [lastUpdated, setLastUpdated] = useState(getFormattedTime);
@@ -86,6 +147,43 @@ export function App() {
   const toggleTheme = () => {
     setTheme((prev) => (prev === 'light' ? 'dark' : 'light'));
     addToast(theme === 'light' ? 'Switched to Terminal Dark Mode' : 'Switched to Classic Paper Mode');
+  };
+
+  // Sync window hash changes (e.g. browser back/forward buttons)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const nav = parseNavigationFromHash();
+      setActivePage(nav.page);
+      if (nav.subTab) {
+        setFinancialSubTab(nav.subTab);
+      }
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  // Primary page navigation handler
+  const handleSelectPage = (pageId, subTab = null) => {
+    setActivePage(pageId);
+    if (subTab) {
+      setFinancialSubTab(subTab);
+    }
+
+    if (pageId === 'all-news') {
+      window.history.replaceState(null, '', '#news');
+    } else if (pageId === 'financial-hub') {
+      window.history.replaceState(null, '', `#finance-${subTab || financialSubTab}`);
+    } else if (pageId === 'brain-games') {
+      window.history.replaceState(null, '', '#games');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  // Financial Hub sub-tab switcher
+  const handleSelectFinancialTab = (tabId) => {
+    setFinancialSubTab(tabId);
+    window.history.replaceState(null, '', `#finance-${tabId}`);
   };
 
   // Save stories & bookmarks whenever updated
@@ -127,15 +225,23 @@ export function App() {
     addToast(`Removed ${symbol} from Watchlist`, 'info');
   };
 
+  // Clean, flawless link to open Stock Deep-Dive from Watchlist / Sidebar
   const handleOpenResearchForStock = (symbol) => {
-    const el = document.getElementById('stock-research-desk');
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
+    setActivePage('financial-hub');
+    setFinancialSubTab('stock-research');
+    window.history.replaceState(null, '', '#finance-deepdive');
+
     // Dispatch custom event to notify StockResearchDesk
     window.dispatchEvent(
       new CustomEvent('market_deck_open_stock_research', { detail: { symbol } })
     );
+
+    setTimeout(() => {
+      const el = document.getElementById('stock-research-desk');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 60);
   };
 
   // Master Refresh Function: Multi-Source Indian feeds & Live Price Ticks
@@ -158,14 +264,12 @@ export function App() {
       const liveRssStories = await fetchLiveRssNews();
 
       if (liveRssStories.length > 0) {
-        // Designate the freshest real story as the Lead Story!
         liveRssStories[0].isLead = true;
         for (let i = 1; i < liveRssStories.length; i++) {
           liveRssStories[i].isLead = false;
         }
 
         setStories((prev) => {
-          // Remove any legacy fake lead stories (such as hardcoded 'lead-today')
           const cleanPrev = prev.filter((s) => s.id !== 'lead-today' && !s.id.startsWith('good-news-'));
           const liveTitles = new Set(liveRssStories.map((s) => s.title));
           const filteredOld = cleanPrev.filter((s) => !liveTitles.has(s.title));
@@ -183,7 +287,7 @@ export function App() {
       if (isAuto) {
         addToast(`[15-Min Auto-Refresh] Updated with ${liveRssStories.length} live Indian market dispatches at ${nowStr}`, 'refresh');
       } else {
-        addToast(`Dossier refreshed with ${liveRssStories.length} live stories from Moneycontrol, Mint, BS & ET at ${nowStr}`, 'refresh');
+        addToast(`Dossier refreshed with ${liveRssStories.length} live stories at ${nowStr}`, 'refresh');
       }
     } catch (err) {
       console.warn('Refresh error:', err);
@@ -208,7 +312,7 @@ export function App() {
   // 15-Minute Countdown Interval Timer
   useEffect(() => {
     if (!settings.refreshIntervalMinutes || settings.refreshIntervalMinutes <= 0) {
-      return; // manual only
+      return;
     }
 
     const interval = setInterval(() => {
@@ -224,7 +328,7 @@ export function App() {
     return () => clearInterval(interval);
   }, [settings.refreshIntervalMinutes, stories]);
 
-  // Refresh an individual topic or stock on-demand
+  // Refresh an individual topic on-demand
   const handleRefreshTopic = (topic) => {
     const freshStory = generateFreshTopicTake(topic, stories, settings.newsVibe);
     setStories((prev) => [freshStory, ...prev]);
@@ -267,14 +371,14 @@ export function App() {
     addToast('Watchlist & invested companies updated');
   };
 
-  // Filter Stories by Category, Search Query, and Watchlist Only
-  const filteredStories = useMemo(() => {
+  // ==========================================
+  // PAGE 1: All News Filtered Stories
+  // ==========================================
+  const newsFilteredStories = useMemo(() => {
     return stories.filter((story) => {
-      // 1. Watchlist Only Filter
+      // Watchlist filter
       if (isWatchlistOnly) {
-        const storyTickers = (story.tickers || []).map((t) =>
-          t.replace('$', '').toUpperCase()
-        );
+        const storyTickers = (story.tickers || []).map((t) => t.replace('$', '').toUpperCase());
         const storyText = (story.title + ' ' + (story.summary || '')).toUpperCase();
         const matchesWatchlist = watchlist.some((stk) => {
           const sym = (stk.symbol || '').toUpperCase();
@@ -288,13 +392,13 @@ export function App() {
         if (!matchesWatchlist) return false;
       }
 
-      // 2. Category match
+      // News Category match
       let matchCat = true;
-      if (activeCategory !== 'all' && activeCategory !== 'brain-gym' && activeCategory !== 'stock-research') {
-        matchCat = story.category === activeCategory;
+      if (newsCategory !== 'all') {
+        matchCat = story.category === newsCategory;
       }
 
-      // 3. Search match
+      // Search match
       let matchSearch = true;
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim();
@@ -307,19 +411,78 @@ export function App() {
 
       return matchCat && matchSearch;
     });
-  }, [stories, activeCategory, searchQuery, isWatchlistOnly, watchlist]);
+  }, [stories, newsCategory, searchQuery, isWatchlistOnly, watchlist]);
 
-  // Separate Lead story from General dossier
   const leadStory = useMemo(() => {
-    if (filteredStories.length === 0) return null;
-    const foundLead = filteredStories.find((s) => s.isLead);
-    return foundLead || filteredStories[0];
-  }, [filteredStories]);
+    if (newsFilteredStories.length === 0) return null;
+    const foundLead = newsFilteredStories.find((s) => s.isLead);
+    return foundLead || newsFilteredStories[0];
+  }, [newsFilteredStories]);
 
   const generalStories = useMemo(() => {
     if (!leadStory) return [];
-    return filteredStories.filter((s) => s.id !== leadStory.id);
-  }, [filteredStories, leadStory]);
+    return newsFilteredStories.filter((s) => s.id !== leadStory.id);
+  }, [newsFilteredStories, leadStory]);
+
+  // ==========================================
+  // PAGE 2: Financial Wire Filtered Stories
+  // ==========================================
+  const financialFilteredStories = useMemo(() => {
+    return stories.filter((story) => {
+      // Must be a financial story (stonks, yield, vc, good-news, or has tickers)
+      const isFinancialStory =
+        ['stonks', 'yield', 'vc', 'good-news'].includes(story.category) ||
+        (story.tickers && story.tickers.length > 0);
+
+      if (!isFinancialStory) return false;
+
+      // Watchlist filter
+      if (isWatchlistOnly) {
+        const storyTickers = (story.tickers || []).map((t) => t.replace('$', '').toUpperCase());
+        const storyText = (story.title + ' ' + (story.summary || '')).toUpperCase();
+        const matchesWatchlist = watchlist.some((stk) => {
+          const sym = (stk.symbol || '').toUpperCase();
+          const name = (stk.name || '').toUpperCase();
+          return (
+            storyTickers.includes(sym) ||
+            storyText.includes(sym) ||
+            (name.length > 3 && storyText.includes(name))
+          );
+        });
+        if (!matchesWatchlist) return false;
+      }
+
+      // Financial Category match
+      let matchCat = true;
+      if (financialCategory !== 'all-finance') {
+        matchCat = story.category === financialCategory;
+      }
+
+      // Search match
+      let matchSearch = true;
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const inTitle = (story.title || '').toLowerCase().includes(q);
+        const inSummary = (story.summary || '').toLowerCase().includes(q);
+        const inSource = (story.source || '').toLowerCase().includes(q);
+        const inTickers = (story.tickers || []).some((t) => t.toLowerCase().includes(q));
+        matchSearch = inTitle || inSummary || inSource || inTickers;
+      }
+
+      return matchCat && matchSearch;
+    });
+  }, [stories, financialCategory, searchQuery, isWatchlistOnly, watchlist]);
+
+  const financialLeadStory = useMemo(() => {
+    if (financialFilteredStories.length === 0) return null;
+    const foundLead = financialFilteredStories.find((s) => s.isLead);
+    return foundLead || financialFilteredStories[0];
+  }, [financialFilteredStories]);
+
+  const financialGeneralStories = useMemo(() => {
+    if (!financialLeadStory) return [];
+    return financialFilteredStories.filter((s) => s.id !== financialLeadStory.id);
+  }, [financialFilteredStories, financialLeadStory]);
 
   return (
     <div className="newspaper-container">
@@ -334,127 +497,267 @@ export function App() {
         onManualRefresh={() => triggerRefresh(false)}
         onOpenSettings={() => setIsSettingsOpen(true)}
         onOpenCatchMeUp={() => setIsCatchMeUpOpen(true)}
+        activePage={activePage}
+        activeFinancialTab={financialSubTab}
+        onSelectPage={handleSelectPage}
       />
 
-      {/* 2. Live Market Ticker Tape */}
-      <TickerTape indices={indices} watchlist={watchlist} />
-
-      {/* 3. Category Navigation & Search */}
-      <CategoryNav
-        activeCategory={activeCategory}
-        onSelectCategory={(catId) => {
-          setActiveCategory(catId);
-          if (catId === 'compare-arena') {
-            const el = document.getElementById('compare-arena');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          } else if (catId === 'finance-game') {
-            const el = document.getElementById('finance-game');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          } else if (catId === 'stock-research') {
-            const el = document.getElementById('stock-research-desk');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          } else if (catId === 'brain-gym') {
-            const el = document.getElementById('brain-gym');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-          }
-        }}
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
+      {/* 2. Live Market Ticker Tape (Steady Pulse above full-width rotating marquee) */}
+      <TickerTape
+        indices={indices}
+        watchlist={watchlist}
+        onAddStock={handleAddStockToWatchlist}
+        onOpenResearch={handleOpenResearchForStock}
+        onManualRefresh={() => triggerRefresh(false)}
+        isRefreshing={isRefreshing}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        onOpenCatchMeUp={() => setIsCatchMeUpOpen(true)}
+        onOpenTour={handleOpenTour}
+        theme={theme}
+        onToggleTheme={toggleTheme}
       />
 
-      {/* 4. Main Broadsheet Layout */}
-      {activeCategory !== 'brain-gym' &&
-      activeCategory !== 'stock-research' &&
-      activeCategory !== 'compare-arena' &&
-      activeCategory !== 'finance-game' ? (
-        <div className="broadsheet-main-grid">
-          {/* Main Column: Lead Story + Dossier Grid */}
-          <main>
-            {isWatchlistOnly && (
-              <div
-                style={{
-                  background: 'var(--bg-muted)',
-                  border: '1px solid var(--accent-red)',
-                  padding: '8px 14px',
-                  borderRadius: '4px',
-                  marginBottom: '14px',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  fontFamily: 'var(--font-mono)',
-                  fontSize: '0.78rem',
-                }}
-              >
-                <span>⭐ FILTERED TO YOUR WATCHLIST ({watchlist.length} STOCKS)</span>
-                <button
-                  type="button"
-                  onClick={() => setIsWatchlistOnly(false)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--accent-red)',
-                    fontWeight: 700,
-                  }}
-                >
-                  Clear Filter (Show All)
-                </button>
-              </div>
-            )}
+      {/* Optional First-Time User Guided Tour Banner */}
+      {showFirstVisitPrompt && (
+        <aside className="first-visit-tour-banner" aria-label="First Time User Tour Invitation">
+          <div className="tour-banner-content">
+            <span className="tour-banner-badge">NEW VISITOR GUIDE</span>
+            <span className="tour-banner-text">
+              Welcome to The Market Deck! Would you like a 2-minute guided walkthrough (7 quick slides) of the 3 pages, stock dossiers, and funds comparator?
+            </span>
+          </div>
+          <div className="tour-banner-actions">
+            <button
+              type="button"
+              className="btn-newspaper btn-tour-start"
+              onClick={handleOpenTour}
+            >
+              <span>Start Interactive Tour</span>
+            </button>
+            <button
+              type="button"
+              className="btn-newspaper btn-tour-skip"
+              onClick={handleDismissFirstVisitPrompt}
+            >
+              <span>No thanks, explore on my own</span>
+            </button>
+          </div>
+        </aside>
+      )}
 
-            {leadStory && (
-              <LeadStory
-                story={leadStory}
+      {/* 3. Primary Navigation Bar: 3 Dedicated Pages & Suite Tabs */}
+      <PrimaryNav
+        activePage={activePage}
+        onSelectPage={handleSelectPage}
+        activeFinancialTab={financialSubTab}
+        onSelectFinancialTab={handleSelectFinancialTab}
+      />
+
+      {/* ========================================================
+          PAGE 1: ALL NEWS & DISPATCHES (BROADSHEET)
+          ======================================================== */}
+      {activePage === 'all-news' && (
+        <section className="page-view animate-fade-in" aria-label="All News Page">
+          {/* Category Navigation Pills strictly for news topics */}
+          <CategoryNav
+            categories={categories}
+            activeCategory={newsCategory}
+            onSelectCategory={setNewsCategory}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            placeholder="Filter dispatches by ticker, topic, sector..."
+          />
+
+          <div className="broadsheet-main-grid">
+            <main>
+              {isWatchlistOnly && (
+                <div className="watchlist-filter-banner">
+                  <span>⭐ FILTERED TO YOUR WATCHLIST ({watchlist.length} STOCKS)</span>
+                  <button
+                    type="button"
+                    onClick={() => setIsWatchlistOnly(false)}
+                    className="clear-filter-btn"
+                  >
+                    Clear Filter (Show All)
+                  </button>
+                </div>
+              )}
+
+              {leadStory && (
+                <LeadStory
+                  story={leadStory}
+                  vibe={settings.newsVibe}
+                  onOpenArticle={setSelectedArticle}
+                  onRefreshTopic={handleRefreshTopic}
+                  onToggleBookmark={handleToggleBookmark}
+                  isBookmarked={bookmarkedIds.includes(leadStory.id)}
+                  onShare={handleShare}
+                />
+              )}
+
+              <DossierGrid
+                stories={generalStories}
                 vibe={settings.newsVibe}
                 onOpenArticle={setSelectedArticle}
                 onRefreshTopic={handleRefreshTopic}
                 onToggleBookmark={handleToggleBookmark}
-                isBookmarked={bookmarkedIds.includes(leadStory.id)}
+                bookmarkedIds={bookmarkedIds}
                 onShare={handleShare}
               />
-            )}
+            </main>
 
-            <DossierGrid
-              stories={generalStories}
-              vibe={settings.newsVibe}
-              onOpenArticle={setSelectedArticle}
-              onRefreshTopic={handleRefreshTopic}
-              onToggleBookmark={handleToggleBookmark}
-              bookmarkedIds={bookmarkedIds}
-              onShare={handleShare}
+            {/* Right Column: Yield curve, Portfolio radar, Noise meter, Quotes */}
+            <Sidebar
+              watchlist={watchlist}
+              onFilterByTicker={(ticker) => setSearchQuery(ticker)}
+              onAddStock={handleAddStockToWatchlist}
+              onRemoveStock={handleRemoveStockFromWatchlist}
+              onOpenResearch={handleOpenResearchForStock}
+              isWatchlistOnly={isWatchlistOnly}
+              onToggleWatchlistOnly={setIsWatchlistOnly}
             />
-          </main>
+          </div>
 
-          {/* Right Column: Yield curve, Portfolio radar, Noise meter, Quotes */}
-          <Sidebar
-            watchlist={watchlist}
-            onFilterByTicker={(ticker) => setSearchQuery(ticker)}
-            onAddStock={handleAddStockToWatchlist}
-            onRemoveStock={handleRemoveStockFromWatchlist}
-            onOpenResearch={handleOpenResearchForStock}
-            isWatchlistOnly={isWatchlistOnly}
-            onToggleWatchlistOnly={setIsWatchlistOnly}
+          {/* End of Page 1: Brain Games Section as requested */}
+          <div className="page-end-brain-gym">
+            <BrainGym
+              title="END-OF-DOSSIER BRAIN GYM"
+              subtitle="Lock in your mental alpha and solve today's puzzles after reading"
+              tagline="READER'S COGNITIVE CORNER"
+              onOpenFullArcade={() => handleSelectPage('brain-games')}
+            />
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================
+          PAGE 2: FINANCIAL HUB & KNOWLEDGE GAINER
+          ======================================================== */}
+      {activePage === 'financial-hub' && (
+        <section className="page-view animate-fade-in" aria-label="Financial Hub Page">
+          {/* SubTab 1: Stock Deep-Dive Desk (1-2Y Dossier) */}
+          {financialSubTab === 'stock-research' && (
+            <div className="tool-view animate-fade-in">
+              <StockResearchDesk
+                onShareToast={addToast}
+                onAddToWatchlist={handleAddStockToWatchlist}
+                watchlist={watchlist}
+              />
+            </div>
+          )}
+
+          {/* SubTab 2: Head-to-Head Asset & Stock Comparison Arena */}
+          {financialSubTab === 'compare-arena' && (
+            <div className="tool-view animate-fade-in">
+              <AssetComparisonArena />
+            </div>
+          )}
+
+          {/* SubTab 3: Comprehensive Funds & Wealth Schemes Comparator */}
+          {financialSubTab === 'funds-comparator' && (
+            <div className="tool-view animate-fade-in">
+              <WealthFundsComparator />
+            </div>
+          )}
+
+          {/* SubTab 4: Zero-to-Hero Academy (Learn First, Quiz & Duels) */}
+          {financialSubTab === 'finance-game' && (
+            <div className="tool-view animate-fade-in">
+              <FinanceZeroToHero />
+            </div>
+          )}
+
+          {/* SubTab 4: Financial News Wire (Stonks, Yields & VC Dispatches) */}
+          {financialSubTab === 'finance-news' && (
+            <div className="tool-view animate-fade-in">
+              <CategoryNav
+                categories={financialNewsCategories}
+                activeCategory={financialCategory}
+                onSelectCategory={setFinancialCategory}
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                placeholder="Filter financial wire, tickers, capital inflows..."
+              />
+
+              <div className="broadsheet-main-grid">
+                <main>
+                  {isWatchlistOnly && (
+                    <div className="watchlist-filter-banner">
+                      <span>⭐ FILTERED TO YOUR WATCHLIST ({watchlist.length} STOCKS)</span>
+                      <button
+                        type="button"
+                        onClick={() => setIsWatchlistOnly(false)}
+                        className="clear-filter-btn"
+                      >
+                        Clear Filter (Show All)
+                      </button>
+                    </div>
+                  )}
+
+                  {financialLeadStory && (
+                    <LeadStory
+                      story={financialLeadStory}
+                      vibe={settings.newsVibe}
+                      onOpenArticle={setSelectedArticle}
+                      onRefreshTopic={handleRefreshTopic}
+                      onToggleBookmark={handleToggleBookmark}
+                      isBookmarked={bookmarkedIds.includes(financialLeadStory.id)}
+                      onShare={handleShare}
+                    />
+                  )}
+
+                  <DossierGrid
+                    stories={financialGeneralStories}
+                    vibe={settings.newsVibe}
+                    onOpenArticle={setSelectedArticle}
+                    onRefreshTopic={handleRefreshTopic}
+                    onToggleBookmark={handleToggleBookmark}
+                    bookmarkedIds={bookmarkedIds}
+                    onShare={handleShare}
+                  />
+                </main>
+
+                <Sidebar
+                  watchlist={watchlist}
+                  onFilterByTicker={(ticker) => setSearchQuery(ticker)}
+                  onAddStock={handleAddStockToWatchlist}
+                  onRemoveStock={handleRemoveStockFromWatchlist}
+                  onOpenResearch={handleOpenResearchForStock}
+                  isWatchlistOnly={isWatchlistOnly}
+                  onToggleWatchlistOnly={setIsWatchlistOnly}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* End of Page 2: Brain Games Section as requested */}
+          <div className="page-end-brain-gym">
+            <BrainGym
+              title="FINANCIAL BRAIN GYM"
+              subtitle="Test your capital instincts and flex your market literacy"
+              tagline="FINANCIAL COGNITIVE DECK"
+              onOpenFullArcade={() => handleSelectPage('brain-games')}
+            />
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================
+          PAGE 3: INVESTOR BRAIN GAMES (DEDICATED ARCADE)
+          ======================================================== */}
+      {activePage === 'brain-games' && (
+        <section className="page-view animate-fade-in" aria-label="Brain Games Arcade Page">
+          <BrainGym
+            title="INVESTOR BRAIN GYM & ARCADE"
+            subtitle="5 full interactive challenges: Sudoku, Bear vs Bull Maze, Stock Wordle, Financial Trivia & Higher/Lower"
+            tagline="FULL ARCADE SUITE • TOUCH GRASS LATER"
           />
-        </div>
-      ) : null}
+        </section>
+      )}
 
-      {/* 5. Head-to-Head Asset & Stock Comparison Engine (Compare 2 or 3 things) */}
-      <AssetComparisonArena />
-
-      {/* 6. Finance Zero-to-Hero Academy & Higher Return Duels */}
-      <FinanceZeroToHero />
-
-      {/* 7. Stock Research Terminal: 1-to-2 Year Intelligence Dossier */}
-      <StockResearchDesk
-        onShareToast={addToast}
-        onAddToWatchlist={handleAddStockToWatchlist}
-        watchlist={watchlist}
-      />
-
-      {/* 8. Brain Gym Section (Sudoku, Maze, Wordle, Trivia, Higher/Lower) */}
-      <BrainGym />
-
-      {/* MODALS */}
+      {/* ========================================================
+          MODALS & TOASTS
+          ======================================================== */}
       {selectedArticle && (
         <ArticleModal
           article={selectedArticle}
@@ -482,6 +785,13 @@ export function App() {
           onClose={() => setIsCatchMeUpOpen(false)}
         />
       )}
+
+      {/* Guided Tour Modal (7 Slides Max, strictly modular) */}
+      <TerminalGuideModal
+        isOpen={isTourOpen}
+        onClose={() => setIsTourOpen(false)}
+        onNavigate={handleSelectPage}
+      />
 
       {/* Toast Notification Container */}
       <Toast toasts={toasts} />

@@ -3,6 +3,84 @@
   publish = "dist"
 
 [[redirects]]
+  from = "/api/mc-markets"
+  to = "https://www.moneycontrol.com/rss/marketreports.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/mc-top"
+  to = "https://www.moneycontrol.com/rss/MCtopnews.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/mc-business"
+  to = "https://www.moneycontrol.com/rss/business.xml"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/mint-markets"
+  to = "https://www.livemint.com/rss/markets"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/mint-companies"
+  to = "https://www.livemint.com/rss/companies"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/bs-markets"
+  to = "https://www.business-standard.com/rss/markets-106.rss"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/gnews-india"
+  to = "https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN&ceid=IN:en"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/gnews-search"
+  to = "https://news.google.com/rss/search"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/et-markets"
+  to = "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/et-stocks"
+  to = "https://economictimes.indiatimes.com/markets/stocks/rssfeeds/2146842.cms"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/et-tech"
+  to = "https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/et-politics"
+  to = "https://economictimes.indiatimes.com/news/politics-and-nation/rssfeeds/1052732854.cms"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/api/yahoo/*"
+  to = "https://query1.finance.yahoo.com/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

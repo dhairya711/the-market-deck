@@ -1,6 +1,38 @@
 {
   "rewrites": [
     {
+      "source": "/api/mc-markets",
+      "destination": "https://www.moneycontrol.com/rss/marketreports.xml"
+    },
+    {
+      "source": "/api/mc-top",
+      "destination": "https://www.moneycontrol.com/rss/MCtopnews.xml"
+    },
+    {
+      "source": "/api/mc-business",
+      "destination": "https://www.moneycontrol.com/rss/business.xml"
+    },
+    {
+      "source": "/api/mint-markets",
+      "destination": "https://www.livemint.com/rss/markets"
+    },
+    {
+      "source": "/api/mint-companies",
+      "destination": "https://www.livemint.com/rss/companies"
+    },
+    {
+      "source": "/api/bs-markets",
+      "destination": "https://www.business-standard.com/rss/markets-106.rss"
+    },
+    {
+      "source": "/api/gnews-india",
+      "destination": "https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN&ceid=IN:en"
+    },
+    {
+      "source": "/api/gnews-search",
+      "destination": "https://news.google.com/rss/search"
+    },
+    {
       "source": "/api/et-markets",
       "destination": "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"
     },
@@ -13,11 +45,15 @@
       "destination": "https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms"
     },
     {
+      "source": "/api/et-politics",
+      "destination": "https://economictimes.indiatimes.com/news/politics-and-nation/rssfeeds/1052732854.cms"
+    },
+    {
       "source": "/api/yahoo/(.*)",
       "destination": "https://query1.finance.yahoo.com/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api/).*)",
       "destination": "/index.html"
     }
   ],

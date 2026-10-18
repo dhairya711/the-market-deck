@@ -184,35 +184,10 @@ export function SettingsModal({
           </select>
         </div>
 
-        {/* SECTION 2: EDITORIAL TONE / VIBE */}
-        <div style={{ padding: '16px', background: 'var(--bg-muted)', borderRadius: '4px', marginBottom: '20px' }}>
-          <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 800, marginBottom: '6px' }}>
-            🗞️ EDITORIAL VOICE & HEADLINE TONE
-          </label>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '8px' }}>
-            <button
-              type="button"
-              className={`btn-newspaper ${localSettings.newsVibe === 'market_deck' || localSettings.newsVibe === 'tfg' ? 'btn-primary-dark' : ''}`}
-              style={{ justifyContent: 'center', padding: '10px' }}
-              onClick={() => setLocalSettings({ ...localSettings, newsVibe: 'market_deck' })}
-            >
-              <span>Market Deck Alpha (High Signal / No Fluff)</span>
-            </button>
-            <button
-              type="button"
-              className={`btn-newspaper ${localSettings.newsVibe === 'executive' ? 'btn-primary-dark' : ''}`}
-              style={{ justifyContent: 'center', padding: '10px' }}
-              onClick={() => setLocalSettings({ ...localSettings, newsVibe: 'executive' })}
-            >
-              <span>Wall Street Executive (Zero Fluff)</span>
-            </button>
-          </div>
-        </div>
-
-        {/* SECTION 3: MY WATCHLIST & STOCKS */}
+        {/* SECTION 2: MY WATCHLIST & STOCKS */}
         <div style={{ padding: '16px', background: 'var(--bg-card)', border: '1px solid var(--border-light)', borderRadius: '4px', marginBottom: '20px' }}>
           <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 800, marginBottom: '4px' }}>
-            💼 MY INVESTED STOCKS & COMPANIES ({localWatchlist.length})
+            MY INVESTED STOCKS & COMPANIES ({localWatchlist.length})
           </label>
           <p style={{ fontSize: '0.74rem', color: 'var(--ink-muted)', marginBottom: '12px' }}>
             Add any company of your choice to your personal watchlist radar across NSE and BSE.
@@ -383,50 +358,6 @@ export function SettingsModal({
           </div>
         </div>
 
-        {/* SECTION 4: CUSTOM MASTHEAD TITLE & SUBTITLE */}
-        <div style={{ padding: '16px', background: 'var(--bg-muted)', borderRadius: '4px', marginBottom: '24px' }}>
-          <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 800, marginBottom: '6px' }}>
-            🏛️ PLATFORM / TERMINAL TITLE
-          </label>
-          <input
-            type="text"
-            value={localSettings.newspaperTitle}
-            onChange={(e) => setLocalSettings({ ...localSettings, newspaperTitle: e.target.value })}
-            placeholder="e.g. THE MARKET DECK"
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              fontFamily: 'var(--font-masthead)',
-              fontSize: '1.1rem',
-              fontWeight: 800,
-              border: '1px solid var(--border-strong)',
-              borderRadius: '4px',
-              background: 'var(--bg-card)',
-              color: 'var(--ink-primary)',
-              marginBottom: '12px',
-            }}
-          />
-
-          <label style={{ display: 'block', fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 800, marginBottom: '6px' }}>
-            💡 FINANCIAL LITERACY & INTELLIGENCE TAGLINE
-          </label>
-          <input
-            type="text"
-            value={localSettings.newspaperSubtitle}
-            onChange={(e) => setLocalSettings({ ...localSettings, newspaperSubtitle: e.target.value })}
-            placeholder="e.g. Financial Intelligence & Wealth Literacy Terminal..."
-            style={{
-              width: '100%',
-              padding: '8px 12px',
-              fontFamily: 'var(--font-serif)',
-              fontSize: '0.88rem',
-              border: '1px solid var(--border-strong)',
-              borderRadius: '4px',
-              background: 'var(--bg-card)',
-              color: 'var(--ink-primary)',
-            }}
-          />
-        </div>
 
         {/* SAVE BUTTONS */}
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>

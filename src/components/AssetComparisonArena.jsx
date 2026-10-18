@@ -177,6 +177,48 @@ export function AssetComparisonArena() {
   const items = comparisonResult.items || [];
   const verdict = comparisonResult.verdict;
 
+  const renderReturnText = (val) => {
+    if (!val || val === 'N/A' || val === '-') {
+      return <span style={{ color: 'var(--ink-muted)' }}>{val || 'N/A'}</span>;
+    }
+    const str = String(val).trim();
+    
+    // Check if it's purely descriptive text rather than a percentage or number
+    const isDescriptive = str.toLowerCase().includes('calculated') || (str.toLowerCase().includes('baseline') && !str.includes('%'));
+    if (isDescriptive) {
+      return <span style={{ color: 'var(--ink-muted)', fontStyle: 'italic', fontSize: '0.78rem' }}>{str}</span>;
+    }
+
+    const isNegative = str.startsWith('-') || /-\s*\d/.test(str);
+    const hasPlus = str.startsWith('+');
+    const hasPercent = str.includes('%');
+    const cleanNum = parseFloat(str.replace(/[^0-9.-]/g, ''));
+
+    if (isNegative) {
+      const displayStr = str.startsWith('-') ? str : `-${str}`;
+      return (
+        <span style={{ color: 'var(--accent-red)', fontWeight: 800 }}>
+          {displayStr}
+        </span>
+      );
+    }
+
+    if (hasPlus || (hasPercent && !isNaN(cleanNum) && cleanNum > 0)) {
+      const displayStr = str.startsWith('+') ? str : `+${str}`;
+      return (
+        <span style={{ color: 'var(--accent-green)', fontWeight: 800 }}>
+          {displayStr}
+        </span>
+      );
+    }
+
+    return (
+      <span style={{ color: 'var(--ink-primary)', fontWeight: 800 }}>
+        {str}
+      </span>
+    );
+  };
+
   return (
     <section className="asset-comparison-section" id="compare-arena" style={{ marginTop: '36px', marginBottom: '40px' }} ref={arenaRef}>
       <div
@@ -539,40 +581,40 @@ export function AssetComparisonArena() {
                     <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '10px 14px', fontWeight: 700 }}>Past 6 Months Return</td>
                       {items.map((item, idx) => (
-                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px', fontWeight: 800, color: 'var(--accent-green)' }}>
-                          {item.returns.sixMonths}
+                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px' }}>
+                          {renderReturnText(item.returns.sixMonths)}
                         </td>
                       ))}
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '10px 14px', fontWeight: 700 }}>Past 1 Year Return</td>
                       {items.map((item, idx) => (
-                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px', fontWeight: 800, color: 'var(--accent-green)' }}>
-                          {item.returns.oneYear}
+                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px' }}>
+                          {renderReturnText(item.returns.oneYear)}
                         </td>
                       ))}
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '10px 14px', fontWeight: 700 }}>Past 3 Years (CAGR)</td>
                       {items.map((item, idx) => (
-                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px', fontWeight: 800, color: 'var(--accent-green)' }}>
-                          {item.returns.threeYears}
+                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px' }}>
+                          {renderReturnText(item.returns.threeYears)}
                         </td>
                       ))}
                     </tr>
                     <tr style={{ borderBottom: '1px solid var(--border-light)' }}>
                       <td style={{ padding: '10px 14px', fontWeight: 700 }}>Past 5 Years (CAGR)</td>
                       {items.map((item, idx) => (
-                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px', fontWeight: 800, color: 'var(--accent-green)' }}>
-                          {item.returns.fiveYears}
+                        <td key={idx} style={{ textAlign: 'right', padding: '10px 14px' }}>
+                          {renderReturnText(item.returns.fiveYears)}
                         </td>
                       ))}
                     </tr>
-                    <tr style={{ background: 'rgba(16, 185, 129, 0.05)', fontWeight: 900 }}>
+                    <tr style={{ background: 'var(--bg-muted)', fontWeight: 900 }}>
                       <td style={{ padding: '12px 14px' }}>Growth of ₹1,00,000 in 5 Years</td>
                       {items.map((item, idx) => (
-                        <td key={idx} style={{ textAlign: 'right', padding: '12px 14px', fontSize: '0.92rem', color: 'var(--accent-green)' }}>
-                          {item.returns.fiveYearGrowthOf1Lakh}
+                        <td key={idx} style={{ textAlign: 'right', padding: '12px 14px', fontSize: '0.92rem' }}>
+                          {renderReturnText(item.returns.fiveYearGrowthOf1Lakh)}
                         </td>
                       ))}
                     </tr>
@@ -619,7 +661,7 @@ export function AssetComparisonArena() {
                     {/* Section 1: Who Invested in This Company */}
                     <div style={{ marginBottom: '14px' }}>
                       <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-blue)', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
-                        📥 Who Has Invested In This ({item.name.split(' ')[0]}):
+                        Major Institutional Holders ({item.name.split(' ')[0]}):
                       </span>
                       <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.8rem', color: 'var(--ink-secondary)', lineHeight: 1.45 }}>
                         {item.whoInvestedInThis.map((inv, iIdx) => (
@@ -633,7 +675,7 @@ export function AssetComparisonArena() {
                     {/* Section 2: Who This Company Is Investing In */}
                     <div>
                       <span style={{ fontSize: '0.7rem', fontFamily: 'var(--font-mono)', fontWeight: 800, color: 'var(--accent-green)', display: 'block', marginBottom: '6px', textTransform: 'uppercase' }}>
-                        📤 Who This Company Is Investing In:
+                        Subsidiaries & Strategic Investments:
                       </span>
                       <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '0.8rem', color: 'var(--ink-secondary)', lineHeight: 1.45 }}>
                         {item.whoThisIsInvestingIn.map((inv, iIdx) => (

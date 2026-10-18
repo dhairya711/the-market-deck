@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   Search,
-  Calendar,
   ShieldCheck,
   AlertTriangle,
   Copy,
@@ -9,16 +8,14 @@ import {
   Star,
   ExternalLink,
   RefreshCw,
-  TrendingUp,
   Sparkles,
   ChevronDown,
   ChevronUp,
   Building2,
   AlertCircle,
-  Loader2,
 } from 'lucide-react';
 import { generateStockDossier } from '../data/researchDatabase';
-import { searchIndianStocks, indianStockDirectory } from '../data/indianMarketDirectory';
+import { indianStockDirectory } from '../data/indianMarketDirectory';
 import { fetchStockSpecificNews } from '../services/newsService';
 import { searchIndianStocksLive, fetchLiveStockDetails } from '../services/stockApiService';
 
@@ -42,12 +39,12 @@ export function StockResearchDesk({ onShareToast, onAddToWatchlist, watchlist = 
 
   const sectorFilters = [
     { id: 'ALL', label: 'All Companies' },
-    { id: 'Specialty Chemicals', label: 'Chemicals 🧪' },
-    { id: 'Auto & EV', label: 'Auto & EV 🚗' },
-    { id: 'Banking & Financials', label: 'Banking & NBFC 🏦' },
-    { id: 'IT Services', label: 'IT & Tech 💻' },
-    { id: 'Clean Energy', label: 'Energy & Power ⚡' },
-    { id: 'Defense & Aerospace', label: 'Defense & Infra 🛡️' },
+    { id: 'Specialty Chemicals', label: 'Chemicals' },
+    { id: 'Auto & EV', label: 'Auto & EV' },
+    { id: 'Banking & Financials', label: 'Banking & NBFC' },
+    { id: 'IT Services', label: 'IT & Tech' },
+    { id: 'Clean Energy', label: 'Energy & Power' },
+    { id: 'Defense & Aerospace', label: 'Defense & Infra' },
   ];
 
   const quickPicks = [
@@ -874,7 +871,7 @@ NO-NONSENSE EDITORIAL VERDICT:
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '16px', marginBottom: '24px' }}>
               <div style={{ background: 'var(--bg-card)', padding: '16px', border: '1px solid var(--border-light)', borderRadius: '4px' }}>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-blue)', letterSpacing: '0.08em', marginBottom: '6px' }}>
-                  ⚡ WHAT IS HAPPENING RIGHT NOW
+                  LATEST OPERATIONAL HIGHLIGHTS
                 </div>
                 <p style={{ fontSize: '0.84rem', color: 'var(--ink-secondary)', lineHeight: 1.55 }}>
                   {selectedStock.whatIsHappeningNow}
@@ -883,7 +880,7 @@ NO-NONSENSE EDITORIAL VERDICT:
 
               <div style={{ background: 'var(--bg-card)', padding: '16px', border: '1px solid var(--border-light)', borderRadius: '4px' }}>
                 <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-green)', letterSpacing: '0.08em', marginBottom: '6px' }}>
-                  📈 PERFORMANCE & FINANCIAL HEALTH
+                  PERFORMANCE & FINANCIAL HEALTH
                 </div>
                 <p style={{ fontSize: '0.84rem', color: 'var(--ink-secondary)', lineHeight: 1.55 }}>
                   {selectedStock.howItIsPerforming}

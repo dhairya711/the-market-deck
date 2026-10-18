@@ -11,7 +11,6 @@ import {
   Search,
   ExternalLink,
   Star,
-  CheckCircle,
   RefreshCw,
   AlertTriangle,
 } from 'lucide-react';

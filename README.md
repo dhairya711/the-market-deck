@@ -3,6 +3,8 @@
 ### Real-Time Financial Intelligence, Institutional Equity Research & Wealth Literacy Terminal
 *Mastering Indian & Global Equities, Live Wires, Mutual Fund Dossiers & Pure Mathematical Compounding*
 
+[![Live Production Terminal](https://img.shields.io/badge/Live%20Terminal-market--deck--five.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://market-deck-five.vercel.app/)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![LinkedIn: Dhairya Dani](https://img.shields.io/badge/LinkedIn-Dhairya%20Dani-0077B5?logo=linkedin&logoColor=white)](https://linkedin.com/in/dhairya-dani07)
 [![React 19](https://img.shields.io/badge/React-19.2-61dafb.svg?logo=react&logoColor=black)](https://react.dev/)
@@ -12,6 +14,11 @@
 [![AMFI Registered Schemes](https://img.shields.io/badge/Mutual%20Funds-AMFI%20Real--Time%20NAV-0ea5e9.svg)](https://www.amfiindia.com/)
 [![SEBI Compliance](https://img.shields.io/badge/Regulatory-SEBI%20Non--Advisory%20Compliant-10b981.svg)](#-sebi-regulatory-compliance--statutory-safeguards)
 [![Zero Hallucination Standard](https://img.shields.io/badge/Data%20Integrity-Zero%20Hallucination-success.svg)](#)
+
+---
+
+> 🚀 **Official Live Production URL:** [https://market-deck-five.vercel.app/](https://market-deck-five.vercel.app/)  
+> *Zero-configuration institutional broadsheet & financial intelligence terminal hosted on Vercel Edge Network with live Dalal Street tickers and AMFI NAV feeds.*
 
 ---
 
@@ -222,6 +229,8 @@ Deploying to Vercel takes under 60 seconds with 100% reliability:
 4. **Environment Variables:**
    * Add `FINNHUB_API_KEY` with your copied key.
 5. **Click Deploy.** Your terminal will be live with full exchange proxying, RSS feeds, and AMFI schemes!
+
+*Live Production Instance:* **[https://market-deck-five.vercel.app/](https://market-deck-five.vercel.app/)**
 
 ---
 

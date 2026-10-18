@@ -654,6 +654,156 @@ export const initialNews = [
     noiseFiltered: 'Extracted purely mathematical framework; stripped all promotional trading course pitches.',
     readTime: '4 min read',
     content: `As Charlie Munger famously noted, "Every time you hear EBITDA, substitute the phrase 'bullshit earnings'". Real investors evaluate after-tax cash available to be pulled out of the enterprise without impairing its competitive moat.`
+  },
+
+  /* ========================================================
+     GLOBAL DIAL (International Macro, Fed, Crude & Geopolitics)
+     ======================================================== */
+  {
+    id: 'global-fed-rates',
+    isLead: false,
+    title: 'US Federal Reserve Signals Measured Rate Easing: 10-Yr Treasury Yields Steady at 4.08% as India Inflows Hold Strong',
+    titleExecutive: 'Global Monetary Policy: US Federal Reserve Signals Cautious Trajectory Amid Sticky Services Inflation',
+    source: 'REUTERS',
+    category: 'global',
+    categoryLabel: 'GLOBAL DIAL 🌐',
+    timestamp: getTodayDateStr(1.2),
+    timeAgo: '1h ago',
+    summary: 'The US Federal Reserve maintained a data-dependent stance, pointing to gradual rate cuts. The Dollar Index (DXY) stabilized near 101.8, providing calm across emerging market currencies and supporting continued FII capital commitments to Indian equities.',
+    bullets: [
+      'US 10-Year Treasury Yield held firm near 4.08%, averting sudden global capital flight.',
+      'Dollar-Rupee exchange rate traded in a narrow range near ₹84.10, backed by RBI’s $700B+ forex reserves.',
+      'Asian equity markets finished mixed as Tokyo rose 0.4% while European bourses opened marginally lower.'
+    ],
+    whyItMatters: 'A stable US rate cycle prevents emerging market currency shocks and sustains long-term foreign institutional allocations into high-ROIC Indian companies.',
+    tickers: ['$DXY', '$US10Y', '$NIFTY', '$USDINR'],
+    sentiment: 'neutral',
+    noiseFiltered: 'Cut speculative day-to-day rate cut probability bets; isolated baseline monetary policy trajectories.',
+    readTime: '2 min read',
+    content: `Federal Reserve Chairman Jerome Powell emphasized that cooling labor market dynamics allow for recalibration without tipping the US economy into recession. Global institutional allocators maintain overweight allocations on India relative to other emerging markets.`
+  },
+  {
+    id: 'global-crude-supply',
+    isLead: false,
+    title: 'Brent Crude Softens to $74/Barrel on Non-OPEC Supply Surge: India Annual Energy Import Bill Compresses by $9B',
+    titleExecutive: 'Commodity Dispatches: Brent Crude Consolidates Near $74 as Americas Supply Outpaces Global Consumption',
+    source: 'BLOOMBERG',
+    category: 'global',
+    categoryLabel: 'GLOBAL DIAL 🌐',
+    timestamp: getTodayDateStr(2.4),
+    timeAgo: '2.5h ago',
+    summary: 'Crude oil prices consolidated around $74 per barrel as record supply from the United States, Guyana, and Brazil offset geopolitical frictions in the Middle East. Lower crude prices directly improve India’s macroeconomic trade deficit.',
+    bullets: [
+      'Every $1 drop in international crude saves India approximately $1.1 Billion annually in foreign exchange outflow.',
+      'Public sector oil marketing companies (BPCL, HPCL, IOC) reported robust auto-fuel gross refining and marketing margins.',
+      'Domestic headline CPI inflation expectations lowered by 18 bps due to muted transportation input costs.'
+    ],
+    whyItMatters: 'Crude oil is India’s largest import expense; lower prices expand national current account resilience and bolster corporate EBITDA margins across paints, logistics, and aviation.',
+    tickers: ['$BRENT', '$BPCL', '$IOC', '$ASIANPAINT'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Stripped sensational geopolitical clickbait to focus on physical supply-demand equilibrium metrics.',
+    readTime: '2.5 min read',
+    content: `The International Energy Agency (IEA) forecasted non-OPEC+ supply growth to exceed 1.5 million barrels per day through 2026, creating structural headwind for oil cartel pricing power.`
+  },
+
+  /* ========================================================
+     REGULATION PATROL (SEBI, RBI & Statutory Compliance)
+     ======================================================== */
+  {
+    id: 'reg-sebi-derivatives',
+    isLead: false,
+    title: 'SEBI Enforces Hardened F&O Framework: Contract Lot Sizes Scaled Up to Protect Retail Investors from F&O Traps',
+    titleExecutive: 'Statutory Regulatory Dispatch: SEBI Mandates Elevated Derivative Minimum Contract Sizes to Curtail Unhedged Retail Losses',
+    source: 'ECONOMIC TIMES',
+    category: 'regulation',
+    categoryLabel: 'REGULATION PATROL ⚖️',
+    timestamp: getTodayDateStr(0.9),
+    timeAgo: '54m ago',
+    summary: 'The Securities and Exchange Board of India (SEBI) finalized structural guidelines to shield retail household savings from derivative gambling. The minimum contract value for index options and futures has been raised from ₹5 Lakh to ₹15-20 Lakh, alongside weekly contract rationalization.',
+    bullets: [
+      'SEBI research revealed 93% of active retail derivative traders lost money over a 3-year study period (totaling ₹1.8 Lakh Crore).',
+      'Removal of overlapping multi-exchange weekly expiries to eliminate speculative lottery-like expiry trading.',
+      'Mandatory upfront collection of Option Premium from retail buyers instituted across all clearing houses.'
+    ],
+    whyItMatters: 'Statutory milestone: redirects speculative losses into long-term compounding SIP mutual funds and productive capital market formation.',
+    tickers: ['$SEBI', '$NSE', '$BSE', '$CDSL'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Cut complaints from speculative intraday brokers; highlighted statutory investor protection framework.',
+    readTime: '2.5 min read',
+    content: `SEBI Chairperson reiterated that derivatives were instituted as risk hedging tools for corporations and institutional portfolios, not as speculative casino alternatives for retail households.`
+  },
+  {
+    id: 'reg-sebi-finfluencer',
+    isLead: false,
+    title: 'SEBI Mandates Performance Validation Agency (PVA): Unregistered Advisory Channels Barred from Regulated Platforms',
+    titleExecutive: 'Market Integrity Enforcement: SEBI Institutes PVA to Verify Stock Returns and Halt Fabricated Trading Claims',
+    source: 'MONEYCONTROL',
+    category: 'regulation',
+    categoryLabel: 'REGULATION PATROL ⚖️',
+    timestamp: getTodayDateStr(1.8),
+    timeAgo: '1.8h ago',
+    summary: 'SEBI notified regulations preventing regulated stockbrokers and mutual funds from partnering with unregistered finfluencers. Simultaneously, a Performance Validation Agency (PVA) will audit verified profit claims to stop fabricated screenshots and false guaranteed-return promises.',
+    bullets: [
+      'Regulated entities must sever commercial arrangements with unregistered financial influencers within 90 days.',
+      'Only SEBI-registered Investment Advisers (RIA) and Research Analysts (RA) permitted to charge advisory fees.',
+      'Rigorous audit mechanisms instituted to inspect brokerage algorithm marketing claims.'
+    ],
+    whyItMatters: 'Elevates market hygiene and protects naive first-time investors from predatory trading courses and pump-and-dump telegram channels.',
+    tickers: ['$SEBI', '$FINTECH', '$INVESTOR_PROTECTION'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Filtered social media influencer drama; focused strictly on official SEBI board gazette notifications.',
+    readTime: '2 min read',
+    content: `SEBI emphasized that financial education is welcomed and encouraged, but commercial stock-tipping and unregistered advisory for monetary consideration violates the SEBI Act, 1992.`
+  },
+
+  /* ========================================================
+     HIRING & TALENT (Workforce, Engineering & GCC Expansion)
+     ======================================================== */
+  {
+    id: 'hiring-gcc-boom',
+    isLead: false,
+    title: 'India Global Capability Centres (GCCs) Add 180,000 High-Skill AI & Silicon Roles: Average Salaries Touch ₹24 LPA',
+    titleExecutive: 'Human Capital Expansion: Multi-National GCC Corridors Scale High-Value Engineering Operations in India',
+    source: 'BUSINESS STANDARD',
+    category: 'hiring',
+    categoryLabel: 'HIRING & TALENT 👥',
+    timestamp: getTodayDateStr(1.5),
+    timeAgo: '1.5h ago',
+    summary: 'Over 1,700 Global Capability Centres (GCCs) operating in Bengaluru, Hyderabad, and Pune have accelerated hiring for specialized talent in generative AI, semiconductor design, and cloud architecture. Over 180,000 new high-paying tech roles were added over the last 12 months.',
+    bullets: [
+      'Total GCC market size in India reached $64 Billion, projected to touch $100 Billion by 2030.',
+      'Global Fortune 500 banks, healthcare giants, and automotive firms now house their primary R&D headquarters in India.',
+      'Senior AI engineers and chip architects command 30-40% compensation premiums over traditional IT services.'
+    ],
+    whyItMatters: 'Drives domestic consumption, premium residential real estate absorption, and systemic financialization of high-earning tech talent.',
+    tickers: ['$TCS', '$INFY', '$WIPRO', '$REALESTATE'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Stripped corporate employer branding buzzwords to highlight verifiable salary benchmarks and headcount additions.',
+    readTime: '2 min read',
+    content: `Unlike historic low-margin call center outsourcing, GCC operations in India now build proprietary intellectual property, filing thousands of global patents each year.`
+  },
+  {
+    id: 'hiring-it-campus',
+    isLead: false,
+    title: 'IT Bellwethers Re-Engage Engineering Campuses: 85,000 Freshers Slated for FY27 Induction as Cloud Orders Rebound',
+    titleExecutive: 'Talent Pipeline Regeneration: Tier-1 Indian IT Services Resume Systematic Campus Recruitment Cycles',
+    source: 'LIVEMINT',
+    category: 'hiring',
+    categoryLabel: 'HIRING & TALENT 👥',
+    timestamp: getTodayDateStr(3.1),
+    timeAgo: '3h ago',
+    summary: 'After several quarters of cautious bench management, major Indian IT corporations (TCS, Infosys, HCL Technologies) have confirmed campus recruitment drives for over 85,000 engineering graduates for the upcoming financial year as multi-year cloud modernization and generative AI pilot deals enter production.',
+    bullets: [
+      'TCS reiterated target of 40,000 fresher campus additions, maintaining commitment to entry-level talent development.',
+      'Industry-wide attrition levels moderated to healthy 12-13% band, lowering talent replacement overhead.',
+      'Curriculums upgraded with mandatory certifications in Python, PyTorch, and Enterprise Cyber Defense.'
+    ],
+    whyItMatters: 'Positive signal for aggregate domestic white-collar employment stability and consumer credit quality.',
+    tickers: ['$TCS', '$INFY', '$HCLTECH', '$WIPRO'],
+    sentiment: 'bullish',
+    noiseFiltered: 'Cut campus placement cell marketing hype; verified against quarterly investor call transcripts.',
+    readTime: '2 min read',
+    content: `Management teams noted that legacy maintenance contracts are stabilizing while generative AI migration contracts are driving new pipeline bookings across North American and European enterprises.`
   }
 ];
 

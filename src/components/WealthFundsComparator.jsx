@@ -15,6 +15,8 @@ import {
   Filter,
   Loader2,
   X,
+  HelpCircle,
+  TrendingUp,
 } from 'lucide-react';
 import {
   wealthVehiclesCatalog,

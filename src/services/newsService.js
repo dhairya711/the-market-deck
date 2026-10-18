@@ -4,7 +4,7 @@ import { initialNews, categories } from '../data/defaultNews';
 import { initialIndices, defaultWatchlist } from '../data/marketData';
 import { getIndianStockProfile, indianStockDirectory } from '../data/indianMarketDirectory';
 
-const CURRENT_VERSION = 'v6_live_real_wire_oct2026';
+const CURRENT_VERSION = 'v7_live_real_wire_oct2026';
 const STORAGE_KEYS = {
   NEWS: 'market_deck_news_stories_' + CURRENT_VERSION,
   WATCHLIST: 'market_deck_user_watchlist_' + CURRENT_VERSION,
@@ -178,43 +178,139 @@ export async function fetchLiveRssNews() {
         rawDesc = rawDesc.replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/&quot;/g, '"').trim();
 
         const lowerText = (rawTitle + ' ' + rawDesc).toLowerCase();
-        const isGoodNews = lowerText.includes('record') ||
-          lowerText.includes('surge') ||
-          lowerText.includes('jump') ||
-          lowerText.includes('rally') ||
-          lowerText.includes('profit') ||
-          lowerText.includes('order win') ||
-          lowerText.includes('high') ||
-          lowerText.includes('boom') ||
-          lowerText.includes('growth') ||
-          lowerText.includes('gains');
 
-        const isPolitics = lowerText.includes('cabinet') ||
+        // 1. Regulation Patrol (SEBI, RBI, Courts, Compliances)
+        const isRegulation =
+          lowerText.includes('sebi') ||
+          lowerText.includes('rbi') ||
+          lowerText.includes('regulat') ||
+          lowerText.includes('compliance') ||
+          lowerText.includes('cci') ||
+          lowerText.includes('enforcement directorate') ||
+          lowerText.includes('show cause') ||
+          lowerText.includes('penalty') ||
+          lowerText.includes('nclt') ||
+          lowerText.includes('tribunal') ||
+          lowerText.includes('circular') ||
+          lowerText.includes('insider trading') ||
+          lowerText.includes('scrutiny');
+
+        // 2. Hiring & Talent
+        const isHiring =
+          lowerText.includes('hiring') ||
+          lowerText.includes('jobs') ||
+          lowerText.includes('job ') ||
+          lowerText.includes('talent') ||
+          lowerText.includes('workforce') ||
+          lowerText.includes('layoffs') ||
+          lowerText.includes('headcount') ||
+          lowerText.includes('salary') ||
+          lowerText.includes('salaries') ||
+          lowerText.includes('appraisal') ||
+          lowerText.includes('attrition') ||
+          lowerText.includes('recruitment') ||
+          lowerText.includes('onboarding');
+
+        // 3. Global Dial (US Fed, Wall St, Crude, Geopolitics)
+        const isGlobal =
+          lowerText.includes('fed ') ||
+          lowerText.includes('federal reserve') ||
+          lowerText.includes('wall street') ||
+          lowerText.includes('dow jones') ||
+          lowerText.includes('nasdaq') ||
+          lowerText.includes('s&p 500') ||
+          lowerText.includes('powell') ||
+          lowerText.includes('us inflation') ||
+          lowerText.includes('crude oil') ||
+          lowerText.includes('brent crude') ||
+          lowerText.includes('dollar index') ||
+          lowerText.includes('dxy') ||
+          lowerText.includes('opec') ||
+          lowerText.includes('treasury yields') ||
+          lowerText.includes('china stimulus');
+
+        // 4. Tech Specs
+        const isTech =
+          lowerText.includes('ai ') ||
+          lowerText.includes('artificial intelligence') ||
+          lowerText.includes('semiconductor') ||
+          lowerText.includes('chip') ||
+          lowerText.includes('saas') ||
+          lowerText.includes('cloud') ||
+          lowerText.includes('datacenter') ||
+          lowerText.includes('nvidia') ||
+          lowerText.includes('software');
+
+        // 5. Energy & Grid
+        const isEnergy =
+          lowerText.includes('solar') ||
+          lowerText.includes('wind energy') ||
+          lowerText.includes('renewable') ||
+          lowerText.includes('power grid') ||
+          lowerText.includes('green hydrogen') ||
+          lowerText.includes('clean energy') ||
+          lowerText.includes('suzlon') ||
+          lowerText.includes('ntpc');
+
+        // 6. Metal Shine
+        const isMetal =
+          lowerText.includes('steel') ||
+          lowerText.includes('iron ore') ||
+          lowerText.includes('copper') ||
+          lowerText.includes('aluminium') ||
+          lowerText.includes('mining') ||
+          lowerText.includes('tata steel') ||
+          lowerText.includes('jsw steel') ||
+          lowerText.includes('vedanta');
+
+        // 7. Politics
+        const isPolitics =
+          lowerText.includes('cabinet') ||
           lowerText.includes('election') ||
           lowerText.includes('parliament') ||
           lowerText.includes('modi') ||
-          lowerText.includes('supreme court') ||
-          lowerText.includes('minister');
+          lowerText.includes('minister') ||
+          lowerText.includes('lok sabha') ||
+          lowerText.includes('rajya sabha');
 
-        const isHiring = lowerText.includes('hiring') ||
-          lowerText.includes('jobs') ||
-          lowerText.includes('salary') ||
-          lowerText.includes('layoffs') ||
-          lowerText.includes('talent') ||
-          lowerText.includes('headcount');
+        // 8. Breakthrough / Good News
+        const isGoodNews =
+          lowerText.includes('all-time high') ||
+          lowerText.includes('record high') ||
+          lowerText.includes('surges') ||
+          lowerText.includes('jumps 1') ||
+          lowerText.includes('rally') ||
+          lowerText.includes('order win') ||
+          lowerText.includes('boom') ||
+          lowerText.includes('bumper profit');
 
         let category = feed.fallbackCategory;
         let categoryLabel = feed.label;
 
-        if (isGoodNews && category !== 'politics') {
-          category = 'good-news';
-          categoryLabel = 'GOOD NEWS';
-        } else if (isPolitics) {
-          category = 'politics';
-          categoryLabel = 'POLITICS';
+        if (isRegulation) {
+          category = 'regulation';
+          categoryLabel = 'REGULATION PATROL ⚖️';
         } else if (isHiring) {
           category = 'hiring';
-          categoryLabel = 'HIRING & TALENT';
+          categoryLabel = 'HIRING & TALENT 👥';
+        } else if (isGlobal) {
+          category = 'global';
+          categoryLabel = 'GLOBAL DIAL 🌐';
+        } else if (isTech) {
+          category = 'tech';
+          categoryLabel = 'TECH SPECS ⚡';
+        } else if (isEnergy) {
+          category = 'energy';
+          categoryLabel = 'ENERGY & GRID ⚡';
+        } else if (isMetal) {
+          category = 'metal';
+          categoryLabel = 'METAL SHINE ⛏️';
+        } else if (isPolitics) {
+          category = 'politics';
+          categoryLabel = 'POLITICS 🏛️';
+        } else if (isGoodNews) {
+          category = 'good-news';
+          categoryLabel = 'GOOD NEWS 🚀';
         }
 
         // Parse authentic publication timestamp

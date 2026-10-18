@@ -81,6 +81,12 @@
   force = true
 
 [[redirects]]
+  from = "/api/mfapi/*"
+  to = "https://api.mfapi.in/:splat"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200

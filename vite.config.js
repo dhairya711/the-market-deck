@@ -86,6 +86,12 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/yahoo/, ''),
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       },
+      '/api/mfapi': {
+        target: 'https://api.mfapi.in',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/mfapi/, ''),
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+      },
     },
   },
 })

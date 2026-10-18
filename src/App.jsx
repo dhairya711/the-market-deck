@@ -16,6 +16,7 @@ import { SettingsModal } from './components/SettingsModal';
 import { CatchMeUpModal } from './components/CatchMeUpModal';
 import { TerminalGuideModal } from './components/TerminalGuideModal';
 import { Toast } from './components/Toast';
+import { ShieldCheck, Scale, AlertTriangle } from 'lucide-react';
 
 import { initialIndices } from './data/marketData';
 import { categories, financialNewsCategories } from './data/defaultNews';
@@ -754,6 +755,173 @@ export function App() {
           />
         </section>
       )}
+
+      {/* ========================================================
+          INSTITUTIONAL BROADSHEET FOOTER & SEBI STATUTORY COMPLIANCE
+          ======================================================== */}
+      <footer
+        className="terminal-footer"
+        style={{
+          marginTop: '56px',
+          borderTop: '3px double var(--border-strong)',
+          background: 'var(--bg-card)',
+          padding: '36px 20px 28px 20px',
+        }}
+      >
+        <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
+          {/* Top Banner: Regulatory Status Badge */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              flexWrap: 'wrap',
+              gap: '12px',
+              paddingBottom: '18px',
+              borderBottom: '1px solid var(--border-light)',
+              marginBottom: '20px',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div
+                style={{
+                  background: 'rgba(34, 197, 94, 0.12)',
+                  border: '1px solid var(--accent-green)',
+                  color: 'var(--accent-green)',
+                  padding: '4px 10px',
+                  borderRadius: '4px',
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.72rem',
+                  fontWeight: 900,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <ShieldCheck size={14} />
+                <span>SEBI COMPLIANT EDUCATIONAL INTERFACE</span>
+              </div>
+              <span style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-muted)' }}>
+                STRICT FINANCIAL LITERACY & ZERO-ADVISORY PROTOCOL
+              </span>
+            </div>
+            <div style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)', color: 'var(--ink-muted)' }}>
+              TERMINAL EDITION: v2.5.0 • REAL-TIME DALAL STREET WIRE
+            </div>
+          </div>
+
+          {/* 3 Columns: Mandatory Disclosures, Statutory Risk Warnings, Investor Protection */}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+              gap: '24px',
+              fontSize: '0.78rem',
+              color: 'var(--ink-secondary)',
+              lineHeight: '1.6',
+              marginBottom: '24px',
+            }}
+          >
+            {/* Col 1: SEBI Mandatory Disclaimer */}
+            <div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  color: 'var(--ink-primary)',
+                  marginBottom: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <Scale size={14} style={{ color: 'var(--accent-red)' }} />
+                <span>SEBI REGULATORY DISCLAIMER</span>
+              </div>
+              <p style={{ margin: 0 }}>
+                <strong>The Market Deck</strong> is an independent financial technology and educational intelligence interface. We are <strong>NOT</strong> registered with the Securities and Exchange Board of India (SEBI) as a Research Analyst (under SEBI RA Regulations, 2014) or an Investment Adviser (under SEBI IA Regulations, 2013).
+              </p>
+              <p style={{ margin: '6px 0 0 0' }}>
+                All corporate timeline records, mathematical frameworks (SIP, ROIC vs. WACC), stock dossier metrics, and mutual fund comparisons are synthesized strictly for factual research and financial literacy. Nothing on this website constitutes buy, sell, or hold advice, investment solicitation, or tax counsel.
+              </p>
+            </div>
+
+            {/* Col 2: Market Risk & Mutual Fund Warning */}
+            <div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  color: 'var(--ink-primary)',
+                  marginBottom: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <AlertTriangle size={14} style={{ color: 'var(--accent-red)' }} />
+                <span>STATUTORY MARKET RISK NOTICE</span>
+              </div>
+              <p style={{ margin: 0 }}>
+                <strong>Mutual Fund investments are subject to market risks.</strong> Please read all scheme-related documents (Scheme Information Document - SID & Key Information Memorandum - KIM) carefully before investing. Historical NAV returns and past CAGR rates are not guarantees of future returns.
+              </p>
+              <p style={{ margin: '6px 0 0 0' }}>
+                Securities trading in Equities and Derivatives (Futures & Options) involves substantial exposure to capital loss. Investors must evaluate their financial risk tolerance and consult a qualified, SEBI-registered financial adviser before executing any market transaction.
+              </p>
+            </div>
+
+            {/* Col 3: Data Sources & Investor Protection Charter */}
+            <div>
+              <div
+                style={{
+                  fontFamily: 'var(--font-mono)',
+                  fontSize: '0.78rem',
+                  fontWeight: 800,
+                  color: 'var(--ink-primary)',
+                  marginBottom: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                }}
+              >
+                <ShieldCheck size={14} style={{ color: 'var(--accent-blue)' }} />
+                <span>DATA INTEGRITY & INVESTOR SAFETY</span>
+              </div>
+              <p style={{ margin: 0 }}>
+                <strong>Exchange & Wire Attribution:</strong> Market quotes and RSS dispatches are proxied from official exchange feeds (NSE, BSE, AMFI) and authenticated press partners (Moneycontrol, Livemint, Business Standard, Economic Times).
+              </p>
+              <p style={{ margin: '6px 0 0 0' }}>
+                <strong>Anti-Fraud Warning:</strong> The Market Deck will NEVER operate paid tip channels, private WhatsApp/Telegram groups, or demand investor login passwords/OTPs. Beware of fraudulent operators promising guaranteed equity returns.
+              </p>
+            </div>
+          </div>
+
+          {/* Copyright & Timestamp */}
+          <div
+            style={{
+              borderTop: '1px solid var(--border-light)',
+              paddingTop: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              flexWrap: 'wrap',
+              gap: '8px',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.7rem',
+              color: 'var(--ink-muted)',
+            }}
+          >
+            <div>
+              © 2026 THE MARKET DECK • Financial Intelligence & Wealth Literacy Terminal. All rights reserved.
+            </div>
+            <div>
+              Designed for institutional-grade clarity • Zero Hallucination Standard
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {/* ========================================================
           MODALS & TOASTS

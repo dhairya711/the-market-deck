@@ -4,6 +4,11 @@ import { individualFundsCatalog } from '../data/individualFundsData';
 const mfSearchCache = new Map();
 const mfDetailCache = new Map();
 
+const getBaseUrl = () => {
+  if (typeof window !== 'undefined') return '';
+  return 'http://localhost:5173';
+};
+
 /**
  * Searches across both our rich curated catalog and live Indian mutual fund database (via AMFI mfapi).
  * Returns matching schemes or empty array.
@@ -50,9 +55,16 @@ export async function searchMutualFundsLive(query) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 4000);
 
-    const res = await fetch(`https://api.mfapi.in/mf/search?q=${encodeURIComponent(cleanQ)}`, {
-      signal: controller.signal,
-    });
+    let res = null;
+    try {
+      res = await fetch(`${getBaseUrl()}/api/mfapi/mf/search?q=${encodeURIComponent(cleanQ)}`, {
+        signal: controller.signal,
+      });
+    } catch {
+      res = await fetch(`https://api.mfapi.in/mf/search?q=${encodeURIComponent(cleanQ)}`, {
+        signal: controller.signal,
+      });
+    }
     clearTimeout(timeout);
 
     if (res.ok) {
@@ -152,7 +164,12 @@ export async function fetchMutualFundDetails(queryOrId) {
 
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 5000);
-      const res = await fetch(`https://api.mfapi.in/mf/${schemeCode}`, { signal: controller.signal });
+      let res = null;
+      try {
+        res = await fetch(`${getBaseUrl()}/api/mfapi/mf/${schemeCode}`, { signal: controller.signal });
+      } catch {
+        res = await fetch(`https://api.mfapi.in/mf/${schemeCode}`, { signal: controller.signal });
+      }
       clearTimeout(timeout);
 
       if (res.ok) {

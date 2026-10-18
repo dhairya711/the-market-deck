@@ -7,7 +7,6 @@
 <div align="center">
 
 [![Live Production Terminal](https://img.shields.io/badge/Live%20Terminal-market--deck--five.vercel.app-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://market-deck-five.vercel.app/)
-[![GitHub Repo](https://img.shields.io/badge/GitHub-dhairya711%2Fthe--market--deck-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/dhairya711/the-market-deck)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-Dhairya%20Dani-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/dhairya-dani07)
 
 [![React 19](https://img.shields.io/badge/React-19.2-61dafb.svg?logo=react&logoColor=black)](https://react.dev/)
@@ -135,8 +134,7 @@ graph TD
 ## 🚀 Getting Started Locally
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/dhairya711/the-market-deck.git
+# 1. Open project directory
 cd the-market-deck
 
 # 2. Install dependencies
@@ -164,11 +162,9 @@ npm run preview
 
 ## 🌐 Deploying to Vercel (Production)
 
-The Market Deck is built for zero-configuration, 1-click deployment on the **Vercel Edge Network**:
+The Market Deck is built for zero-configuration deployment on the **Vercel Edge Network**:
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdhairya711%2Fthe-market-deck&env=FINNHUB_API_KEY&envDescription=Free%20API%20Key%20from%20finnhub.io&envLink=https%3A%2F%2Ffinnhub.io%2Fregister)
-
-1. Import `dhairya711/the-market-deck` into [vercel.com/new](https://vercel.com/new).
+1. Import the project into [vercel.com/new](https://vercel.com/new).
 2. Set Environment Variable `FINNHUB_API_KEY` with your free key from [finnhub.io](https://finnhub.io/register).
 3. Click **Deploy**.
 
@@ -191,7 +187,6 @@ The Market Deck is built for zero-configuration, 1-click deployment on the **Ver
 
 * **Architect & Engineer:** **Dhairya Dani**
 * **LinkedIn:** [linkedin.com/in/dhairya-dani07](https://linkedin.com/in/dhairya-dani07)
-* **GitHub:** [@dhairya711](https://github.com/dhairya711)
 
 ---
 

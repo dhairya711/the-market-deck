@@ -936,20 +936,6 @@ export function App() {
                 LinkedIn
               </a>
               <span>•</span>
-              <a
-                href="https://github.com/dhairya711"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  color: 'var(--ink-primary)',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  borderBottom: '1px solid var(--border-strong)',
-                }}
-              >
-                GitHub (@dhairya711)
-              </a>
-              <span>•</span>
               <span>Zero Hallucination Standard</span>
               <span>•</span>
               <span>MIT License</span>

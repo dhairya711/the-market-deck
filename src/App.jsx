@@ -907,17 +907,36 @@ export function App() {
               justifyContent: 'space-between',
               alignItems: 'center',
               flexWrap: 'wrap',
-              gap: '8px',
+              gap: '12px',
               fontFamily: 'var(--font-mono)',
-              fontSize: '0.7rem',
+              fontSize: '0.72rem',
               color: 'var(--ink-muted)',
             }}
           >
             <div>
-              © 2026 THE MARKET DECK • Financial Intelligence & Wealth Literacy Terminal. All rights reserved.
+              © 2026 THE MARKET DECK • Financial Intelligence & Wealth Literacy Terminal.
             </div>
-            <div>
-              Designed for institutional-grade clarity • Zero Hallucination Standard
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+              <span>
+                Architected & Engineered by{' '}
+                <a
+                  href="https://github.com/dhairya711"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: 'var(--ink-primary)',
+                    fontWeight: 800,
+                    textDecoration: 'none',
+                    borderBottom: '1px solid var(--border-strong)',
+                  }}
+                >
+                  Dhairya (@dhairya711)
+                </a>
+              </span>
+              <span>•</span>
+              <span>Zero Hallucination Standard</span>
+              <span>•</span>
+              <span>MIT License</span>
             </div>
           </div>
         </div>

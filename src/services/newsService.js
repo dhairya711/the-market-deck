@@ -390,7 +390,7 @@ export async function fetchStockSpecificNews(stockQuery) {
 
   try {
     const encoded = encodeURIComponent(`${clean} share stock news`);
-    const feedUrl = `/api/gnews-search?q=${encoded}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const feedUrl = `/api/gnews-search?q=${encoded}&hl=en-IN&gl=IN`;
     
     let text = '';
     const res = await fetch(feedUrl);

@@ -45,7 +45,7 @@ export default defineConfig({
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
       },
       '/api/gnews-india': {
-        target: 'https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN&ceid=IN:en',
+        target: 'https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN',
         changeOrigin: true,
         rewrite: () => '',
         headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },

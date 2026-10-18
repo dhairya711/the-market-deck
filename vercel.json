@@ -26,7 +26,7 @@
     },
     {
       "source": "/api/gnews-india",
-      "destination": "https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN&ceid=IN%3Aen"
+      "destination": "https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN"
     },
     {
       "source": "/api/gnews-search",

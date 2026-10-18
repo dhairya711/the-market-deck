@@ -40,7 +40,7 @@
 
 [[redirects]]
   from = "/api/gnews-india"
-  to = "https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN&ceid=IN%3Aen"
+  to = "https://news.google.com/rss/search?q=NSE+BSE+Indian+Stock+Market+good+news&hl=en-IN&gl=IN"
   status = 200
   force = true
 

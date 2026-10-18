@@ -919,20 +919,36 @@ export function App() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <span>
                 Architected & Engineered by{' '}
-                <a
-                  href="https://github.com/dhairya711"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: 'var(--ink-primary)',
-                    fontWeight: 800,
-                    textDecoration: 'none',
-                    borderBottom: '1px solid var(--border-strong)',
-                  }}
-                >
-                  Dhairya (@dhairya711)
-                </a>
+                <strong style={{ color: 'var(--ink-primary)' }}>Dhairya Dani</strong>
               </span>
+              <span>•</span>
+              <a
+                href="https://linkedin.com/in/dhairya-dani07"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: 'var(--ink-primary)',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  borderBottom: '1px solid var(--border-strong)',
+                }}
+              >
+                LinkedIn
+              </a>
+              <span>•</span>
+              <a
+                href="https://github.com/dhairya711"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: 'var(--ink-primary)',
+                  fontWeight: 800,
+                  textDecoration: 'none',
+                  borderBottom: '1px solid var(--border-strong)',
+                }}
+              >
+                GitHub (@dhairya711)
+              </a>
               <span>•</span>
               <span>Zero Hallucination Standard</span>
               <span>•</span>

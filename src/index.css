@@ -628,6 +628,27 @@ body::before {
   font-weight: 800;
 }
 
+/* Standalone percentage indicators for watchlist and widgets */
+.ticker-pct.up,
+.yield-chg.up,
+.ticker-pct-up {
+  color: var(--accent-green) !important;
+  font-weight: 700;
+}
+
+.ticker-pct.down,
+.yield-chg.down,
+.ticker-pct-down {
+  color: var(--accent-red) !important;
+  font-weight: 700;
+}
+
+.ticker-pct.flat,
+.yield-chg.flat {
+  color: var(--ink-muted) !important;
+  font-weight: 700;
+}
+
 .ticker-name {
   color: var(--ink-primary);
   font-weight: 800;

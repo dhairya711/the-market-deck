@@ -337,87 +337,101 @@ export function Sidebar({
 
         {/* Watchlist Stock List */}
         <div className="portfolio-radar-list" style={{ maxHeight: '340px', overflowY: 'auto' }}>
-          {watchlist.map((stk) => (
-            <div
-              key={stk.symbol}
-              className="portfolio-item"
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                padding: '8px 10px',
-                borderBottom: '1px solid var(--border-light)',
-              }}
-            >
+          {watchlist.map((stk) => {
+            const chgRaw = String(stk.change || '').trim();
+            const isNegative = chgRaw.startsWith('-') || stk.up === false;
+            const isPositive = !isNegative && (chgRaw.startsWith('+') || stk.up === true || parseFloat(chgRaw) > 0);
+            const chgColor = isPositive ? 'var(--accent-green)' : isNegative ? 'var(--accent-red)' : 'var(--ink-muted)';
+            const chgClass = isPositive ? 'ticker-pct up' : isNegative ? 'ticker-pct down' : 'ticker-pct flat';
+            const displayChg = isPositive && !chgRaw.startsWith('+') ? `+${chgRaw}` : chgRaw || '+0.00%';
+
+            return (
               <div
-                style={{ cursor: 'pointer', flex: 1 }}
-                onClick={() => onFilterByTicker && onFilterByTicker(stk.symbol)}
-                title={`Filter news stories for ${stk.name || stk.symbol}`}
+                key={stk.symbol}
+                className="portfolio-item"
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '8px 10px',
+                  borderBottom: '1px solid var(--border-light)',
+                }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <strong style={{ fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
-                    {stk.symbol}
-                  </strong>
-                  <span style={{ fontSize: '0.68rem', color: 'var(--ink-muted)' }}>
-                    {stk.sector}
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.72rem', color: 'var(--ink-secondary)' }}>
-                  {stk.name || stk.symbol}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', fontWeight: 700 }}>
-                    {stk.price}
+                <div
+                  style={{ cursor: 'pointer', flex: 1 }}
+                  onClick={() => onFilterByTicker && onFilterByTicker(stk.symbol)}
+                  title={`Filter news stories for ${stk.name || stk.symbol}`}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <strong style={{ fontSize: '0.82rem', fontFamily: 'var(--font-mono)' }}>
+                      {stk.symbol}
+                    </strong>
+                    <span style={{ fontSize: '0.68rem', color: 'var(--ink-muted)' }}>
+                      {stk.sector}
+                    </span>
                   </div>
-                  <div
-                    className={`ticker-pct ${stk.up !== false ? 'up' : 'down'}`}
-                    style={{ fontSize: '0.72rem', fontFamily: 'var(--font-mono)' }}
+                  <div style={{ fontSize: '0.72rem', color: 'var(--ink-secondary)' }}>
+                    {stk.name || stk.symbol}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontFamily: 'var(--font-mono)', fontSize: '0.82rem', fontWeight: 700 }}>
+                      {stk.price}
+                    </div>
+                    <div
+                      className={chgClass}
+                      style={{
+                        fontSize: '0.72rem',
+                        fontFamily: 'var(--font-mono)',
+                        fontWeight: 700,
+                        color: chgColor,
+                      }}
+                    >
+                      {displayChg}
+                    </div>
+                  </div>
+
+                  {/* Research Button */}
+                  <button
+                    type="button"
+                    onClick={() => onOpenResearch && onOpenResearch(stk.symbol)}
+                    style={{
+                      background: 'transparent',
+                      border: '1px solid var(--border-light)',
+                      borderRadius: '3px',
+                      padding: '3px 6px',
+                      cursor: 'pointer',
+                      color: 'var(--accent-blue)',
+                      fontSize: '0.68rem',
+                      fontFamily: 'var(--font-mono)',
+                    }}
+                    title={`Open 1-2 Year Research Dossier for ${stk.symbol}`}
                   >
-                    {stk.change || '+1.50%'}
-                  </div>
+                    Dossier
+                  </button>
+
+                  {/* Delete Stock */}
+                  <button
+                    type="button"
+                    onClick={() => onRemoveStock && onRemoveStock(stk.symbol)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      cursor: 'pointer',
+                      color: 'var(--accent-red)',
+                      padding: '2px 4px',
+                      opacity: 0.7,
+                    }}
+                    title={`Remove ${stk.symbol} from radar`}
+                  >
+                    <Trash2 size={12} />
+                  </button>
                 </div>
-
-                {/* Research Button */}
-                <button
-                  type="button"
-                  onClick={() => onOpenResearch && onOpenResearch(stk.symbol)}
-                  style={{
-                    background: 'transparent',
-                    border: '1px solid var(--border-light)',
-                    borderRadius: '3px',
-                    padding: '3px 6px',
-                    cursor: 'pointer',
-                    color: 'var(--accent-blue)',
-                    fontSize: '0.68rem',
-                    fontFamily: 'var(--font-mono)',
-                  }}
-                  title={`Open 1-2 Year Research Dossier for ${stk.symbol}`}
-                >
-                  Dossier
-                </button>
-
-                {/* Delete Stock */}
-                <button
-                  type="button"
-                  onClick={() => onRemoveStock && onRemoveStock(stk.symbol)}
-                  style={{
-                    background: 'transparent',
-                    border: 'none',
-                    cursor: 'pointer',
-                    color: 'var(--accent-red)',
-                    padding: '2px 4px',
-                    opacity: 0.7,
-                  }}
-                  title={`Remove ${stk.symbol} from radar`}
-                >
-                  <Trash2 size={12} />
-                </button>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -431,9 +445,11 @@ export function Sidebar({
         <table className="yield-table">
           <tbody>
             {yieldCurveData.map((row, idx) => {
-              const isUp = row.status === 'up';
-              const isDown = row.status === 'down';
+              const chgStr = String(row.change || '').trim();
+              const isUp = row.status === 'up' || chgStr.startsWith('+');
+              const isDown = row.status === 'down' || chgStr.startsWith('-');
               const chgClass = isUp ? 'ticker-pct up' : isDown ? 'ticker-pct down' : 'ticker-pct flat';
+              const chgColor = isUp ? 'var(--accent-green)' : isDown ? 'var(--accent-red)' : 'var(--ink-muted)';
 
               return (
                 <tr key={idx}>
@@ -441,7 +457,9 @@ export function Sidebar({
                     {row.name}
                   </td>
                   <td className="yield-val">{row.yield}</td>
-                  <td className={`yield-chg ${chgClass}`}>{row.change}</td>
+                  <td className={`yield-chg ${chgClass}`} style={{ color: chgColor, fontWeight: 700 }}>
+                    {row.change}
+                  </td>
                 </tr>
               );
             })}

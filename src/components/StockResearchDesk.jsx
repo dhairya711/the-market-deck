@@ -19,6 +19,18 @@ import { indianStockDirectory } from '../data/indianMarketDirectory';
 import { fetchStockSpecificNews } from '../services/newsService';
 import { searchIndianStocksLive, fetchLiveStockDetails } from '../services/stockApiService';
 
+function getReturnColor(val) {
+  if (!val) return 'var(--accent-green)';
+  const str = String(val).trim();
+  if (str.startsWith('-')) return 'var(--accent-red)';
+  if (str.startsWith('+')) return 'var(--accent-green)';
+  const num = parseFloat(str.replace(/[^0-9.-]/g, ''));
+  if (!isNaN(num)) {
+    return num < 0 ? 'var(--accent-red)' : 'var(--accent-green)';
+  }
+  return 'var(--accent-green)';
+}
+
 export function StockResearchDesk({ onShareToast, onAddToWatchlist, watchlist = [] }) {
   const [searchQuery, setSearchQuery] = useState('FLUOROCHEM');
   const [selectedStock, setSelectedStock] = useState(() =>
@@ -754,7 +766,7 @@ NO-NONSENSE EDITORIAL VERDICT:
                     {selectedStock.currentPrice}
                   </div>
                   {selectedStock.change && (
-                    <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: selectedStock.up ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+                    <div style={{ fontSize: '0.75rem', fontFamily: 'var(--font-mono)', fontWeight: 700, color: getReturnColor(selectedStock.change) }}>
                       {selectedStock.change} Today
                     </div>
                   )}
@@ -762,14 +774,14 @@ NO-NONSENSE EDITORIAL VERDICT:
 
                 <div style={{ textAlign: 'right', background: 'var(--bg-card)', padding: '8px 12px', border: '1px solid var(--border-light)', borderRadius: '4px' }}>
                   <div style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>1-YEAR RETURN</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 800, color: 'var(--accent-green)' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 800, color: getReturnColor(selectedStock.oneYearReturn || '+38.2%') }}>
                     {selectedStock.oneYearReturn || '+38.2%'}
                   </div>
                 </div>
 
                 <div style={{ textAlign: 'right', background: 'var(--bg-card)', padding: '8px 12px', border: '1px solid var(--border-light)', borderRadius: '4px' }}>
                   <div style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>2-YEAR RETURN</div>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 800, color: 'var(--accent-green)' }}>
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 800, color: getReturnColor(selectedStock.twoYearReturn || '+12.0%') }}>
                     {selectedStock.twoYearReturn || '+12.0%'}
                   </div>
                 </div>
@@ -822,7 +834,7 @@ NO-NONSENSE EDITORIAL VERDICT:
 
               <div style={{ background: 'var(--bg-card)', padding: '10px', border: '1px solid var(--border-light)', borderRadius: '4px' }}>
                 <div style={{ fontSize: '0.68rem', color: 'var(--ink-muted)', fontFamily: 'var(--font-mono)' }}>RETURN ON EQUITY (ROE)</div>
-                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: 'var(--accent-green)' }}>
+                <div style={{ fontFamily: 'var(--font-mono)', fontSize: '1rem', fontWeight: 700, color: getReturnColor(selectedStock.roe) }}>
                   {selectedStock.roe}
                 </div>
               </div>
